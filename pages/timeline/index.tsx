@@ -1,17 +1,36 @@
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import { Call, ClientPost } from '../../models';
-import { mapServerPostToPost } from '../../models/mappers';
-import { fetchPosts } from '../../services/post.hooks';
 import { Post } from '@smartive-education/design-system-component-z-index';
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import { useState } from 'react';
+import { Call, ClientPost, GetPostsResponse } from '../../models';
+import { fetchPosts } from '../../services/post.service';
 
 export default function TimelinePage({
   response,
-  isLoading,
   error,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const [posts, setPosts] = useState(response?.posts || []);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(
+    response && response.posts.length < response.count
+  );
+
+  if (error) {
+    return <div>An error occurred: {error.message}</div>;
+  }
+
+  const loadMore = async () => {
+    const { response, error } = await fetchPosts({
+      limit: 1,
+      offset: posts.length,
+    });
+    if (response) {
+      setHasMore(posts.length + response.posts.length < response.count);
+      setPosts([...posts, ...(response.posts || [])]);
+    }
+  };
   return (
     <>
-      {response?.posts.map((post: ClientPost) => (
+      {posts.map((post: ClientPost) => (
         <Post
           key={post.id}
           name={post.creator}
@@ -27,28 +46,34 @@ export default function TimelinePage({
           openProfile={() => {}}
         ></Post>
       ))}
+      {hasMore ? (
+        <button
+          onClick={() => loadMore()}
+          disabled={loading}
+          className='bg-indigo-400 px-2 py-1 rounded-lg mt-4'
+        >
+          {loading ? '...' : 'Load more'}
+        </button>
+      ) : (
+        ''
+      )}
     </>
   );
 }
 
 export const getServerSideProps: GetServerSideProps<
-  Call<{ count: number; posts: ClientPost[] }>
+  Call<GetPostsResponse>
 > = async () => {
-  try {
-    const { count, data } = await fetchPosts();
-    const posts = data.map(mapServerPostToPost);
-    return {
-      props: {
-        response: { count, posts },
-        isLoading: false,
-      },
-    };
-  } catch (error) {
-    return {
-      props: {
-        isLoading: false,
-        error: error instanceof Error ? error : new Error(String(error)),
-      },
-    };
-  }
+  const { response, error } = await fetchPosts();
+  return !!error
+    ? {
+        props: {
+          error,
+        },
+      }
+    : {
+        props: {
+          response,
+        },
+      };
 };

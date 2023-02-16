@@ -1,9 +1,7 @@
 export interface Call<T> {
   readonly response?: T;
-  readonly isLoading: boolean;
   readonly error?: Error;
 }
-
 export interface MumbleBase {
   readonly id: string;
   readonly creator: string;
@@ -19,9 +17,14 @@ export interface ServerPost extends MumbleBase {
   readonly replyCount: number;
 }
 
+export interface ClientPost extends MumbleBase {
+  readonly replyCount: number;
+  readonly createdTimestamp: string;
+}
+
 export interface GetPostsResponse {
   readonly count: number;
-  readonly data: ServerPost[];
+  readonly posts: ClientPost[];
 }
 
 export interface GetPostsQueryParams {
@@ -30,12 +33,6 @@ export interface GetPostsQueryParams {
   newerThanMumbleId?: string;
   olderThanMumbleId?: string;
 }
-
-export interface ClientPost extends MumbleBase {
-  readonly replyCount: number;
-  readonly createdTimestamp: string;
-}
-
 export interface Reply extends MumbleBase {
   readonly parentId: string;
 }
