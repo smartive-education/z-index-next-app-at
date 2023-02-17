@@ -1,4 +1,4 @@
-export interface Call<T> {
+export interface RequestResult<T> {
   readonly response?: T;
   readonly error?: Error;
 }

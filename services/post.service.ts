@@ -1,9 +1,13 @@
-import { Call, GetPostsQueryParams, GetPostsResponse } from '../models';
+import {
+  RequestResult,
+  GetPostsQueryParams,
+  GetPostsResponse,
+} from '../models';
 import { mapServerPostToPost } from '../models/mappers';
 
 export const fetchPosts = async (
   params?: GetPostsQueryParams
-): Promise<Call<GetPostsResponse>> => {
+): Promise<RequestResult<GetPostsResponse>> => {
   const queryParams = new URLSearchParams({
     limit: String(params?.limit || 5),
     offset: String(params?.offset || 0),

@@ -1,7 +1,8 @@
 import { Post } from '@smartive-education/design-system-component-z-index';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import Image from 'next/image';
 import { useState } from 'react';
-import { Call, ClientPost, GetPostsResponse } from '../../models';
+import { ClientPost, GetPostsResponse, RequestResult } from '../../models';
 import { fetchPosts } from '../../services/post.service';
 
 export default function TimelinePage({
@@ -34,9 +35,9 @@ export default function TimelinePage({
         <Post
           key={post.id}
           name={post.creator}
-          userName='robertvogt'
+          userName='robertvogt' //TODO pass down username from user
           postCreationTime={post.createdTimestamp}
-          src={post.mediaUrl}
+          src='' // TODO pass down avatar from user
           content={post.text}
           commentCount={post.replyCount}
           isLiked={post.likedByUser}
@@ -44,7 +45,16 @@ export default function TimelinePage({
           link=''
           comment={() => {}}
           openProfile={() => {}}
-        ></Post>
+        >
+          {post.mediaUrl && (
+            <Image
+              src={post.mediaUrl}
+              alt={post.text}
+              width='400' // TODO replace with fill after the Post has updated with position relative
+              height='400'
+            />
+          )}
+        </Post>
       ))}
       {hasMore ? (
         <button
@@ -62,7 +72,7 @@ export default function TimelinePage({
 }
 
 export const getServerSideProps: GetServerSideProps<
-  Call<GetPostsResponse>
+  RequestResult<GetPostsResponse>
 > = async () => {
   const { response, error } = await fetchPosts();
   return !!error
