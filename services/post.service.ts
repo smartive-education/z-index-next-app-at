@@ -2,10 +2,12 @@ import {
   RequestResult,
   GetPostsQueryParams,
   GetPostsResponse,
+  ServerPost,
+  ClientPost,
 } from '../models';
 import { mapServerPostToPost } from '../models/mappers';
 
-export const fetchPosts = async (
+export const getPosts = async (
   params?: GetPostsQueryParams
 ): Promise<RequestResult<GetPostsResponse>> => {
   const queryParams = new URLSearchParams({
@@ -33,6 +35,47 @@ export const fetchPosts = async (
       };
     } else {
       const error = new Error(`Loading ${url} has failed`);
+      error.cause = res.status;
+      return {
+        error,
+      };
+    }
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error : new Error(String(error)),
+    };
+  }
+};
+
+export const createPost = async (
+  text: string,
+  image: File | undefined,
+  token: string | undefined
+): Promise<RequestResult<ClientPost>> => {
+  const formData = new FormData();
+  formData.append('text', text);
+  if (image) {
+    formData.append('image', image);
+  }
+
+  const headers = new Headers();
+  headers.append('Authorization', `Bearer ${token}`);
+
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?`;
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers,
+    });
+    if (res?.ok) {
+      const post: ServerPost = await res.json();
+      return {
+        response: mapServerPostToPost(post),
+      };
+    } else {
+      const error = new Error(`Posting to ${url} has failed`);
       error.cause = res.status;
       return {
         error,
