@@ -2,6 +2,7 @@ import { Post } from '@smartive-education/design-system-component-z-index';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import Image from 'next/image';
 import { useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { ClientPost, GetPostsResponse, RequestResult } from '../../models';
 import { fetchPosts } from '../../services/post.service';
 
@@ -30,45 +31,46 @@ export default function TimelinePage({
     }
   };
   return (
-    <>
+    <InfiniteScroll
+      dataLength={posts.length}
+      next={loadMore}
+      hasMore={hasMore || false}
+      loader={<h4>Loading...</h4>}
+      endMessage={
+        <p style={{ textAlign: 'center' }}>
+          <b>Yay! You have seen it all</b>
+        </p>
+      }
+      style={{ overflow: 'visible' }}
+    >
       {posts.map((post: ClientPost) => (
-        <div key={post.id} className='mt-4 w-full'>
-          <Post
-            name={post.creator}
-            userName='robertvogt' //TODO pass down username from user
-            postCreationTime={post.createdTimestamp}
-            src='' // TODO pass down avatar from user
-            content={post.text}
-            commentCount={post.replyCount}
-            isLiked={post.likedByUser}
-            likeCount={post.likeCount}
-            link=''
-            comment={() => {}}
-            openProfile={() => {}}
-          >
-            {post.mediaUrl && (
-              <Image
-                src={post.mediaUrl}
-                alt={post.text}
-                width={1000}
-                height={1000}
-              />
-            )}
-          </Post>
-        </div>
-      ))}
-      {hasMore ? (
-        <button
-          onClick={() => loadMore()}
-          disabled={loading}
-          className='bg-indigo-400 px-2 py-1 rounded-lg mt-4'
+        <Post
+          key={post.id}
+          name={post.creator}
+          userName='robertvogt' //TODO pass down username from user
+          postCreationTime={post.createdTimestamp}
+          src='' // TODO pass down avatar from user
+          content={post.text}
+          commentCount={post.replyCount}
+          isLiked={post.likedByUser}
+          likeCount={post.likeCount}
+          link=''
+          comment={() => {}}
+          openProfile={() => {}}
         >
-          {loading ? '...' : 'Load more'}
-        </button>
-      ) : (
-        ''
-      )}
-    </>
+          {post.mediaUrl && (
+            <Image
+              src={post.mediaUrl}
+              alt={post.text}
+              fill
+              sizes='(min-width: 60rem) 40vw,
+                        (min-width: 30rem) 50vw,
+                        100vw'
+            />
+          )}
+        </Post>
+      ))}
+    </InfiniteScroll>
   );
 }
 

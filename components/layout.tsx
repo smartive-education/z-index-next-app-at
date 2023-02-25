@@ -18,7 +18,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
         logout={noop}
       />
       <main className='md:grid md:grid-cols-12 bg-slate-100'>
-        <div className='flex flex-col items-center sm:w-3/4 sm:mx-auto md:w-auto md:mx-0 px-4 sm:px-0 md:col-start-3 md:col-end-11 lg:col-start-4 lg:col-end-10'>
+        <div className='flex flex-col sm:w-3/4 sm:mx-auto md:w-auto md:mx-0 px-4 sm:px-0 md:col-start-3 md:col-end-11 lg:col-start-4 lg:col-end-10'>
           {children}
         </div>
       </main>
