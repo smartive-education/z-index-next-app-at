@@ -32,29 +32,30 @@ export default function TimelinePage({
   return (
     <>
       {posts.map((post: ClientPost) => (
-        <Post
-          key={post.id}
-          name={post.creator}
-          userName='robertvogt' //TODO pass down username from user
-          postCreationTime={post.createdTimestamp}
-          src='' // TODO pass down avatar from user
-          content={post.text}
-          commentCount={post.replyCount}
-          isLiked={post.likedByUser}
-          likeCount={post.likeCount}
-          link=''
-          comment={() => {}}
-          openProfile={() => {}}
-        >
-          {post.mediaUrl && (
-            <Image
-              src={post.mediaUrl}
-              alt={post.text}
-              width='400' // TODO replace with fill after the Post has updated with position relative
-              height='400'
-            />
-          )}
-        </Post>
+        <div key={post.id} className='mt-4 w-full'>
+          <Post
+            name={post.creator}
+            userName='robertvogt' //TODO pass down username from user
+            postCreationTime={post.createdTimestamp}
+            src='' // TODO pass down avatar from user
+            content={post.text}
+            commentCount={post.replyCount}
+            isLiked={post.likedByUser}
+            likeCount={post.likeCount}
+            link=''
+            comment={() => {}}
+            openProfile={() => {}}
+          >
+            {post.mediaUrl && (
+              <Image
+                src={post.mediaUrl}
+                alt={post.text}
+                width={1000}
+                height={1000}
+              />
+            )}
+          </Post>
+        </div>
       ))}
       {hasMore ? (
         <button
