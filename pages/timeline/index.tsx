@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { ClientPost, GetPostsResponse, RequestResult } from '../../models';
+import { likePost } from '../../services/like.service';
 import { createPost, getPosts } from '../../services/post.service';
 
 export default function TimelinePage({
@@ -45,6 +46,28 @@ export default function TimelinePage({
     );
     if (response) {
       setPosts((currentPosts) => [response, ...currentPosts]);
+    }
+  };
+
+  const like = async (isLiked: boolean, id: string) => {
+    const { response, error } = await likePost(
+      id,
+      isLiked,
+      session?.accessToken
+    );
+    if (response) {
+      setPosts((currentPosts) =>
+        currentPosts.map((post) => {
+          if (post.id === id) {
+            return {
+              ...post,
+              likeCount: isLiked ? post.likeCount + 1 : post.likeCount - 1,
+              likedByUser: isLiked ? true : false,
+            };
+          }
+          return post;
+        })
+      );
     }
   };
 
@@ -93,6 +116,7 @@ export default function TimelinePage({
             link=''
             comment={() => {}}
             openProfile={() => {}}
+            setIsLiked={(isLiked) => like(isLiked, post.id)}
           >
             {post.mediaUrl && (
               <Image
