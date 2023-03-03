@@ -1,5 +1,11 @@
 import NextAuth from 'next-auth';
 
+declare module 'next-auth' {
+  interface Session {
+    accessToken: string;
+  }
+}
+
 export default NextAuth({
   providers: [
     {
@@ -7,7 +13,8 @@ export default NextAuth({
       name: 'zitadel',
       type: 'oauth',
       version: '2',
-      wellKnown: 'https://cas-fee-advanced-ocvdad.zitadel.cloud/.well-known/openid-configuration',
+      wellKnown:
+        'https://cas-fee-advanced-ocvdad.zitadel.cloud/.well-known/openid-configuration',
       clientId: '181236603920908545@cas_fee_adv_qwacker_prod',
       authorization: {
         params: {
@@ -22,12 +29,27 @@ export default NextAuth({
       async profile(profile) {
         return {
           id: profile.sub,
-          username: profile.preferred_username?.replace('@smartive.zitadel.cloud', ''),
+          username: profile.preferred_username?.replace(
+            '@smartive.zitadel.cloud',
+            ''
+          ),
         };
       },
     },
   ],
   session: {
     maxAge: 12 * 60 * 60, // 12 hours
+  },
+  callbacks: {
+    async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.accessToken = token.accessToken as string;
+      return session;
+    },
   },
 });
