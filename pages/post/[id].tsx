@@ -5,7 +5,7 @@ import {
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GetPostDetailsResponse, MumbleType, Reply } from '../../models';
 import { like } from '../../services/like.service';
 import { getPostById } from '../../services/post.service';
@@ -18,6 +18,11 @@ export default function PostDetailPage({
   const { data: session } = useSession();
   const [post, setPost] = useState(postReponse);
   const [replies, setReplies] = useState(repliesResponse || []);
+  const [host, setHost] = useState('');
+
+  useEffect(() => {
+    setHost(() => window.location.origin);
+  }, []);
 
   const submitReply = async (
     image: File | undefined,
@@ -69,7 +74,7 @@ export default function PostDetailPage({
         commentCount={post.replyCount}
         isLiked={post.likedByUser}
         likeCount={post.likeCount}
-        link=''
+        link={`${host}/post/${post.id}`}
         comment={() => {}}
         openProfile={() => {}}
         setIsLiked={(isLiked) => likeMumble(isLiked, post.id, post.type)}
@@ -111,7 +116,7 @@ export default function PostDetailPage({
               commentCount={0} // TODO make this optional for replies
               isLiked={reply.likedByUser}
               likeCount={reply.likeCount}
-              link=''
+              link={`${host}/post/${reply.id}`}
               comment={() => {}}
               openProfile={() => {}}
               setIsLiked={(isLiked) =>

@@ -14,7 +14,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
     <>
       <Navigation
         profilePictureSrc={'images/profile/r.vogt.jpg'}
-        navigateToFeed={() => router.push('/timeline')}
+        navigateToFeed={() => router.push('/')}
         navigateToProfile={noop}
         openSettings={noop}
         logout={noop}
