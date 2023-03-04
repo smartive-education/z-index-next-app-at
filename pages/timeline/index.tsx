@@ -8,67 +8,53 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { ClientPost, GetPostsResponse, RequestResult } from '../../models';
-import { likePost } from '../../services/like.service';
+import { GetPostsResponse, Post as ClientPost } from '../../models';
+import { like } from '../../services/like.service';
 import { createPost, getPosts } from '../../services/post.service';
+import { useRouter } from 'next/router';
 
 export default function TimelinePage({
-  response,
-  error,
+  count,
+  posts: postResponse,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session } = useSession();
-  const [posts, setPosts] = useState(response?.posts || []);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(
-    response && response.posts.length < response.count
-  );
-
-  if (error) {
-    return <div>An error occurred: {error.message}</div>;
-  }
+  const router = useRouter();
+  const [posts, setPosts] = useState(postResponse || []);
+  const [hasMore, setHasMore] = useState(postResponse.length < count);
 
   const loadMore = async () => {
-    const { response, error } = await getPosts({
+    const { count, posts: postReponse } = await getPosts({
       limit: 1,
       offset: posts.length,
     });
-    if (response) {
-      setHasMore(posts.length + response.posts.length < response.count);
-      setPosts((currentPosts) => [...currentPosts, ...(response.posts || [])]);
-    }
+    setHasMore(posts.length + postReponse.length < count);
+    setPosts((currentPosts) => [...currentPosts, ...(postReponse || [])]);
   };
 
+  // TODO outsource these after useContext
   const submitPost = async (image: File | undefined, form: HTMLFormElement) => {
-    const { response, error } = await createPost(
+    const createdPost: ClientPost = await createPost(
       (form.elements.namedItem('post-comment') as HTMLInputElement).value,
       image,
       session?.accessToken
     );
-    if (response) {
-      setPosts((currentPosts) => [response, ...currentPosts]);
-    }
+    setPosts((currentPosts) => [createdPost, ...currentPosts]);
   };
 
-  const like = async (isLiked: boolean, id: string) => {
-    const { response, error } = await likePost(
-      id,
-      isLiked,
-      session?.accessToken
+  const likePost = async (isLiked: boolean, id: string) => {
+    await like(id, isLiked, session?.accessToken);
+    setPosts((currentPosts) =>
+      currentPosts.map((post) => {
+        if (post.id === id) {
+          return {
+            ...post,
+            likeCount: isLiked ? post.likeCount + 1 : post.likeCount - 1,
+            likedByUser: isLiked ? true : false,
+          };
+        }
+        return post;
+      })
     );
-    if (response) {
-      setPosts((currentPosts) =>
-        currentPosts.map((post) => {
-          if (post.id === id) {
-            return {
-              ...post,
-              likeCount: isLiked ? post.likeCount + 1 : post.likeCount - 1,
-              likedByUser: isLiked ? true : false,
-            };
-          }
-          return post;
-        })
-      );
-    }
   };
 
   return (
@@ -102,52 +88,55 @@ export default function TimelinePage({
         }
         style={{ overflow: 'visible' }}
       >
-        {posts.map((post: ClientPost) => (
-          <Post
-            key={post.id}
-            name={post.creator}
-            userName='robertvogt' //TODO pass down username from user
-            postCreationTime={post.createdTimestamp}
-            src='' // TODO pass down avatar from user
-            content={post.text}
-            commentCount={post.replyCount}
-            isLiked={post.likedByUser}
-            likeCount={post.likeCount}
-            link=''
-            comment={() => {}}
-            openProfile={() => {}}
-            setIsLiked={(isLiked) => like(isLiked, post.id)}
-          >
-            {post.mediaUrl && (
-              <Image
-                src={post.mediaUrl}
-                alt={post.text}
-                fill
-                sizes='(min-width: 60rem) 40vw,
+        {posts.map((post) => {
+          if (post.type === 'post') {
+            return (
+              <Post
+                key={post.id}
+                name={post.creator}
+                userName='robertvogt' //TODO pass down username from user
+                postCreationTime={post.createdTimestamp}
+                src='' // TODO pass down avatar from user
+                content={post.text}
+                commentCount={post.replyCount}
+                isLiked={post.likedByUser}
+                likeCount={post.likeCount}
+                link=''
+                comment={() => router.push(`/post/${post.id}`)}
+                openProfile={() => {}}
+                setIsLiked={(isLiked) => likePost(isLiked, post.id)}
+                copyLabel='Copy Link'
+                copiedLabel='Link Copied'
+              >
+                {post.mediaUrl && (
+                  <Image
+                    src={post.mediaUrl}
+                    alt={post.text}
+                    fill
+                    sizes='(min-width: 60rem) 40vw,
                         (min-width: 30rem) 50vw,
                         100vw'
-              />
-            )}
-          </Post>
-        ))}
+                  />
+                )}
+              </Post>
+            );
+          } else {
+            return '';
+          }
+        })}
       </InfiniteScroll>
     </>
   );
 }
 
 export const getServerSideProps: GetServerSideProps<
-  RequestResult<GetPostsResponse>
+  GetPostsResponse
 > = async () => {
-  const { response, error } = await getPosts();
-  return !!error
-    ? {
-        props: {
-          error,
-        },
-      }
-    : {
-        props: {
-          response,
-        },
-      };
+  const { count, posts } = await getPosts();
+  return {
+    props: {
+      count,
+      posts,
+    },
+  };
 };

@@ -1,7 +1,4 @@
-export interface RequestResult<T> {
-  readonly response?: T;
-  readonly error?: Error;
-}
+export type MumbleType = 'post' | 'reply' | 'deleted';
 export interface MumbleBase {
   readonly id: string;
   readonly creator: string;
@@ -10,21 +7,22 @@ export interface MumbleBase {
   readonly mediaType: string;
   readonly likeCount: number;
   readonly likedByUser: boolean;
-  readonly type: string;
+  readonly type: MumbleType;
 }
 
-export interface ServerPost extends MumbleBase {
-  readonly replyCount: number;
+export interface Response {
+  readonly id: string;
+  [key: string]: any;
 }
 
-export interface ClientPost extends MumbleBase {
+export interface Post extends MumbleBase {
   readonly replyCount: number;
   readonly createdTimestamp: string;
 }
 
 export interface GetPostsResponse {
   readonly count: number;
-  readonly posts: ClientPost[];
+  readonly posts: Post[];
 }
 
 export interface GetPostsQueryParams {
@@ -35,4 +33,10 @@ export interface GetPostsQueryParams {
 }
 export interface Reply extends MumbleBase {
   readonly parentId: string;
+  readonly createdTimestamp: string;
+}
+
+export interface GetPostDetailsResponse {
+  readonly post: Post;
+  readonly replies: Reply[];
 }

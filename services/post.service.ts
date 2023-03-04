@@ -1,15 +1,16 @@
 import {
-  RequestResult,
   GetPostsQueryParams,
   GetPostsResponse,
-  ServerPost,
-  ClientPost,
+  MumbleType,
+  Post,
+  Reply,
+  Response,
 } from '../models';
-import { mapServerPostToPost } from '../models/mappers';
+import { mapResponseToPost, mapResponseToReply } from '../models/mappers';
 
 export const getPosts = async (
   params?: GetPostsQueryParams
-): Promise<RequestResult<GetPostsResponse>> => {
+): Promise<GetPostsResponse> => {
   const queryParams = new URLSearchParams({
     limit: String(params?.limit || 5),
     offset: String(params?.offset || 0),
@@ -21,37 +22,20 @@ export const getPosts = async (
   headers.append('Content-Type', 'application/json');
 
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?${queryParams}`;
-
-  try {
-    const res = await fetch(url, { headers });
-    if (res?.ok) {
-      const { count, data } = await res.json();
-      const posts = data.map(mapServerPostToPost);
-      return {
-        response: {
-          count,
-          posts,
-        },
-      };
-    } else {
-      const error = new Error(`Loading ${url} has failed`);
-      error.cause = res.status;
-      return {
-        error,
-      };
-    }
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error : new Error(String(error)),
-    };
-  }
+  const res = await fetch(url, { headers });
+  const { count, data } = await res.json();
+  const posts = data.map(mapResponseToPost);
+  return {
+    count,
+    posts,
+  };
 };
 
 export const createPost = async (
   text: string,
   image: File | undefined,
   token: string | undefined
-): Promise<RequestResult<ClientPost>> => {
+): Promise<Post> => {
   const formData = new FormData();
   formData.append('text', text);
   if (image) {
@@ -62,28 +46,18 @@ export const createPost = async (
   headers.append('Authorization', `Bearer ${token}`);
 
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?`;
+  const res = await fetch(url, {
+    method: 'POST',
+    body: formData,
+    headers,
+  });
+  const response: Response = await res.json();
+  return mapResponseToPost(response);
+};
 
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      body: formData,
-      headers,
-    });
-    if (res?.ok) {
-      const post: ServerPost = await res.json();
-      return {
-        response: mapServerPostToPost(post),
-      };
-    } else {
-      const error = new Error(`Posting to ${url} has failed`);
-      error.cause = res.status;
-      return {
-        error,
-      };
-    }
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error : new Error(String(error)),
-    };
-  }
+export const getPostById = async (id: string): Promise<Post> => {
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/${id}`;
+  const res = await fetch(url);
+  const post: Response = await res.json();
+  return mapResponseToPost(post);
 };
