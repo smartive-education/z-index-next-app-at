@@ -6,60 +6,50 @@ import {
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { GetPostsResponse, Post as ClientPost } from '../models';
 import { like } from '../services/like.service';
 import { createPost, getPosts } from '../services/post.service';
 import { useRouter } from 'next/router';
+import { postReducer } from '../reducers/post.reducers';
 
 export default function TimelinePage({
   count,
-  posts: postResponse,
+  posts,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session } = useSession();
   const router = useRouter();
-  const [posts, setPosts] = useState(postResponse || []);
-  const [hasMore, setHasMore] = useState(postResponse.length < count);
   const [host, setHost] = useState('');
+  const [state, dispatch] = useReducer(postReducer, {
+    hasMore: posts.length < count,
+    posts,
+  });
 
   useEffect(() => {
     setHost(() => window.location.origin);
   }, []);
 
   const loadMore = async () => {
-    const { count, posts: postReponse } = await getPosts({
+    const { count, posts } = await getPosts({
       limit: 1,
-      offset: posts.length,
+      offset: state.posts.length,
     });
-    setHasMore(posts.length + postReponse.length < count);
-    setPosts((currentPosts) => [...currentPosts, ...(postReponse || [])]);
+    dispatch({ type: 'LOAD', posts, count });
   };
 
-  // TODO outsource these after useContext
   const submitPost = async (image: File | undefined, form: HTMLFormElement) => {
     const createdPost: ClientPost = await createPost(
       (form.elements.namedItem('post-comment') as HTMLInputElement).value,
       image,
       session?.accessToken
     );
-    setPosts((currentPosts) => [createdPost, ...currentPosts]);
+    dispatch({ type: 'CREATE', post: createdPost });
   };
 
   const likePost = async (isLiked: boolean, id: string) => {
     await like(id, isLiked, session?.accessToken);
-    setPosts((currentPosts) =>
-      currentPosts.map((post) => {
-        if (post.id === id) {
-          return {
-            ...post,
-            likeCount: isLiked ? post.likeCount + 1 : post.likeCount - 1,
-            likedByUser: isLiked ? true : false,
-          };
-        }
-        return post;
-      })
-    );
+    dispatch({ type: 'LIKE', id, isLiked });
   };
 
   return (
@@ -82,9 +72,9 @@ export default function TimelinePage({
         onSubmit={(file, form) => submitPost(file, form)}
       ></PostComment>
       <InfiniteScroll
-        dataLength={posts.length}
+        dataLength={state.posts.length}
         next={loadMore}
-        hasMore={hasMore || false}
+        hasMore={state.hasMore || false}
         loader={<h4>Loading...</h4>}
         endMessage={
           <p style={{ textAlign: 'center' }}>
@@ -93,7 +83,7 @@ export default function TimelinePage({
         }
         style={{ overflow: 'visible' }}
       >
-        {posts.map((post) => {
+        {state.posts.map((post) => {
           if (post.type === 'post') {
             return (
               <Post
