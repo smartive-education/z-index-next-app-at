@@ -1,6 +1,4 @@
-import { Post } from '../models'
-
-export type PostActionTypes = 'LOAD' | 'CREATE' | 'LIKE'
+import { Post, Reply } from '../models'
 
 export interface LoadPosts {
     type: 'LOAD';
@@ -21,3 +19,21 @@ export interface LikePost {
 
 export type PostAction = LoadPosts | CreatePost | LikePost;
 
+export interface CreateReply {
+    type: 'CREATE';
+    reply: Reply;
+}
+
+export interface LikePostDetail {
+    type: 'LIKE-POST';
+    id: string;
+    isLiked: boolean;
+}
+
+export interface LikeReply {
+    type: 'LIKE-REPLY';
+    id: string;
+    isLiked: boolean;
+}
+
+export type PostDetailAction = CreateReply | LikePostDetail | LikeReply;

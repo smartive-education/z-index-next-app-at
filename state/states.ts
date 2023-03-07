@@ -1,6 +1,11 @@
-import { Post } from '../models';
+import { Post, Reply } from '../models';
 
 export interface PostsState {
-    posts: Post[]
+    posts: Post[];
     hasMore: boolean;
+}
+
+export interface PostDetailState {
+    post: Post;
+    replies: Reply[];
 }
