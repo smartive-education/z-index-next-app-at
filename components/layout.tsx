@@ -1,18 +1,20 @@
 import { Navigation } from '@smartive-education/design-system-component-z-index';
 import { FC, ReactNode } from 'react';
+import { useRouter } from 'next/router';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export const Layout: FC<LayoutProps> = ({ children }) => {
+  const router = useRouter();
   const noop = () => {};
 
   return (
     <>
       <Navigation
         profilePictureSrc={'images/profile/r.vogt.jpg'}
-        navigateToFeed={noop}
+        navigateToFeed={() => router.push('/')}
         navigateToProfile={noop}
         openSettings={noop}
         logout={noop}
