@@ -62,9 +62,10 @@ export default function TimelinePage({
       </div>
       {status === 'authenticated' && (
         <PostComment
+          profileHeaderType='CREATE-POST'
           name="Hey was gibt's neues?"
-          userName='robertvogt' //TODO pass down username from user
-          src='images/profile/r.vogt.jpg' // TOD read from user
+          userName={session.user?.name || ''}
+          src={session.user?.image || ''}
           postCreationTime={''}
           placeholder='Deine Meinung zählt!'
           LLabel='Bild hochladen'
@@ -90,6 +91,7 @@ export default function TimelinePage({
             return (
               <Post
                 key={post.id}
+                profileHeaderType='POST'
                 name={post.creator}
                 userName={post.creator}
                 postCreationTime={post.createdTimestamp}

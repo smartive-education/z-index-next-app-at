@@ -52,7 +52,7 @@ export default function PostDetailPage({
   return (
     <>
       <Post
-        key={state.post.id}
+        profileHeaderType='POST'
         name={state.post.creator}
         userName='robertvogt' //TODO pass down username from user
         postCreationTime={state.post.createdTimestamp}
@@ -83,9 +83,10 @@ export default function PostDetailPage({
       </Post>
       {status === 'authenticated' && (
         <PostComment
-          name=''
-          userName='robertvogt' //TODO pass down username from user
-          src='images/profile/r.vogt.jpg' // TOD read from user
+          profileHeaderType='CREATE-REPLY'
+          name={session.user?.name || ''}
+          userName={session.user?.name || ''}
+          src={session.user?.image || ''}
           postCreationTime={''}
           placeholder='Was meinst du dazu?'
           LLabel='Bild hochladen'
@@ -98,11 +99,12 @@ export default function PostDetailPage({
         if (reply.type === 'reply') {
           return (
             <Post
+              profileHeaderType='REPLY'
               key={reply.id}
               name={reply.creator}
-              userName='robertvogt' //TODO pass down username from user
+              userName={reply.creator}
               postCreationTime={reply.createdTimestamp}
-              src='' // TODO pass down avatar from user
+              src=''
               content={reply.text}
               commentCount={0} // TODO make this optional for replies
               isLiked={reply.likedByUser}
