@@ -16,7 +16,7 @@ export default function PostDetailPage({
   post,
   replies,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [state, dispatch] = useReducer(postDetailReducer, {
     post,
     replies,
@@ -64,7 +64,9 @@ export default function PostDetailPage({
         link={`${host}/post/${state.post.id}`}
         comment={() => {}}
         openProfile={() => {}}
-        setIsLiked={(isLiked) => likeMumble(isLiked, state.post.id, state.post.type)}
+        setIsLiked={(isLiked) =>
+          likeMumble(isLiked, state.post.id, state.post.type)
+        }
         copyLabel='Copy Link'
         copiedLabel='Link Copied'
       >
@@ -79,17 +81,19 @@ export default function PostDetailPage({
           />
         )}
       </Post>
-      <PostComment
-        name=''
-        userName='robertvogt' //TODO pass down username from user
-        src='images/profile/r.vogt.jpg' // TOD read from user
-        postCreationTime={''}
-        placeholder='Was meinst du dazu?'
-        LLabel='Bild hochladen'
-        RLabel='Absenden'
-        openProfile={() => {}}
-        onSubmit={(file, form) => submitReply(file, form)}
-      ></PostComment>
+      {status === 'authenticated' && (
+        <PostComment
+          name=''
+          userName='robertvogt' //TODO pass down username from user
+          src='images/profile/r.vogt.jpg' // TOD read from user
+          postCreationTime={''}
+          placeholder='Was meinst du dazu?'
+          LLabel='Bild hochladen'
+          RLabel='Absenden'
+          openProfile={() => {}}
+          onSubmit={(file, form) => submitReply(file, form)}
+        ></PostComment>
+      )}
       {state.replies.map((reply) => {
         if (reply.type === 'reply') {
           return (
