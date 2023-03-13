@@ -18,7 +18,7 @@ export default function TimelinePage({
   count,
   posts,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [host, setHost] = useState('');
   const [state, dispatch] = useReducer(postReducer, {
@@ -32,7 +32,7 @@ export default function TimelinePage({
 
   const loadMore = async () => {
     const { count, posts } = await getPosts({
-      limit: 1,
+      limit: 10,
       offset: state.posts.length,
     });
     dispatch({ type: 'LOAD', posts, count });
@@ -60,17 +60,20 @@ export default function TimelinePage({
         </span>
         <Typography type='h4'>Finde raus was passiert in der Welt!</Typography>
       </div>
-      <PostComment
-        name="Hey was gibt's neues?"
-        userName='robertvogt' //TODO pass down username from user
-        src='images/profile/r.vogt.jpg' // TOD read from user
-        postCreationTime={''}
-        placeholder='Deine Meinung zählt!'
-        LLabel='Bild hochladen'
-        RLabel='Absenden'
-        openProfile={() => {}}
-        onSubmit={(file, form) => submitPost(file, form)}
-      ></PostComment>
+      {status === 'authenticated' && (
+        <PostComment
+          profileHeaderType='CREATE-POST'
+          name="Hey was gibt's neues?"
+          userName={session.user?.name || ''}
+          src={session.user?.image || ''}
+          postCreationTime={''}
+          placeholder='Deine Meinung zählt!'
+          LLabel='Bild hochladen'
+          RLabel='Absenden'
+          openProfile={() => {}}
+          onSubmit={(file, form) => submitPost(file, form)}
+        ></PostComment>
+      )}
       <InfiniteScroll
         dataLength={state.posts.length}
         next={loadMore}
@@ -88,10 +91,11 @@ export default function TimelinePage({
             return (
               <Post
                 key={post.id}
+                profileHeaderType='POST'
                 name={post.creator}
-                userName='robertvogt' //TODO pass down username from user
+                userName={post.creator}
                 postCreationTime={post.createdTimestamp}
-                src='' // TODO pass down avatar from user
+                src={session?.user?.image || ''}
                 content={post.text}
                 commentCount={post.replyCount}
                 isLiked={post.likedByUser}

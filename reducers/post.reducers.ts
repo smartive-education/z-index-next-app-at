@@ -1,15 +1,12 @@
 import { PostAction } from '../state/actions';
 import { PostsState } from '../state/states';
 
-export function postReducer(
-  state: PostsState,
-  action: PostAction
-): PostsState {
+export function postReducer(state: PostsState, action: PostAction): PostsState {
   switch (action.type) {
     case 'LOAD':
       return {
         ...state,
-        hasMore: state.posts.length + action.posts.length < action.count,
+        hasMore: state.posts.length + action.posts?.length < action.count,
         posts: [...state.posts, ...(action.posts || [])],
       };
     case 'CREATE':
