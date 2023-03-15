@@ -1,7 +1,7 @@
 import { Navigation } from '@smartive-education/design-system-component-z-index';
 import { FC, ReactNode } from 'react';
 import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -19,7 +19,9 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
         navigateToFeed={() => router.push('/')}
         navigateToProfile={noop}
         openSettings={noop}
-        changeLoggedInStatus={() => router.push('/login')}
+        changeLoggedInStatus={
+          status === 'authenticated' ? () => signOut() : () => signIn('zitadel')
+        }
         loggedInStatusLabel={status === 'authenticated' ? 'Log out' : 'Log in'}
         settingsLabel='Settings'
       />
