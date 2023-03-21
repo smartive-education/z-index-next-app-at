@@ -1,14 +1,14 @@
-import { Post, Reply } from '../models'
+import { Post, PostWithUserData, Reply } from '../models'
 
 export interface LoadPosts {
     type: 'LOAD';
-    posts: Post[];
+    posts: PostWithUserData[];
     count: number;
 }
 
 export interface CreatePost {
     type: 'CREATE';
-    post: Post;
+    post: PostWithUserData;
 }
 
 export interface LikePost {

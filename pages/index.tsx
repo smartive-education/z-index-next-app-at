@@ -3,16 +3,29 @@ import {
   PostComment,
   Typography,
 } from '@smartive-education/design-system-component-z-index';
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import {
+  GetServerSideProps,
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from 'next';
+import { unstable_getServerSession } from 'next-auth/next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { GetPostsResponse, Post as ClientPost } from '../models';
+import {
+  MumbleUser,
+  Post as ClientPost,
+  PostWithUserData,
+  TimelineProps,
+} from '../models';
+import { mapPostToPostWithUserData } from '../models/mappers';
+import { postReducer } from '../reducers/post.reducers';
 import { like } from '../services/like.service';
 import { createPost, getPosts } from '../services/post.service';
-import { useRouter } from 'next/router';
-import { postReducer } from '../reducers/post.reducers';
+import { getLoggedInUser, getUserById } from '../services/user.service';
+import { authOptions } from './api/auth/[...nextauth]';
 
 export default function TimelinePage({
   count,
@@ -35,7 +48,23 @@ export default function TimelinePage({
       limit: 10,
       offset: state.posts.length,
     });
-    dispatch({ type: 'LOAD', posts, count });
+    const distinctCreators = posts.reduce((set, item) => {
+      set.add(item.creator);
+      return set;
+    }, new Set<string>());
+    const users = await Promise.all(
+      Array.from(distinctCreators).map((creator: string) =>
+        getUserById(creator, session?.accessToken || '')
+      )
+    );
+
+    const postsWithUserData: PostWithUserData[] = posts.map((post) => {
+      const matchingUser = users.find(
+        (user: MumbleUser) => user.id === post.creator
+      );
+      return mapPostToPostWithUserData(post, matchingUser);
+    });
+    dispatch({ type: 'LOAD', posts: postsWithUserData, count });
   };
 
   const submitPost = async (image: File | undefined, form: HTMLFormElement) => {
@@ -44,7 +73,11 @@ export default function TimelinePage({
       image,
       session?.accessToken
     );
-    dispatch({ type: 'CREATE', post: createdPost });
+    const user = await getLoggedInUser(session?.accessToken || '');
+    dispatch({
+      type: 'CREATE',
+      post: mapPostToPostWithUserData(createdPost, user),
+    });
   };
 
   const likePost = async (isLiked: boolean, id: string) => {
@@ -92,10 +125,10 @@ export default function TimelinePage({
               <Post
                 key={post.id}
                 profileHeaderType='POST'
-                name={post.creator}
-                userName={post.creator}
+                name={post.fullName}
+                userName={post.userName}
                 postCreationTime={post.createdTimestamp}
-                src={session?.user?.image || ''}
+                src={post.avatarUrl}
                 content={post.text}
                 commentCount={post.replyCount}
                 isLiked={post.likedByUser}
@@ -128,14 +161,40 @@ export default function TimelinePage({
   );
 }
 
-export const getServerSideProps: GetServerSideProps<
-  GetPostsResponse
-> = async () => {
+export const getServerSideProps: GetServerSideProps<TimelineProps> = async (
+  context: GetServerSidePropsContext
+) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
   const { count, posts } = await getPosts();
+  const distinctCreators = posts.reduce((set, item) => {
+    set.add(item.creator);
+    return set;
+  }, new Set<string>());
+  const users = await Promise.all(
+    Array.from(distinctCreators).map((creator: string) =>
+      getUserById(creator, session?.accessToken || '')
+    )
+  );
+
+  const postsWithUserData: PostWithUserData[] = posts.map((post) => {
+    const matchingUser = users.find(
+      (user: MumbleUser) => user.id === post.creator
+    );
+    return mapPostToPostWithUserData(post, matchingUser);
+  });
+  //if error => 404
+  //save users in xstate
+  //loadMore should check userState first before calling users/id
   return {
     props: {
       count,
-      posts,
+      posts: postsWithUserData,
+      users,
     },
   };
 };

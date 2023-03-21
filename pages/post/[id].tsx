@@ -5,8 +5,9 @@ import {
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect, useReducer, useState } from 'react';
+import { useContext, useEffect, useReducer, useState } from 'react';
 import { GetPostDetailsResponse, MumbleType, Reply } from '../../models';
+import { UserContext } from '../../providers/user.provider';
 import { postDetailReducer } from '../../reducers/post-detail.reducers';
 import { like } from '../../services/like.service';
 import { getPostById } from '../../services/post.service';
@@ -22,7 +23,7 @@ export default function PostDetailPage({
     replies,
   });
   const [host, setHost] = useState('');
-
+  const userState = useContext(UserContext);
   useEffect(() => {
     setHost(() => window.location.origin);
   }, []);
@@ -53,10 +54,12 @@ export default function PostDetailPage({
     <>
       <Post
         profileHeaderType='POST'
-        name={state.post.creator}
-        userName='robertvogt' //TODO pass down username from user
+        name={`${userState.mumbleUsers.get(post.creator)?.firstName} ${
+          userState.mumbleUsers.get(post.creator)?.lastName
+        }`}
+        userName={userState.mumbleUsers.get(post.creator)?.userName || ''}
         postCreationTime={state.post.createdTimestamp}
-        src='' // TODO pass down avatar from user
+        src={userState.mumbleUsers.get(post.creator)?.avatarUrl || ''}
         content={state.post.text}
         commentCount={state.post.replyCount}
         isLiked={state.post.likedByUser}
@@ -84,9 +87,9 @@ export default function PostDetailPage({
       {status === 'authenticated' && (
         <PostComment
           profileHeaderType='CREATE-REPLY'
-          name={session.user?.name || ''}
-          userName={session.user?.name || ''}
-          src={session.user?.image || ''}
+          name={`${userState.loggedInUser?.firstName} ${userState.loggedInUser?.lastName}`}
+          userName={userState.loggedInUser?.userName || ''}
+          src={userState.loggedInUser?.avatarUrl || ''}
           postCreationTime={''}
           placeholder='Was meinst du dazu?'
           LLabel='Bild hochladen'
@@ -101,10 +104,14 @@ export default function PostDetailPage({
             <Post
               profileHeaderType='REPLY'
               key={reply.id}
-              name={reply.creator}
-              userName={reply.creator}
+              name={`${userState.mumbleUsers.get(reply.creator)?.firstName} ${
+                userState.mumbleUsers.get(reply.creator)?.lastName
+              }`}
+              userName={
+                userState.mumbleUsers.get(reply.creator)?.userName || ''
+              }
               postCreationTime={reply.createdTimestamp}
-              src=''
+              src={userState.mumbleUsers.get(reply.creator)?.avatarUrl || ''}
               content={reply.text}
               commentCount={0} // TODO make this optional for replies
               isLiked={reply.likedByUser}
