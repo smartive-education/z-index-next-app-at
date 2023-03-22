@@ -7,6 +7,7 @@ import {
   GetServerSideProps,
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
+  Redirect,
 } from 'next';
 import { unstable_getServerSession } from 'next-auth/next';
 import { useSession } from 'next-auth/react';
@@ -19,13 +20,13 @@ import {
   Post as ClientPost,
   PostWithUserData,
   TimelineProps,
-} from '../models';
-import { mapPostToPostWithUserData } from '../models/mappers';
-import { postReducer } from '../reducers/post.reducers';
-import { like } from '../services/like.service';
-import { createPost, getPosts } from '../services/post.service';
-import { getLoggedInUser, getUserById } from '../services/user.service';
-import { authOptions } from './api/auth/[...nextauth]';
+} from '../../models';
+import { mapPostToPostWithUserData } from '../../models/mappers';
+import { postReducer } from '../../reducers/post.reducers';
+import { like } from '../../services/like.service';
+import { createPost, getPosts } from '../../services/post.service';
+import { getLoggedInUser, getUserById } from '../../services/user.service';
+import { authOptions } from '../api/auth/[...nextauth]';
 
 export default function TimelinePage({
   count,
@@ -73,6 +74,7 @@ export default function TimelinePage({
       image,
       session?.accessToken
     );
+    //use LoggedInUser
     const user = await getLoggedInUser(session?.accessToken || '');
     dispatch({
       type: 'CREATE',
@@ -170,6 +172,16 @@ export const getServerSideProps: GetServerSideProps<TimelineProps> = async (
     authOptions
   );
 
+  if (!session?.accessToken) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  //outsource with param (token, existingUsers?): {count, posts, users}
   const { count, posts } = await getPosts();
   const distinctCreators = posts.reduce((set, item) => {
     set.add(item.creator);
@@ -189,12 +201,13 @@ export const getServerSideProps: GetServerSideProps<TimelineProps> = async (
   });
   //if error => 404
   //save users in xstate
-  //loadMore should check userState first before calling users/id
+  //loadMore should check userState first before calling users/id (optimierung für infinity scroll)
   return {
     props: {
       count,
       posts: postsWithUserData,
       users,
+      //loggedInUser
     },
   };
 };
