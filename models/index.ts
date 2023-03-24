@@ -40,8 +40,8 @@ export interface GetPostResponse {
   readonly posts: Post[];
 }
 
-export interface TimelineProps {
-  readonly users: MumbleUser[];
+export interface GetPostsWithUserDataResponse {
+  readonly users: MumbleUsers;
   readonly count: number;
   readonly posts: PostWithUserData[];
 }
@@ -65,4 +65,8 @@ export interface Reply extends MumbleBase {
 export interface GetPostDetailsResponse {
   readonly post: Post;
   readonly replies: Reply[];
+}
+
+export interface MumbleUsers {
+  [key: string]: MumbleUser;
 }

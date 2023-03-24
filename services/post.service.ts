@@ -1,10 +1,18 @@
 import {
-  GetPostResponse, GetPostsQueryParams, Post,
-  Response
+  GetPostResponse,
+  GetPostsQueryParams,
+  MumbleUser,
+  Post,
+  PostWithUserData,
+  Response,
+  GetPostsWithUserDataResponse,
+  MumbleUsers,
 } from '../models';
 import {
-  mapResponseToPost
+  mapPostToPostWithUserData,
+  mapResponseToPost,
 } from '../models/mappers';
+import { getUserById } from './user.service';
 
 export const getPosts = async (
   params?: GetPostsQueryParams
@@ -26,6 +34,43 @@ export const getPosts = async (
   return {
     count,
     posts,
+  };
+};
+
+export const getPostsWithUserData = async (
+  token: string,
+  params?: GetPostsQueryParams,
+  existingUsers?: MumbleUsers
+): Promise<GetPostsWithUserDataResponse> => {
+  const { count, posts } = await getPosts(params);
+  const unknownCreators = posts.reduce((set, item) => {
+    if (!existingUsers || !existingUsers[item.creator]) {
+      set.add(item.creator);
+    }
+    return set;
+  }, new Set<string>());
+  const users = await Promise.all(
+    Array.from(unknownCreators).map((creator: string) =>
+      getUserById(creator, token)
+    )
+  );
+
+  const updatedUsers: MumbleUsers = {
+    ...(existingUsers || {}),
+    ...users.reduce((newUsers, user: MumbleUser) => {
+      newUsers[user.id] = user;
+      return newUsers;
+    }, {} as { [key: string]: MumbleUser }),
+  };
+
+  const postsWithUserData: PostWithUserData[] = posts.map((post) => {
+    return mapPostToPostWithUserData(post, updatedUsers[post.creator]);
+  });
+
+  return {
+    count,
+    posts: postsWithUserData,
+    users: updatedUsers,
   };
 };
 

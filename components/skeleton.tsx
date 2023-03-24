@@ -1,5 +1,6 @@
 import { ProfilePicture } from '@smartive-education/design-system-component-z-index';
 
+// TODO move to ui-lib
 export default function PostSkeleton() {
   return (
     <div className='relative py-4 px-6 mt-4 md:py-8 md:px-12 bg-white border-1 border-transparent rounded-xl lg:max-w-3xl'>

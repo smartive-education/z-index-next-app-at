@@ -7,7 +7,6 @@ import {
   GetServerSideProps,
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
-  Redirect,
 } from 'next';
 import { unstable_getServerSession } from 'next-auth/next';
 import { useSession } from 'next-auth/react';
@@ -15,22 +14,18 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import {
-  MumbleUser,
-  Post as ClientPost,
-  PostWithUserData,
-  TimelineProps,
-} from '../../models';
+import { GetPostsWithUserDataResponse, Post as ClientPost } from '../../models';
 import { mapPostToPostWithUserData } from '../../models/mappers';
 import { postReducer } from '../../reducers/post.reducers';
 import { like } from '../../services/like.service';
-import { createPost, getPosts } from '../../services/post.service';
-import { getLoggedInUser, getUserById } from '../../services/user.service';
+import { createPost, getPostsWithUserData } from '../../services/post.service';
+import { getLoggedInUser } from '../../services/user.service';
 import { authOptions } from '../api/auth/[...nextauth]';
 
 export default function TimelinePage({
   count,
   posts,
+  users,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -45,26 +40,15 @@ export default function TimelinePage({
   }, []);
 
   const loadMore = async () => {
-    const { count, posts } = await getPosts({
-      limit: 10,
-      offset: state.posts.length,
-    });
-    const distinctCreators = posts.reduce((set, item) => {
-      set.add(item.creator);
-      return set;
-    }, new Set<string>());
-    const users = await Promise.all(
-      Array.from(distinctCreators).map((creator: string) =>
-        getUserById(creator, session?.accessToken || '')
-      )
+    const {
+      count,
+      posts: postsWithUserData,
+      users: updatedUsers,
+    } = await getPostsWithUserData(
+      session?.accessToken || '',
+      { limit: 5, offset: state.posts.length },
+      users
     );
-
-    const postsWithUserData: PostWithUserData[] = posts.map((post) => {
-      const matchingUser = users.find(
-        (user: MumbleUser) => user.id === post.creator
-      );
-      return mapPostToPostWithUserData(post, matchingUser);
-    });
     dispatch({ type: 'LOAD', posts: postsWithUserData, count });
   };
 
@@ -163,9 +147,9 @@ export default function TimelinePage({
   );
 }
 
-export const getServerSideProps: GetServerSideProps<TimelineProps> = async (
-  context: GetServerSidePropsContext
-) => {
+export const getServerSideProps: GetServerSideProps<
+  GetPostsWithUserDataResponse
+> = async (context: GetServerSidePropsContext) => {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
@@ -181,33 +165,14 @@ export const getServerSideProps: GetServerSideProps<TimelineProps> = async (
     };
   }
 
-  //outsource with param (token, existingUsers?): {count, posts, users}
-  const { count, posts } = await getPosts();
-  const distinctCreators = posts.reduce((set, item) => {
-    set.add(item.creator);
-    return set;
-  }, new Set<string>());
-  const users = await Promise.all(
-    Array.from(distinctCreators).map((creator: string) =>
-      getUserById(creator, session?.accessToken || '')
-    )
+  const { count, posts, users } = await getPostsWithUserData(
+    session.accessToken
   );
-
-  const postsWithUserData: PostWithUserData[] = posts.map((post) => {
-    const matchingUser = users.find(
-      (user: MumbleUser) => user.id === post.creator
-    );
-    return mapPostToPostWithUserData(post, matchingUser);
-  });
-  //if error => 404
-  //save users in xstate
-  //loadMore should check userState first before calling users/id (optimierung für infinity scroll)
   return {
     props: {
       count,
-      posts: postsWithUserData,
+      posts,
       users,
-      //loggedInUser
     },
   };
 };
