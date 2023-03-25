@@ -62,9 +62,15 @@ export interface Reply extends MumbleBase {
   readonly createdTimestamp: string;
 }
 
+export interface ReplyWithUserData extends Reply {
+  fullName: string;
+  userName: string;
+  avatarUrl: string;
+}
+
 export interface GetPostDetailsResponse {
-  readonly post: Post;
-  readonly replies: Reply[];
+  readonly post: PostWithUserData;
+  readonly replies: ReplyWithUserData[];
 }
 
 export interface MumbleUsers {

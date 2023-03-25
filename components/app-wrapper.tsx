@@ -24,6 +24,8 @@ export const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
         session.fullName = `${user.firstName} ${user.lastName}`;
         session.userName = user.userName;
         session.avatarUrl = user.avatarUrl;
+        session.firstName = user.firstName;
+        session.lastName = user.lastName;
       }
     };
     updateSessionWithUserData();

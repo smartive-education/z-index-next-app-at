@@ -1,4 +1,4 @@
-import { Post, PostWithUserData, Reply } from '../models';
+import { PostWithUserData, ReplyWithUserData } from '../models';
 
 export interface PostsState {
     posts: PostWithUserData[];
@@ -6,6 +6,6 @@ export interface PostsState {
 }
 
 export interface PostDetailState {
-    post: Post;
-    replies: Reply[];
+    post: PostWithUserData;
+    replies: ReplyWithUserData[];
 }

@@ -15,12 +15,16 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { GetPostsWithUserDataResponse, Post as ClientPost } from '../../models';
+import {
+  GetPostsWithUserDataResponse,
+  MumbleUser,
+  Post as ClientPost,
+} from '../../models';
 import { mapPostToPostWithUserData } from '../../models/mappers';
 import { postReducer } from '../../reducers/post.reducers';
 import { like } from '../../services/like.service';
-import { createPost, getPostsWithUserData } from '../../services/post.service';
-import { getLoggedInUser } from '../../services/user.service';
+import { getPostsWithUserData } from '../../services/mumble.service';
+import { createPost } from '../../services/post.service';
 import { UsersContext } from '../../state/machines';
 import { authOptions } from '../api/auth/[...nextauth]';
 
@@ -62,17 +66,26 @@ export default function TimelinePage({
   };
 
   const submitPost = async (image: File | undefined, form: HTMLFormElement) => {
-    const createdPost: ClientPost = await createPost(
-      (form.elements.namedItem('post-comment') as HTMLInputElement).value,
-      image,
-      session?.accessToken
-    );
-    //use LoggedInUser
-    const user = await getLoggedInUser(session?.accessToken || '');
-    dispatch({
-      type: 'CREATE',
-      post: mapPostToPostWithUserData(createdPost, user),
-    });
+    if (session) {
+      const createdPost: ClientPost = await createPost(
+        (form.elements.namedItem('post-comment') as HTMLInputElement).value,
+        image,
+        session.accessToken
+      );
+      const loggedInUser: Partial<MumbleUser> = {
+        firstName: session.firstName,
+        lastName: session.lastName,
+        userName: session.userName,
+        avatarUrl: session.avatarUrl,
+      };
+      dispatch({
+        type: 'CREATE',
+        post: mapPostToPostWithUserData(
+          createdPost,
+          loggedInUser as MumbleUser
+        ),
+      });
+    }
   };
 
   const likePost = async (isLiked: boolean, id: string) => {

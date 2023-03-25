@@ -1,5 +1,5 @@
 import { decodeTime } from 'ulid';
-import { MumbleUser, Post, PostWithUserData, Reply, Response } from '.';
+import { MumbleUser, Post, PostWithUserData, Reply, ReplyWithUserData, Response } from '.';
 
 export const mapResponseToPost = (response: Response): Post =>
   ({
@@ -28,3 +28,14 @@ export const mapPostToPostWithUserData = (
     userName: user?.userName,
     avatarUrl: user?.avatarUrl,
   } as PostWithUserData);
+
+  export const mapReplyToReplyWithUserData = (
+    reply: Reply,
+    user?: MumbleUser
+  ): ReplyWithUserData =>
+    ({
+      ...reply,
+      fullName: `${user?.firstName} ${user?.lastName}`,
+      userName: user?.userName,
+      avatarUrl: user?.avatarUrl,
+    } as ReplyWithUserData);
