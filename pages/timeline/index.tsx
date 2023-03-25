@@ -3,6 +3,7 @@ import {
   PostComment,
   Typography,
 } from '@smartive-education/design-system-component-z-index';
+import { useActor } from '@xstate/react';
 import {
   GetServerSideProps,
   GetServerSidePropsContext,
@@ -12,7 +13,7 @@ import { unstable_getServerSession } from 'next-auth/next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useEffect, useReducer, useState } from 'react';
+import { useContext, useEffect, useReducer, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { GetPostsWithUserDataResponse, Post as ClientPost } from '../../models';
 import { mapPostToPostWithUserData } from '../../models/mappers';
@@ -20,6 +21,7 @@ import { postReducer } from '../../reducers/post.reducers';
 import { like } from '../../services/like.service';
 import { createPost, getPostsWithUserData } from '../../services/post.service';
 import { getLoggedInUser } from '../../services/user.service';
+import { UsersContext } from '../../state/machines';
 import { authOptions } from '../api/auth/[...nextauth]';
 
 export default function TimelinePage({
@@ -30,6 +32,8 @@ export default function TimelinePage({
   const { data: session, status } = useSession();
   const router = useRouter();
   const [host, setHost] = useState('');
+  const usersContext = useContext(UsersContext);
+  const [usersState] = useActor(usersContext.userService);
   const [state, dispatch] = useReducer(postReducer, {
     hasMore: posts.length < count,
     posts,
@@ -37,7 +41,8 @@ export default function TimelinePage({
 
   useEffect(() => {
     setHost(() => window.location.origin);
-  }, []);
+    usersContext.userService.send({ type: 'LOAD_USERS', mumbleUsers: users });
+  }, [users, usersContext]);
 
   const loadMore = async () => {
     const {
@@ -47,9 +52,13 @@ export default function TimelinePage({
     } = await getPostsWithUserData(
       session?.accessToken || '',
       { limit: 5, offset: state.posts.length },
-      users
+      usersState.context.mumbleUsers
     );
     dispatch({ type: 'LOAD', posts: postsWithUserData, count });
+    usersContext.userService.send({
+      type: 'UPDATE_USERS',
+      mumbleUsers: updatedUsers,
+    });
   };
 
   const submitPost = async (image: File | undefined, form: HTMLFormElement) => {
