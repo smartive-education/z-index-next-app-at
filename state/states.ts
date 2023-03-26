@@ -1,11 +1,11 @@
-import { Post, Reply } from '../models';
+import { PostWithUserData, ReplyWithUserData } from '../models';
 
 export interface PostsState {
-    posts: Post[];
+    posts: PostWithUserData[];
     hasMore: boolean;
 }
 
 export interface PostDetailState {
-    post: Post;
-    replies: Reply[];
+    post: PostWithUserData;
+    replies: ReplyWithUserData[];
 }

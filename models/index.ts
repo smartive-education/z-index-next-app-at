@@ -1,4 +1,5 @@
 export type MumbleType = 'post' | 'reply' | 'deleted';
+export type AuthStatus = 'authenticated' | 'unauthenticated' | 'loading';
 export interface MumbleBase {
   readonly id: string;
   readonly creator: string;
@@ -20,9 +21,29 @@ export interface Post extends MumbleBase {
   readonly createdTimestamp: string;
 }
 
-export interface GetPostsResponse {
+export interface PostWithUserData extends Post {
+  fullName: string;
+  userName: string;
+  avatarUrl: string;
+}
+
+export interface MumbleUser {
+  id: string;
+  userName: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string;
+}
+
+export interface GetPostResponse {
   readonly count: number;
   readonly posts: Post[];
+}
+
+export interface GetPostsWithUserDataResponse {
+  readonly users: MumbleUsers;
+  readonly count: number;
+  readonly posts: PostWithUserData[];
 }
 
 export interface GetPostsQueryParams {
@@ -31,12 +52,27 @@ export interface GetPostsQueryParams {
   newerThanMumbleId?: string;
   olderThanMumbleId?: string;
 }
+
+export interface GetUsersQueryParams {
+  limit?: number;
+  offset?: number;
+}
 export interface Reply extends MumbleBase {
   readonly parentId: string;
   readonly createdTimestamp: string;
 }
 
+export interface ReplyWithUserData extends Reply {
+  fullName: string;
+  userName: string;
+  avatarUrl: string;
+}
+
 export interface GetPostDetailsResponse {
-  readonly post: Post;
-  readonly replies: Reply[];
+  readonly post: PostWithUserData;
+  readonly replies: ReplyWithUserData[];
+}
+
+export interface MumbleUsers {
+  [key: string]: MumbleUser;
 }

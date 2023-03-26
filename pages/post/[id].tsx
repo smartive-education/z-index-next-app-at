@@ -2,15 +2,27 @@ import {
   Post,
   PostComment,
 } from '@smartive-education/design-system-component-z-index';
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import {
+  GetServerSideProps,
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from 'next';
+import { unstable_getServerSession } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect, useReducer, useState } from 'react';
-import { GetPostDetailsResponse, MumbleType, Reply } from '../../models';
+import {
+  GetPostDetailsResponse,
+  MumbleType,
+  MumbleUser,
+  Reply,
+} from '../../models';
+import { mapReplyToReplyWithUserData } from '../../models/mappers';
 import { postDetailReducer } from '../../reducers/post-detail.reducers';
 import { like } from '../../services/like.service';
-import { getPostById } from '../../services/post.service';
-import { createReply, getReplies } from '../../services/reply.service';
+import { getPostDetailsWithUserData } from '../../services/mumble.service';
+import { createReply } from '../../services/reply.service';
+import { authOptions } from '../api/auth/[...nextauth]';
 
 export default function PostDetailPage({
   post,
@@ -22,7 +34,6 @@ export default function PostDetailPage({
     replies,
   });
   const [host, setHost] = useState('');
-
   useEffect(() => {
     setHost(() => window.location.origin);
   }, []);
@@ -31,13 +42,27 @@ export default function PostDetailPage({
     image: File | undefined,
     form: HTMLFormElement
   ) => {
-    const createdReply: Reply = await createReply(
-      (form.elements.namedItem('post-comment') as HTMLInputElement).value,
-      image,
-      session?.accessToken,
-      post.id
-    );
-    dispatch({ type: 'CREATE', reply: createdReply });
+    if (session) {
+      const createdReply: Reply = await createReply(
+        (form.elements.namedItem('post-comment') as HTMLInputElement).value,
+        image,
+        session?.accessToken,
+        post.id
+      );
+      const loggedInUser: Partial<MumbleUser> = {
+        firstName: session.firstName,
+        lastName: session.lastName,
+        userName: session.userName,
+        avatarUrl: session.avatarUrl,
+      };
+      dispatch({
+        type: 'CREATE',
+        reply: mapReplyToReplyWithUserData(
+          createdReply,
+          loggedInUser as MumbleUser
+        ),
+      });
+    }
   };
 
   const likeMumble = async (isLiked: boolean, id: string, type: MumbleType) => {
@@ -53,10 +78,10 @@ export default function PostDetailPage({
     <>
       <Post
         profileHeaderType='POST'
-        name={state.post.creator}
-        userName='robertvogt' //TODO pass down username from user
+        name={state.post.fullName}
+        userName={state.post.userName}
         postCreationTime={state.post.createdTimestamp}
-        src='' // TODO pass down avatar from user
+        src={state.post.avatarUrl}
         content={state.post.text}
         commentCount={state.post.replyCount}
         isLiked={state.post.likedByUser}
@@ -84,10 +109,10 @@ export default function PostDetailPage({
       {status === 'authenticated' && (
         <PostComment
           profileHeaderType='CREATE-REPLY'
-          name={session.user?.name || ''}
-          userName={session.user?.name || ''}
-          src={session.user?.image || ''}
-          postCreationTime={''}
+          name={session.fullName}
+          userName={session.userName}
+          src={session.avatarUrl}
+          postCreationTime=''
           placeholder='Was meinst du dazu?'
           LLabel='Bild hochladen'
           RLabel='Absenden'
@@ -101,10 +126,10 @@ export default function PostDetailPage({
             <Post
               profileHeaderType='REPLY'
               key={reply.id}
-              name={reply.creator}
-              userName={reply.creator}
+              name={reply.fullName}
+              userName={reply.userName}
               postCreationTime={reply.createdTimestamp}
-              src=''
+              src={reply.avatarUrl}
               content={reply.text}
               commentCount={0} // TODO make this optional for replies
               isLiked={reply.likedByUser}
@@ -140,9 +165,25 @@ export default function PostDetailPage({
 
 export const getServerSideProps: GetServerSideProps<
   GetPostDetailsResponse
-> = async ({ query }) => {
-  const post = await getPostById(query.id as string);
-  const replies = await getReplies(query.id as string);
+> = async (context: GetServerSidePropsContext) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
+  if (!session?.accessToken) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+  const { post, replies } = await getPostDetailsWithUserData(
+    session?.accessToken,
+    context.query.id as string
+  );
   return {
     props: {
       post,
