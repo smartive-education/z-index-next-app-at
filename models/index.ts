@@ -19,12 +19,10 @@ export interface Post extends MumbleBase {
   readonly replyCount: number;
   readonly createdTimestamp: string;
 }
-
 export interface GetPostsResponse {
   readonly count: number;
   readonly posts: Post[];
 }
-
 export interface GetPostsQueryParams {
   limit?: number;
   offset?: number;
@@ -35,8 +33,32 @@ export interface Reply extends MumbleBase {
   readonly parentId: string;
   readonly createdTimestamp: string;
 }
-
 export interface GetPostDetailsResponse {
   readonly post: Post;
   readonly replies: Reply[];
+}
+export interface Profile {
+  readonly id: string;
+  readonly userName: string;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly avatarUrl: string;
+  readonly createdTimestamp: string;
+}
+export interface GetProfileQueryParams {
+  id: string,
+}
+export interface GetProfileResponse {
+  readonly profile: Profile;
+}
+export interface MumbleUser {
+  id: string;
+  userName: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string;
+}
+export interface GetUsersQueryParams {
+  limit?: number;
+  offset?: number;
 }

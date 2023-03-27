@@ -6,6 +6,8 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect, useReducer, useState } from 'react';
+import { useRouter } from 'next/router';
+
 import { GetPostDetailsResponse, MumbleType, Reply } from '../../models';
 import { postDetailReducer } from '../../reducers/post-detail.reducers';
 import { like } from '../../services/like.service';
@@ -16,6 +18,7 @@ export default function PostDetailPage({
   post,
   replies,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const [state, dispatch] = useReducer(postDetailReducer, {
     post,
@@ -49,6 +52,10 @@ export default function PostDetailPage({
     }
   };
 
+  const openProfile = (userName: string) => {
+    router.push(`/profile/${userName}`)
+  }
+
   return (
     <>
       <Post
@@ -63,7 +70,7 @@ export default function PostDetailPage({
         likeCount={state.post.likeCount}
         link={`${host}/post/${state.post.id}`}
         comment={() => {}}
-        openProfile={() => {}}
+        openProfile={() => openProfile(state.post.creator)}
         setIsLiked={(isLiked) =>
           likeMumble(isLiked, state.post.id, state.post.type)
         }
@@ -111,7 +118,7 @@ export default function PostDetailPage({
               likeCount={reply.likeCount}
               link={`${host}/post/${reply.id}`}
               comment={() => {}}
-              openProfile={() => {}}
+              openProfile={() => openProfile(reply.creator)}
               setIsLiked={(isLiked) =>
                 likeMumble(isLiked, reply.id, reply.type)
               }

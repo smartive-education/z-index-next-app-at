@@ -52,6 +52,10 @@ export default function TimelinePage({
     dispatch({ type: 'LIKE', id, isLiked });
   };
 
+  const openProfile = (userName: string) => {
+    router.push(`/profile/${userName}`)
+  }
+
   return (
     <>
       <div className='my-4'>
@@ -70,7 +74,7 @@ export default function TimelinePage({
           placeholder='Deine Meinung zählt!'
           LLabel='Bild hochladen'
           RLabel='Absenden'
-          openProfile={() => {}}
+          openProfile={() => openProfile('me')}
           onSubmit={(file, form) => submitPost(file, form)}
         ></PostComment>
       )}
@@ -102,7 +106,7 @@ export default function TimelinePage({
                 likeCount={post.likeCount}
                 link={`${host}/post/${post.id}`}
                 comment={() => router.push(`/post/${post.id}`)}
-                openProfile={() => {}}
+                openProfile={() => openProfile(post.creator)}
                 setIsLiked={(isLiked) => likePost(isLiked, post.id)}
                 copyLabel='Copy Link'
                 copiedLabel='Link Copied'
