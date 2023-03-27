@@ -1,14 +1,14 @@
-import { Post, Reply } from '../models'
+import { PostWithUserData, ReplyWithUserData } from '../models';
 
 export interface LoadPosts {
     type: 'LOAD';
-    posts: Post[];
+    posts: PostWithUserData[];
     count: number;
 }
 
 export interface CreatePost {
     type: 'CREATE';
-    post: Post;
+    post: PostWithUserData;
 }
 
 export interface LikePost {
@@ -21,7 +21,7 @@ export type PostAction = LoadPosts | CreatePost | LikePost;
 
 export interface CreateReply {
     type: 'CREATE';
-    reply: Reply;
+    reply: ReplyWithUserData;
 }
 
 export interface LikePostDetail {

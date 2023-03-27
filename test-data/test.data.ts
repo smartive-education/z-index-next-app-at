@@ -1,10 +1,10 @@
 import { decodeTime } from 'ulid';
-import { Post, Reply } from '../models';
+import { Post, PostWithUserData, Reply, ReplyWithUserData } from '../models';
 import { PostDetailState, PostsState } from '../state/states';
 
 export const initialPostState: PostsState = { posts: [], hasMore: false };
 
-export const mockPosts: Post[] = [
+export const mockPosts: PostWithUserData[] = [
   {
     id: '01GV3TEH72RC5VEQJFCM0YYBA0',
     creator: '201444056083988737',
@@ -19,6 +19,9 @@ export const mockPosts: Post[] = [
     createdTimestamp: new Date(
       decodeTime('01GV3TEH72RC5VEQJFCM0YYBA0')
     ).toDateString(),
+    userName: 'McMock',
+    fullName: 'Sir Mock von Stub',
+    avatarUrl: 'mockadu.com',
   },
   {
     id: '01GV3SY9CTE1ASR5NMJYY9XF2T',
@@ -33,6 +36,9 @@ export const mockPosts: Post[] = [
     createdTimestamp: new Date(
       decodeTime('01GV3SY9CTE1ASR5NMJYY9XF2T')
     ).toDateString(),
+    userName: 'McMock',
+    fullName: 'Sir Mock von Stub',
+    avatarUrl: 'mockadu.com',
   },
   {
     id: '01GV3SXDFPNX1362TE3108ZSTT',
@@ -47,10 +53,13 @@ export const mockPosts: Post[] = [
     createdTimestamp: new Date(
       decodeTime('01GV3SXDFPNX1362TE3108ZSTT')
     ).toDateString(),
+    userName: 'McMock',
+    fullName: 'Sir Mock von Stub',
+    avatarUrl: 'mockadu.com',
   },
 ];
 
-export const singleMockPost: Post = {
+export const singleMockPost: PostWithUserData = {
   id: '01GV0C6FV9873R83SCKMZM6H7T',
   creator: '201164885894103297',
   text: 'Bike2Work im Winter',
@@ -64,6 +73,9 @@ export const singleMockPost: Post = {
   createdTimestamp: new Date(
     decodeTime('01GV0C6FV9873R83SCKMZM6H7T')
   ).toDateString(),
+  userName: 'McMock',
+  fullName: 'Sir Mock von Stub',
+  avatarUrl: 'mockadu.com',
 };
 
 export const initialPostDetailState: PostDetailState = {
@@ -71,7 +83,7 @@ export const initialPostDetailState: PostDetailState = {
   replies: [],
 };
 
-export const singleMockReply: Reply = {
+export const singleMockReply: ReplyWithUserData = {
   id: '01GDMMR85BEHP8AKV8ZGGM259K',
   creator: '179944860378202369',
   text: 'Hello World! @user #newpost',
@@ -85,9 +97,12 @@ export const singleMockReply: Reply = {
   createdTimestamp: new Date(
     decodeTime('01GDMMR85BEHP8AKV8ZGGM259K')
   ).toDateString(),
+  userName: 'McMock',
+  fullName: 'Sir Mock von Stub',
+  avatarUrl: 'mockadu.com',
 };
 
-export const singleMockReply2: Reply = {
+export const singleMockReply2: ReplyWithUserData = {
   id: '01GDMMR85BEHP8AKV8ZGGM259G',
   creator: '179944860378202369',
   text: 'Hello World! @user #newpost',
@@ -101,4 +116,7 @@ export const singleMockReply2: Reply = {
   createdTimestamp: new Date(
     decodeTime('01GDMMR85BEHP8AKV8ZGGM259K')
   ).toDateString(),
+  userName: 'McMock',
+  fullName: 'Sir Mock von Stub',
+  avatarUrl: 'mockadu.com',
 };

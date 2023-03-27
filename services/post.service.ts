@@ -1,16 +1,14 @@
 import {
-  GetPostsQueryParams,
-  GetPostsResponse,
-  MumbleType,
-  Post,
-  Reply,
-  Response,
+  GetPostResponse,
+  GetPostsQueryParams, Post, Response
 } from '../models';
-import { mapResponseToPost, mapResponseToReply } from '../models/mappers';
+import {
+  mapResponseToPost
+} from '../models/mappers';
 
 export const getPosts = async (
   params?: GetPostsQueryParams
-): Promise<GetPostsResponse> => {
+): Promise<GetPostResponse> => {
   const queryParams = new URLSearchParams({
     limit: String(params?.limit || 5),
     offset: String(params?.offset || 0),
@@ -30,6 +28,7 @@ export const getPosts = async (
     posts,
   };
 };
+
 
 export const createPost = async (
   text: string,
@@ -61,3 +60,4 @@ export const getPostById = async (id: string): Promise<Post> => {
   const post: Response = await res.json();
   return mapResponseToPost(post);
 };
+

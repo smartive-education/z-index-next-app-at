@@ -6,6 +6,8 @@ declare module 'next-auth' {
     fullName: string;
     userName: string;
     avatarUrl: string;
+    firstName: string;
+    lastName: string;
   }
 }
 

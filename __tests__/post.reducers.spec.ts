@@ -1,5 +1,5 @@
 import { describe } from '@jest/globals';
-import { Post } from '../models';
+import { Post, PostWithUserData } from '../models';
 import { postReducer } from '../reducers/post.reducers';
 import { PostsState } from '../state/states';
 import {
@@ -41,7 +41,7 @@ describe('postReducer', () => {
       expect(
         postReducer(initialPostState, {
           type: 'LOAD',
-          posts: undefined as unknown as Post[],
+          posts: undefined as unknown as PostWithUserData[],
           count: 0,
         })
       ).toEqual(initialPostState);
