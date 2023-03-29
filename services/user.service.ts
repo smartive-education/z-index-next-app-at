@@ -36,12 +36,15 @@ export const getLoggedInUser = async (token: string): Promise<MumbleUser> => {
   return mapResponseToUser(response);
 };
 
-export const getUserById = async (id: string, token: string): Promise<MumbleUser> => {
+export const getUserById = async (
+  token: string,
+  params?: GetUsersQueryParams): Promise<MumbleUser> => {
   const headers = new Headers();
+  console.log('param', params)
   headers.append('Content-Type', 'application/json');
   headers.append('Authorization', `Bearer ${token}`);
 
-  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/users/${id}`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/users/${params}`;
   const res = await fetch(url, { headers });
   const response = await res.json();
   return mapResponseToUser(response);

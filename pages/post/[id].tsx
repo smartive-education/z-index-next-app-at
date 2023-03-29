@@ -76,9 +76,6 @@ export default function PostDetailPage({
     }
   };
 
-  const openProfile = (userName: string) => {
-    router.push(`/profile/${userName}`)
-  }
 
   return (
     <>
@@ -94,7 +91,7 @@ export default function PostDetailPage({
         likeCount={state.post.likeCount}
         link={`${host}/post/${state.post.id}`}
         comment={() => {}}
-        openProfile={() => openProfile(state.post.creator)}
+        openProfile={() => router.push(`/profile/${state.post.creator}`)}
         setIsLiked={(isLiked) =>
           likeMumble(isLiked, state.post.id, state.post.type)
         }
@@ -142,7 +139,7 @@ export default function PostDetailPage({
               likeCount={reply.likeCount}
               link={`${host}/post/${reply.id}`}
               comment={() => {}}
-              openProfile={() => openProfile(reply.creator)}
+              openProfile={() => router.push(`/profile/${reply.creator}`)}
               setIsLiked={(isLiked) =>
                 likeMumble(isLiked, reply.id, reply.type)
               }

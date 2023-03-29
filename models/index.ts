@@ -54,8 +54,10 @@ export interface GetPostsQueryParams {
 }
 
 export interface GetUsersQueryParams {
-  limit?: number;
-  offset?: number;
+  mumbleUser?: string;
+}
+export interface GetUserResponse {
+  readonly user: MumbleUsers;
 }
 export interface Reply extends MumbleBase {
   readonly parentId: string;

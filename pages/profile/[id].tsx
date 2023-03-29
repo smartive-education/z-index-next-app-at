@@ -2,7 +2,7 @@ import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsT
 import { useSession } from 'next-auth/react';
 import { unstable_getServerSession } from 'next-auth/next';
 
-import { GetUsersQueryParams, MumbleType, Reply } from '../../models';
+import { GetUsersQueryParams, GetPostDetailsResponse, GetUserResponse, MumbleType, Reply } from '../../models';
 import { getUserById } from '../../services/user.service';
 import { authOptions } from '../api/auth/[...nextauth]';
 import {
@@ -10,9 +10,9 @@ import {
 } from '@smartive-education/design-system-component-z-index';
 
 export default function ProfilePage({
-  MumbleUser,
+  user,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-console.log(MumbleUser)
+  console.log(user)
   return (
       <ProfileCard
         name="a"
@@ -30,19 +30,29 @@ console.log(MumbleUser)
   );
 }
 
-export const getServerSideProps: GetServerSideProps<GetUsersQueryParams> = async (
-  context: GetServerSidePropsContext,
-  ) => {
+  export const getServerSideProps: GetServerSideProps<
+  GetUserResponse
+> = async (context: GetServerSidePropsContext) => {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
     authOptions
   );
-
-  const profile = await getUserById('201164897906589953', session?.accessToken || '');
-  return {
-    props: {
-      MumbleUser,
-    },
-  };
+  if (!session?.accessToken) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+  const { userName, firstName, lastName, avatarUrl } = await getUserById(
+    session?.accessToken,
+    context.query.id as string
+  );
+    return {
+      props: {
+        userName, firstName, lastName, avatarUrl
+      }
+    }
 };
