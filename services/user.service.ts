@@ -36,11 +36,8 @@ export const getLoggedInUser = async (token: string): Promise<MumbleUser> => {
   return mapResponseToUser(response);
 };
 
-export const getUserById = async (
-  token: string,
-  id?: string): Promise<MumbleUser> => {
+export const getUserById = async (id: string, token: string): Promise<MumbleUser> => {
   const headers = new Headers();
-  console.log('param', id)
   headers.append('Content-Type', 'application/json');
   headers.append('Authorization', `Bearer ${token}`);
 

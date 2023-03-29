@@ -47,8 +47,8 @@ export default function ProfilePage({
     };
   }
   const { userName, firstName, lastName, avatarUrl } = await getUserById(
+    context.query.id as string,
     session?.accessToken,
-    context.query.id as string
   );
     return {
       props: {
