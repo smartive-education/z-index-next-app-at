@@ -54,7 +54,8 @@ export interface GetPostsQueryParams {
 }
 
 export interface GetUsersQueryParams {
-  mumbleUser?: string;
+  limit?: number;
+  offset?: number;
 }
 export interface GetUserResponse {
   readonly user: MumbleUsers;

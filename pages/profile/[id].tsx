@@ -15,10 +15,10 @@ export default function ProfilePage({
   console.log(user)
   return (
       <ProfileCard
-        name="a"
-        userName=""
+        name={`${user.firstName} ${user.lastName}`}
+        userName={user.userName.toString()}
         profileImage=""
-        profilePicture=""
+        profilePicture={user.avatarUrl.toString()}
         location=""
         calendarText=""
         profileText=""
@@ -52,7 +52,12 @@ export default function ProfilePage({
   );
     return {
       props: {
-        userName, firstName, lastName, avatarUrl
+        user: {
+                userName,
+                firstName,
+                lastName,
+                avatarUrl,
+              }
       }
     }
 };

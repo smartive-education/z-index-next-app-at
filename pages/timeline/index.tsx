@@ -127,7 +127,7 @@ export default function TimelinePage({
         }
         style={{ overflow: 'visible' }}
       >
-        {state.posts.map((post) => {
+        {state.posts?.map((post) => {
           if (post.type === 'post') {
             return (
               <Post
