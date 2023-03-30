@@ -1,6 +1,7 @@
 import {
   Post,
   PostComment,
+  Skeleton,
   Typography,
 } from '@smartive-education/design-system-component-z-index';
 import { useActor } from '@xstate/react';
@@ -65,10 +66,10 @@ export default function TimelinePage({
     });
   };
 
-  const submitPost = async (image: File | undefined, form: HTMLFormElement) => {
+  const submitPost = async (image: File | undefined, text: string) => {
     if (session) {
       const createdPost: ClientPost = await createPost(
-        (form.elements.namedItem('post-comment') as HTMLInputElement).value,
+        text,
         image,
         session.accessToken
       );
@@ -99,7 +100,7 @@ export default function TimelinePage({
         <span className='text-violet-600'>
           <Typography type='h2'>Wilkommen auf Mumble</Typography>
         </span>
-        <Typography type='h4'>Finde raus was passiert in der Welt!</Typography>
+        <Typography type='h3'>Finde raus was passiert in der Welt!</Typography>
       </div>
       {status === 'authenticated' && (
         <PostComment
@@ -112,14 +113,14 @@ export default function TimelinePage({
           LLabel='Bild hochladen'
           RLabel='Absenden'
           openProfile={() => {}}
-          onSubmit={(file, form) => submitPost(file, form)}
+          onSubmit={(file, text) => submitPost(file, text)}
         ></PostComment>
       )}
       <InfiniteScroll
         dataLength={state.posts.length}
         next={loadMore}
         hasMore={state.hasMore || false}
-        loader={<h4>Loading...</h4>}
+        loader={<Skeleton></Skeleton>}
         endMessage={
           <p style={{ textAlign: 'center' }}>
             <b>Yay! You have seen it all</b>

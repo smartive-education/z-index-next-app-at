@@ -40,11 +40,11 @@ export default function PostDetailPage({
 
   const submitReply = async (
     image: File | undefined,
-    form: HTMLFormElement
+    text: string
   ) => {
     if (session) {
       const createdReply: Reply = await createReply(
-        (form.elements.namedItem('post-comment') as HTMLInputElement).value,
+        text,
         image,
         session?.accessToken,
         post.id
@@ -62,7 +62,7 @@ export default function PostDetailPage({
           loggedInUser as MumbleUser
         ),
       });
-    }
+    } 
   };
 
   const likeMumble = async (isLiked: boolean, id: string, type: MumbleType) => {
@@ -117,7 +117,7 @@ export default function PostDetailPage({
           LLabel='Bild hochladen'
           RLabel='Absenden'
           openProfile={() => {}}
-          onSubmit={(file, form) => submitReply(file, form)}
+          onSubmit={(file, text) => submitReply(file, text)}
         ></PostComment>
       )}
       {state.replies.map((reply) => {
