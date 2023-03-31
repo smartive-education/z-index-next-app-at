@@ -111,7 +111,7 @@ export default function TimelinePage({
           placeholder='Deine Meinung zählt!'
           LLabel='Bild hochladen'
           RLabel='Absenden'
-          openProfile={() => {}}
+          openProfile={() => router.push('/profile/me')}
           onSubmit={(file, form) => submitPost(file, form)}
         ></PostComment>
       )}
@@ -127,7 +127,7 @@ export default function TimelinePage({
         }
         style={{ overflow: 'visible' }}
       >
-        {state.posts.map((post) => {
+        {state.posts?.map((post) => {
           if (post.type === 'post') {
             return (
               <Post
@@ -143,7 +143,7 @@ export default function TimelinePage({
                 likeCount={post.likeCount}
                 link={`${host}/post/${post.id}`}
                 comment={() => router.push(`/post/${post.id}`)}
-                openProfile={() => {}}
+                openProfile={() => router.push(`/profile/${post.creator}`)}
                 setIsLiked={(isLiked) => likePost(isLiked, post.id)}
                 copyLabel='Copy Link'
                 copiedLabel='Link Copied'

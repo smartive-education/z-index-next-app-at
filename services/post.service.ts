@@ -3,7 +3,7 @@ import {
   GetPostsQueryParams, Post, Response
 } from '../models';
 import {
-  mapResponseToPost
+  mapResponseToPost,
 } from '../models/mappers';
 
 export const getPosts = async (
@@ -61,3 +61,14 @@ export const getPostById = async (id: string): Promise<Post> => {
   return mapResponseToPost(post);
 };
 
+
+export const getPostsByUser = async (creator: string): Promise<GetPostResponse> => {
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?creator=${creator}`;
+  const res = await fetch(url);
+  const { count, data } = await res.json();
+  const posts = data.map(mapResponseToPost);
+  return {
+    count,
+    posts,
+  };
+};

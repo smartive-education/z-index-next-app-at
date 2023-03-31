@@ -11,6 +11,7 @@ import { unstable_getServerSession } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect, useReducer, useState } from 'react';
+import { useRouter } from 'next/router';
 import {
   GetPostDetailsResponse,
   MumbleType,
@@ -28,6 +29,7 @@ export default function PostDetailPage({
   post,
   replies,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const [state, dispatch] = useReducer(postDetailReducer, {
     post,
@@ -74,6 +76,7 @@ export default function PostDetailPage({
     }
   };
 
+
   return (
     <>
       <Post
@@ -88,7 +91,7 @@ export default function PostDetailPage({
         likeCount={state.post.likeCount}
         link={`${host}/post/${state.post.id}`}
         comment={() => {}}
-        openProfile={() => {}}
+        openProfile={() => router.push(`/profile/${state.post.creator}`)}
         setIsLiked={(isLiked) =>
           likeMumble(isLiked, state.post.id, state.post.type)
         }
@@ -136,7 +139,7 @@ export default function PostDetailPage({
               likeCount={reply.likeCount}
               link={`${host}/post/${reply.id}`}
               comment={() => {}}
-              openProfile={() => {}}
+              openProfile={() => router.push(`/profile/${reply.creator}`)}
               setIsLiked={(isLiked) =>
                 likeMumble(isLiked, reply.id, reply.type)
               }

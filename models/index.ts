@@ -57,6 +57,10 @@ export interface GetUsersQueryParams {
   limit?: number;
   offset?: number;
 }
+export interface GetProfileResponse {
+  readonly user: MumbleUser;
+  readonly posts: Post[];
+}
 export interface Reply extends MumbleBase {
   readonly parentId: string;
   readonly createdTimestamp: string;
