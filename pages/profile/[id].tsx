@@ -1,11 +1,10 @@
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { unstable_getServerSession } from 'next-auth/next';
 
-import { GetUsersQueryParams, GetPostDetailsResponse, GetProfileResponse, MumbleType, Reply } from '../../models';
+import { GetProfileResponse } from '../../models';
 import { getUserById } from '../../services/user.service';
 import { getPostByUser } from '../../services/post.service'
 import { authOptions } from '../api/auth/[...nextauth]';
