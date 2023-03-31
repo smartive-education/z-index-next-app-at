@@ -42,7 +42,7 @@ export default function PostDetailPage({
     image: File | undefined,
     text: string
   ) => {
-    if (session) {
+    if (session && text) {
       const createdReply: Reply = await createReply(
         text,
         image,

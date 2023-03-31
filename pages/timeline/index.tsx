@@ -67,7 +67,7 @@ export default function TimelinePage({
   };
 
   const submitPost = async (image: File | undefined, text: string) => {
-    if (session) {
+    if (session && text) {
       const createdPost: ClientPost = await createPost(
         text,
         image,
