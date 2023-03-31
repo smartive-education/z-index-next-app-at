@@ -6,7 +6,7 @@ import { unstable_getServerSession } from 'next-auth/next';
 
 import { GetProfileResponse } from '../../models';
 import { getUserById } from '../../services/user.service';
-import { getPostByUser } from '../../services/post.service'
+import { getPostsByUser } from '../../services/post.service'
 import { authOptions } from '../api/auth/[...nextauth]';
 import {
   ProfileCard,
@@ -39,7 +39,7 @@ export default function ProfilePage({
           onFollow={() => {}}
           onEdit={() => {}}
         />
-          {posts?.data.map((post) => {
+          {posts?.map((post) => {
             return (
               <Post
                 key={post.id}
@@ -97,7 +97,7 @@ export default function ProfilePage({
     context.query.id as string,
     session?.accessToken,
   );
-  const posts = await getPostByUser(context.query.id as string);
+  const { posts } = await getPostsByUser(context.query.id as string);
 
     return {
       props: {

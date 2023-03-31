@@ -7,11 +7,6 @@ export const mapResponseToPost = (response: Response): Post =>
     createdTimestamp: new Date(decodeTime(response?.id || '')).toDateString(), //TODO add logic to change this to current date - created date string
   } as Post);
 
-  export const mapResponseToPostByCreator = (response: Response): Post =>{
-    return ({
-      ...response,
-} as Post);}
-
 export const mapResponseToReply = (response: Response): Reply =>
   ({
     ...response,
