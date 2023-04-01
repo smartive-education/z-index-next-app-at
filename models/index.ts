@@ -81,3 +81,8 @@ export interface GetPostDetailsResponse {
 export interface MumbleUsers {
   [key: string]: MumbleUser;
 }
+
+export interface LikeParams {
+  id: string;
+  isLike: boolean;
+}

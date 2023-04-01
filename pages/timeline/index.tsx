@@ -2,7 +2,7 @@ import {
   Post,
   PostComment,
   Skeleton,
-  Typography,
+  Typography
 } from '@smartive-education/design-system-component-z-index';
 import { useActor } from '@xstate/react';
 import { useSession } from 'next-auth/react';
@@ -10,7 +10,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { like } from '../../services/like.service';
 import { TimelineContext } from '../../state/timeline-machine';
 
 export default function TimelinePage() {
@@ -58,8 +57,11 @@ export default function TimelinePage() {
   };
 
   const likePost = async (isLiked: boolean, id: string) => {
-    await like(id, isLiked, session?.accessToken);
-    /* dispatch({ type: 'LIKE', id, isLiked }); */
+    send({
+      type: 'LIKE_POST',
+      id,
+      isLiked,
+    });
   };
 
   return (

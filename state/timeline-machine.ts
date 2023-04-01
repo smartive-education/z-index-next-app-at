@@ -1,9 +1,13 @@
 import { createContext } from 'react';
 import { assign, createMachine, InterpreterFrom } from 'xstate';
 import {
-    GetPostsWithUserDataResponse,
-    LoggedInUser, MumbleUsers, PostWithUserData
+  GetPostsWithUserDataResponse,
+  LikeParams,
+  LoggedInUser,
+  MumbleUsers,
+  PostWithUserData,
 } from '../models';
+import { like } from '../services/like.service';
 import { getPostsWithUserData } from '../services/mumble.service';
 import { createPost } from '../services/post.service';
 
@@ -37,6 +41,12 @@ export interface CreatePostEvent {
   type: 'CREATE_POST';
   text: string;
   image?: File;
+}
+
+export interface LikePostEvent {
+  type: 'LIKE_POST';
+  id: string;
+  isLiked: boolean;
 }
 
 export const TimelineContext = createContext({
@@ -159,6 +169,34 @@ export const timelineMachine = createMachine({
         },
       },
     },
-    like: {},
+    like: {
+      invoke: {
+        src: (context: TimelineMachineContext, event): Promise<LikeParams> =>
+          like(event.id, event.isLiked, context.loggedInUser?.accessToken),
+        onDone: {
+          target: 'idle',
+          actions: assign({
+            posts: (context, event) =>
+              context.posts.map((post) => {
+                if (post.id === event.data.id) {
+                  return {
+                    ...post,
+                    likeCount: event.data.isLike
+                      ? post.likeCount + 1
+                      : post.likeCount - 1,
+                    likedByUser: event.data.isLike,
+                  };
+                }
+                return post;
+              }),
+            error: (_context, _event) => undefined,
+          }),
+        },
+        onError: {
+          target: 'updateFailed',
+          actions: assign({ error: (_context, event) => event.data }),
+        },
+      },
+    },
   },
 });
