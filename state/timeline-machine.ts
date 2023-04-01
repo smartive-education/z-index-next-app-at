@@ -1,13 +1,8 @@
 import { createContext } from 'react';
 import { assign, createMachine, InterpreterFrom } from 'xstate';
 import {
-  GetPostsQueryParams,
-  GetPostsWithUserDataResponse,
-  LoggedInUser,
-  MumbleUser,
-  MumbleUsers,
-  Post,
-  PostWithUserData,
+    GetPostsWithUserDataResponse,
+    LoggedInUser, MumbleUsers, PostWithUserData
 } from '../models';
 import { getPostsWithUserData } from '../services/mumble.service';
 import { createPost } from '../services/post.service';
@@ -61,9 +56,12 @@ export const timelineMachine = createMachine({
       on: {
         INIT_TIMELINE: {
           target: 'timelineInitializing',
-          actions: assign<TimelineMachineContext, InitTimelineEvent>({
-            loggedInUser: (_context, event) => event.loggedInUser,
-          }),
+          actions: [
+            assign<TimelineMachineContext, InitTimelineEvent>({
+              loggedInUser: (_context, event) => event.loggedInUser,
+            }),
+            (_context, _event) => console.log('timelineInitializing triggered'),
+          ],
         },
       },
     },
