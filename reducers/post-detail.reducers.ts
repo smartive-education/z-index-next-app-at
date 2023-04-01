@@ -5,6 +5,7 @@ export function postDetailReducer(
   state: PostDetailState,
   action: PostDetailAction
 ): PostDetailState {
+  console.log(action, state)
   switch (action.type) {
     case 'CREATE':
       return {
