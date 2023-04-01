@@ -1,10 +1,17 @@
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useReducer } from 'react';
 import Image from 'next/image';
 import { unstable_getServerSession } from 'next-auth/next';
+import { useSession } from 'next-auth/react';
 
-import { GetProfileResponse } from '../../models';
+import { like } from '../../services/like.service';
+import { Post as PostModel } from '../../models';
+import { postReducer } from '../../reducers/post.reducers';
+import {
+  GetProfileResponse,
+  MumbleType,
+} from '../../models';
 import { getUserById } from '../../services/user.service';
 import { getPostsByUser } from '../../services/post.service'
 import { authOptions } from '../api/auth/[...nextauth]';
@@ -13,23 +20,34 @@ import {
   Post,
 } from '@smartive-education/design-system-component-z-index';
 
+import { ProfileImage } from './profileImage'
+
 export default function ProfilePage({
   user,
   posts,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [host, setHost] = useState('');
+  const { data: session, status } = useSession();
+  const [state, dispatch] = useReducer(postReducer, {
+    posts,
+  });
   const router = useRouter();
-
   useEffect(() => {
     setHost(() => window.location.origin);
   }, []);
+
+  const likePost = async (isLiked: boolean, id: string) => {
+    await like(id, isLiked, session?.accessToken);
+    dispatch({ type: 'LIKE', id, isLiked });
+  };
+
   const fullName = `${user.firstName} ${user.lastName}`
   return (
      <div>
       <ProfileCard
           name={fullName}
           userName={user.userName.toString()}
-          profileImage=""
+          profileImage={ProfileImage}
           profilePicture={user.avatarUrl.toString()}
           location=""
           calendarText=""
@@ -39,7 +57,7 @@ export default function ProfilePage({
           onFollow={() => {}}
           onEdit={() => {}}
         />
-          {posts?.map((post) => {
+          {state.posts?.map((post: PostModel) => {
             return (
               <Post
                 key={post.id}
@@ -55,8 +73,7 @@ export default function ProfilePage({
                 link={`${host}/post/${post.id}`}
                 comment={() => router.push(`/post/${post.id}`)}
                 openProfile={() => router.push(`/profile/${post.creator}`)}
-                setIsLiked={() => {}}
-             //   setIsLiked={(isLiked) => likePost(isLiked, post.id)}
+                setIsLiked={(isLiked) => likePost(isLiked, post.id)}
                 copyLabel='Copy Link'
                 copiedLabel='Link Copied'
               >
