@@ -2,7 +2,7 @@ import { Navigation } from '@smartive-education/design-system-component-z-index'
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FC, ReactNode, useEffect } from 'react';
-import { getLoggedInUser } from '../services/user.service';
+import { getLoggedInMumbleUser } from '../services/user.service';
 
 interface AppWrapperProps {
   children: ReactNode;
@@ -20,12 +20,20 @@ export const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   useEffect(() => {
     const updateSessionWithUserData = async () => {
       if (session?.accessToken) {
-        const user = await getLoggedInUser(session.accessToken);
-        session.fullName = `${user.firstName} ${user.lastName}`;
-        session.userName = user.userName;
-        session.avatarUrl = user.avatarUrl;
-        session.firstName = user.firstName;
-        session.lastName = user.lastName;
+        try {
+          const mumbleUser = await getLoggedInMumbleUser(session.accessToken);
+          session.loggedInUser = {
+            id: mumbleUser.id,
+            accessToken: session.accessToken,
+            fullName: `${mumbleUser.firstName} ${mumbleUser.lastName}`,
+            userName: mumbleUser.userName,
+            avatarUrl: mumbleUser.avatarUrl,
+            firstName: mumbleUser.firstName,
+            lastName: mumbleUser.lastName,
+          };
+        } catch (error) {
+          signIn('zitadel', { callbackUrl: '/timeline' });
+        }
       }
     };
     updateSessionWithUserData();
@@ -36,7 +44,7 @@ export const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
       {status === 'authenticated' ? (
         <>
           <Navigation
-            profilePictureSrc={session.avatarUrl}
+            profilePictureSrc={session.loggedInUser.avatarUrl}
             navigateToFeed={() => router.push('/timeline')}
             navigateToProfile={noop}
             openSettings={noop}

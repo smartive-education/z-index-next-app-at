@@ -13,7 +13,7 @@ import { getReplies } from './reply.service';
 import { getUserById } from './user.service';
 
 export const getPostsWithUserData = async (
-  token: string,
+  token: string = '',
   params?: GetPostsQueryParams,
   existingUsers?: MumbleUsers
 ): Promise<GetPostsWithUserDataResponse> => {

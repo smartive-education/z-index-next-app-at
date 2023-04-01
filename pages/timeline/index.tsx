@@ -5,93 +5,60 @@ import {
   Typography,
 } from '@smartive-education/design-system-component-z-index';
 import { useActor } from '@xstate/react';
-import {
-  GetServerSideProps,
-  GetServerSidePropsContext,
-  InferGetServerSidePropsType,
-} from 'next';
-import { unstable_getServerSession } from 'next-auth/next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import {
-  GetPostsWithUserDataResponse,
-  MumbleUser,
-  Post as ClientPost,
-} from '../../models';
-import { mapPostToPostWithUserData } from '../../models/mappers';
-import { postReducer } from '../../reducers/post.reducers';
 import { like } from '../../services/like.service';
-import { getPostsWithUserData } from '../../services/mumble.service';
-import { createPost } from '../../services/post.service';
-import { UsersContext } from '../../state/machines';
-import { authOptions } from '../api/auth/[...nextauth]';
+import { TimelineContext } from '../../state/timeline-machine';
 
-export default function TimelinePage({
-  count,
-  posts,
-  users,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function TimelinePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [host, setHost] = useState('');
-  const usersContext = useContext(UsersContext);
-  const [usersState] = useActor(usersContext.userService);
-  const [state, dispatch] = useReducer(postReducer, {
-    hasMore: posts.length < count,
-    posts,
-  });
+  const timelineContext = useContext(TimelineContext);
+  const [timelineState, send] = useActor(timelineContext.timelineService);
 
   useEffect(() => {
-    setHost(() => window.location.origin);
-    usersContext.userService.send({ type: 'LOAD_USERS', mumbleUsers: users });
-  }, [users, usersContext]);
+    setHost(() => window.location.origin); //TODO move to Comment component
+    if (session?.loggedInUser) {
+      send({
+        type: 'INIT_TIMELINE',
+        loggedInUser: session.loggedInUser,
+      });
+    }
+  }, [session, send]);
 
-  const loadMore = async () => {
-    const {
-      count,
-      posts: postsWithUserData,
-      users: updatedUsers,
-    } = await getPostsWithUserData(
-      session?.accessToken || '',
-      { limit: 5, offset: state.posts.length },
-      usersState.context.mumbleUsers
-    );
-    dispatch({ type: 'LOAD', posts: postsWithUserData, count });
-    usersContext.userService.send({
-      type: 'UPDATE_USERS',
-      mumbleUsers: updatedUsers,
+  const loadMore = async (): Promise<void> => {
+    if (session) {
+      send({
+        type: 'UPDATE_TIMELINE_DATA',
+      });
+    }
+    const sub = timelineContext.timelineService.subscribe((state) => {
+      if (state.matches('idle')) {
+        return Promise.resolve(() => sub.unsubscribe());
+      }
+      if (state.matches('updateFailed')) {
+        return Promise.reject(() => sub.unsubscribe());
+      }
     });
   };
 
   const submitPost = async (image: File | undefined, text: string) => {
-    if (session && text) {
-      const createdPost: ClientPost = await createPost(
+    if (text) {
+      send({
+        type: 'CREATE_POST',
         text,
         image,
-        session.accessToken
-      );
-      const loggedInUser: Partial<MumbleUser> = {
-        firstName: session.firstName,
-        lastName: session.lastName,
-        userName: session.userName,
-        avatarUrl: session.avatarUrl,
-      };
-      dispatch({
-        type: 'CREATE',
-        post: mapPostToPostWithUserData(
-          createdPost,
-          loggedInUser as MumbleUser
-        ),
       });
     }
   };
 
   const likePost = async (isLiked: boolean, id: string) => {
     await like(id, isLiked, session?.accessToken);
-    dispatch({ type: 'LIKE', id, isLiked });
+    /* dispatch({ type: 'LIKE', id, isLiked }); */
   };
 
   return (
@@ -117,10 +84,10 @@ export default function TimelinePage({
         ></PostComment>
       )}
       <InfiniteScroll
-        dataLength={state.posts.length}
+        dataLength={timelineState.context.posts.length}
         next={loadMore}
-        hasMore={state.hasMore || false}
-        loader={<Skeleton></Skeleton>}
+        hasMore={timelineState.context.hasMore || false}
+        loader={<Skeleton />}
         endMessage={
           <p style={{ textAlign: 'center' }}>
             <b>Yay! You have seen it all</b>
@@ -128,7 +95,7 @@ export default function TimelinePage({
         }
         style={{ overflow: 'visible' }}
       >
-        {state.posts.map((post) => {
+        {timelineState.context.posts.map((post) => {
           if (post.type === 'post') {
             return (
               <Post
@@ -170,32 +137,8 @@ export default function TimelinePage({
   );
 }
 
-export const getServerSideProps: GetServerSideProps<
-  GetPostsWithUserDataResponse
-> = async (context: GetServerSidePropsContext) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
-
-  if (!session?.accessToken) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  const { count, posts, users } = await getPostsWithUserData(
-    session.accessToken
-  );
+/* export const getStaticProps: GetStaticProps<{}> = async () => {
   return {
-    props: {
-      count,
-      posts,
-      users,
-    },
+    props: {},
   };
-};
+}; */

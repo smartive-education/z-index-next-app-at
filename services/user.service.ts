@@ -25,7 +25,9 @@ export const getUsers = async (
     }, new Map());
 };
 
-export const getLoggedInUser = async (token: string): Promise<MumbleUser> => {
+export const getLoggedInMumbleUser = async (
+  token: string
+): Promise<MumbleUser> => {
   const headers = new Headers();
   headers.append('Content-Type', 'application/json');
   headers.append('Authorization', `Bearer ${token}`);
@@ -36,7 +38,10 @@ export const getLoggedInUser = async (token: string): Promise<MumbleUser> => {
   return mapResponseToUser(response);
 };
 
-export const getUserById = async (id: string, token: string): Promise<MumbleUser> => {
+export const getUserById = async (
+  id: string,
+  token: string
+): Promise<MumbleUser> => {
   const headers = new Headers();
   headers.append('Content-Type', 'application/json');
   headers.append('Authorization', `Bearer ${token}`);
@@ -45,4 +50,4 @@ export const getUserById = async (id: string, token: string): Promise<MumbleUser
   const res = await fetch(url, { headers });
   const response = await res.json();
   return mapResponseToUser(response);
-}
+};

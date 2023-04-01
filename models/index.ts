@@ -35,6 +35,11 @@ export interface MumbleUser {
   avatarUrl: string;
 }
 
+export interface LoggedInUser extends MumbleUser {
+  accessToken: string;
+  fullName: string;
+}
+
 export interface GetPostResponse {
   readonly count: number;
   readonly posts: Post[];

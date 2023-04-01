@@ -20,7 +20,7 @@ export const mapResponseToUser = (response: Response): MumbleUser =>
 
 export const mapPostToPostWithUserData = (
   post: Post,
-  user?: MumbleUser
+  user?: Partial<MumbleUser>
 ): PostWithUserData =>
   ({
     ...post,

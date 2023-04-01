@@ -3,14 +3,14 @@ import { SessionProvider } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { AppWrapper } from '../components/app-wrapper';
-import { UsersContext, usersMachine } from '../state/machines';
+import { TimelineContext, timelineMachine } from '../state/timeline-machine';
 import '../styles/globals.css';
 
 export default function App({
   Component,
   pageProps: { session, ...pageProps },
 }: AppProps) {
-  const userService = useInterpret(usersMachine);
+  const timelineService = useInterpret(timelineMachine);
 
   return (
     <>
@@ -24,11 +24,11 @@ export default function App({
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />
       </Head>
       <SessionProvider session={session}>
-        <UsersContext.Provider value={{ userService }}>
+        <TimelineContext.Provider value={{ timelineService }}>
           <AppWrapper>
             <Component {...pageProps} />
           </AppWrapper>
-        </UsersContext.Provider>
+        </TimelineContext.Provider>
       </SessionProvider>
     </>
   );

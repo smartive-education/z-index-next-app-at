@@ -1,13 +1,10 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
+import { LoggedInUser } from '../../../models';
 
 declare module 'next-auth' {
   interface Session {
     accessToken: string;
-    fullName: string;
-    userName: string;
-    avatarUrl: string;
-    firstName: string;
-    lastName: string;
+    loggedInUser: LoggedInUser;
   }
 }
 
