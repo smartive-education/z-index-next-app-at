@@ -2,9 +2,10 @@ import {
   Post,
   PostComment,
   Skeleton,
-  Typography
+  Typography,
 } from '@smartive-education/design-system-component-z-index';
 import { useActor } from '@xstate/react';
+import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -148,8 +149,8 @@ export default function TimelinePage() {
   );
 }
 
-/* export const getStaticProps: GetStaticProps<{}> = async () => {
+export const getStaticProps: GetStaticProps<{}> = async () => {
   return {
     props: {},
   };
-}; */
+};

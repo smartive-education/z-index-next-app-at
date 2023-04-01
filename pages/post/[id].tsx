@@ -38,10 +38,7 @@ export default function PostDetailPage({
     setHost(() => window.location.origin);
   }, []);
 
-  const submitReply = async (
-    image: File | undefined,
-    text: string
-  ) => {
+  const submitReply = async (image: File | undefined, text: string) => {
     if (session && text) {
       const createdReply: Reply = await createReply(
         text,
@@ -50,10 +47,10 @@ export default function PostDetailPage({
         post.id
       );
       const loggedInUser: Partial<MumbleUser> = {
-        firstName: session.firstName,
-        lastName: session.lastName,
-        userName: session.userName,
-        avatarUrl: session.avatarUrl,
+        firstName: session.loggedInUser.firstName,
+        lastName: session.loggedInUser.lastName,
+        userName: session.loggedInUser.userName,
+        avatarUrl: session.loggedInUser.avatarUrl,
       };
       dispatch({
         type: 'CREATE',
@@ -62,7 +59,7 @@ export default function PostDetailPage({
           loggedInUser as MumbleUser
         ),
       });
-    } 
+    }
   };
 
   const likeMumble = async (isLiked: boolean, id: string, type: MumbleType) => {
@@ -109,9 +106,9 @@ export default function PostDetailPage({
       {status === 'authenticated' && (
         <PostComment
           profileHeaderType='CREATE-REPLY'
-          name={session.fullName}
-          userName={session.userName}
-          src={session.avatarUrl}
+          name={session.loggedInUser.fullName}
+          userName={session.loggedInUser.userName}
+          src={session.loggedInUser.avatarUrl}
           postCreationTime=''
           placeholder='Was meinst du dazu?'
           LLabel='Bild hochladen'
