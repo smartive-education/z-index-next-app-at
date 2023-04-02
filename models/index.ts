@@ -1,5 +1,7 @@
 export type MumbleType = 'post' | 'reply' | 'deleted';
 export type AuthStatus = 'authenticated' | 'unauthenticated' | 'loading';
+export type FailedOperation = 'init' | 'update' | 'create' | 'like' | 'none';
+
 export interface MumbleBase {
   readonly id: string;
   readonly creator: string;
@@ -85,4 +87,9 @@ export interface MumbleUsers {
 export interface LikeParams {
   id: string;
   isLike: boolean;
+}
+
+export interface ErrorState {
+  failedOperation: FailedOperation;
+  isErrorModalOpen: boolean;
 }

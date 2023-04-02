@@ -1,4 +1,5 @@
 import {
+  Modal,
   Post,
   PostComment,
   Skeleton,
@@ -11,12 +12,15 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { FailedOperation } from '../../models';
+import { initialErrorState } from '../../models/constants';
 import { TimelineContext } from '../../state/timeline-machine';
 
 export default function TimelinePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [host, setHost] = useState('');
+  const [errorState, setErrorState] = useState(initialErrorState);
   const timelineContext = useContext(TimelineContext);
   const [timelineState, send] = useActor(timelineContext.timelineService);
 
@@ -28,7 +32,22 @@ export default function TimelinePage() {
         loggedInUser: session.loggedInUser,
       });
     }
-  }, [session, send, timelineState]);
+    const sub = timelineContext.timelineService.subscribe((state) => {
+      if (state.matches('initFailed')) {
+        setErrorState(() => ({
+          failedOperation: 'init',
+          isErrorModalOpen: true,
+        }));
+      }
+      if (state.matches('updateFailed')) {
+        setErrorState(() => ({
+          failedOperation: 'update',
+          isErrorModalOpen: true,
+        }));
+      }
+    });
+    return sub.unsubscribe();
+  }, [session, send, timelineState, timelineContext]);
 
   const loadMore = async (): Promise<void> => {
     if (session) {
@@ -65,8 +84,48 @@ export default function TimelinePage() {
     });
   };
 
+  const retry = (failedOperation: FailedOperation): void => {
+    switch (failedOperation) {
+      case 'init':
+        send({
+          type: 'RETRY_INIT',
+        });
+        break;
+      case 'update':
+        send({
+          type: 'RETRY_UPDATE',
+        });
+        break;
+      default:
+        send({
+          type: 'RETRY_UPDATE',
+        });
+    }
+    setErrorState(() => ({
+      failedOperation: 'none',
+      isErrorModalOpen: false,
+    }));
+  };
+
   return (
     <>
+      <Modal
+        title='Oops.'
+        isOpen={errorState?.isErrorModalOpen}
+        LLable='Abbrechen'
+        RLable='Erneut versuchen'
+        closeFn={() =>
+          setErrorState((state) => ({
+            ...state,
+            isErrorModalOpen: false,
+          }))
+        }
+        submitFn={() => retry(errorState.failedOperation)}
+      >
+        <Typography type='paragraph-m'>
+          Das hat leider nicht geklappt.
+        </Typography>
+      </Modal>
       <div className='my-4'>
         <span className='text-violet-600'>
           <Typography type='h2'>Wilkommen auf Mumble</Typography>

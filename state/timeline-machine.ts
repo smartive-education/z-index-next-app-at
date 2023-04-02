@@ -99,7 +99,10 @@ export const timelineMachine = createMachine({
     },
     initFailed: {
       on: {
-        RETRY_INIT: { target: 'timelineInitializing' },
+        RETRY_INIT: {
+          target: 'timelineInitializing',
+          actions: [(_context, _event) => console.log('RETRY_INIT triggered')],
+        },
       },
     },
     idle: {
@@ -146,7 +149,12 @@ export const timelineMachine = createMachine({
     },
     updateFailed: {
       on: {
-        RETRY_UPDATE: { target: 'timeLineUpdating' },
+        RETRY_UPDATE: {
+          target: 'timeLineUpdating',
+          actions: [
+            (_context, _event) => console.log('RETRY_UPDATE triggered'),
+          ],
+        },
       },
     },
     create: {
