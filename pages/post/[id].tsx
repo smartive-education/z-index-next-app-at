@@ -1,7 +1,7 @@
 import {
   Post,
   PostComment,
-} from '@smartive-education/design-system-component-z-index';
+} from '@smartive-education/design-system-component-z-index-at';
 import {
   GetServerSideProps,
   GetServerSidePropsContext,

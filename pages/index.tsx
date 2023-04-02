@@ -1,4 +1,4 @@
-import { Skeleton } from '@smartive-education/design-system-component-z-index';
+import { Skeleton } from '@smartive-education/design-system-component-z-index-at';
 
 export default function SkeletonPage() {
   const skeletons = [1, 2, 3, 4];

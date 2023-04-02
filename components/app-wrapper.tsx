@@ -1,4 +1,4 @@
-import { Navigation } from '@smartive-education/design-system-component-z-index';
+import { Navigation } from '@smartive-education/design-system-component-z-index-at';
 import { useActor } from '@xstate/react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';

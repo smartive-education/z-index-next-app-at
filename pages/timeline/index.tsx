@@ -4,7 +4,7 @@ import {
   PostComment,
   Skeleton,
   Typography,
-} from '@smartive-education/design-system-component-z-index';
+} from '@smartive-education/design-system-component-z-index-at';
 import { useActor } from '@xstate/react';
 import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
@@ -118,6 +118,7 @@ export default function TimelinePage() {
         isOpen={isErrorModalOpen}
         LLable='Abbrechen'
         RLable='Erneut versuchen'
+        RIcon='refresh'
         closeFn={() => closeErrorModal()}
         submitFn={() => retry()}
       >
