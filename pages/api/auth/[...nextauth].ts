@@ -1,5 +1,6 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import { LoggedInUser } from '../../../models';
+import { getUserById } from '../../../services/user.service';
 
 declare module 'next-auth' {
   interface Session {
@@ -28,13 +29,31 @@ export const authOptions: NextAuthOptions = {
       client: {
         token_endpoint_auth_method: 'none',
       },
-      async profile(profile) {
+      async profile(_, { access_token }): Promise<LoggedInUser> {
+        if (!access_token) throw new Error('No access token found');
+
+        const { userinfo_endpoint } = await (
+          await fetch(
+            `${process.env.ZITADEL_ISSUER}/.well-known/openid-configuration`
+          )
+        ).json();
+
+        const profile = await (
+          await fetch(userinfo_endpoint, {
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          })
+        ).json();
+
+        const user = (await getUserById(
+          profile.sub,
+          access_token
+        )) as LoggedInUser;
+
         return {
-          id: profile.sub,
-          username: profile.preferred_username?.replace(
-            '@smartive.zitadel.cloud',
-            ''
-          ),
+          ...user,
+          email: profile.email,
         };
       },
     },
@@ -43,14 +62,24 @@ export const authOptions: NextAuthOptions = {
     maxAge: 12 * 60 * 60, // 12 hours
   },
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, user, account }) {
       if (account) {
         token.accessToken = account.access_token;
+        token.expiresAt = (account.expires_at as number) * 1000;
       }
+      if (user) {
+        token.user = user as LoggedInUser;
+      }
+
+      if (Date.now() > (token.expiresAt as number)) {
+        delete token.accessToken;
+      }
+
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
+      session.loggedInUser = token.user as LoggedInUser;
+      session.loggedInUser.accessToken = token.accessToken;
       return session;
     },
   },

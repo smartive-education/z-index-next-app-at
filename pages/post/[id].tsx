@@ -106,9 +106,9 @@ export default function PostDetailPage({
       {status === 'authenticated' && (
         <PostComment
           profileHeaderType='CREATE-REPLY'
-          name={session.loggedInUser.fullName}
+          name={session.loggedInUser.displayName}
           userName={session.loggedInUser.userName}
-          src={session.loggedInUser.avatarUrl}
+          src={session.loggedInUser.avatarUrl || ''}
           postCreationTime=''
           placeholder='Was meinst du dazu?'
           LLabel='Bild hochladen'

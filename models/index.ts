@@ -34,12 +34,18 @@ export interface MumbleUser {
   userName: string;
   firstName: string;
   lastName: string;
-  avatarUrl: string;
+  avatarUrl?: string;
 }
 
 export interface LoggedInUser extends MumbleUser {
   accessToken: string;
-  fullName: string;
+	displayName: string;
+	profileLink: string;
+	email?: string;
+	city?: string;
+	bio?: string;
+	posterImage?: string;
+	createdAt?: string;
 }
 
 export interface GetPostResponse {
