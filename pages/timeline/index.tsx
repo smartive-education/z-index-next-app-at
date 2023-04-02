@@ -12,15 +12,13 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { FailedOperation } from '../../models';
-import { initialErrorState } from '../../models/constants';
 import { TimelineContext } from '../../state/timeline-machine';
 
 export default function TimelinePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [host, setHost] = useState('');
-  const [errorState, setErrorState] = useState(initialErrorState);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const timelineContext = useContext(TimelineContext);
   const [timelineState, send] = useActor(timelineContext.timelineService);
 
@@ -33,17 +31,12 @@ export default function TimelinePage() {
       });
     }
     const sub = timelineContext.timelineService.subscribe((state) => {
-      if (state.matches('initFailed')) {
-        setErrorState(() => ({
-          failedOperation: 'init',
-          isErrorModalOpen: true,
-        }));
-      }
-      if (state.matches('updateFailed')) {
-        setErrorState(() => ({
-          failedOperation: 'update',
-          isErrorModalOpen: true,
-        }));
+      if (
+        state.matches('initFailed') ||
+        state.matches('updateFailed') ||
+        state.matches('mutationFailed')
+      ) {
+        setIsErrorModalOpen(true);
       }
     });
     return sub.unsubscribe();
@@ -77,6 +70,7 @@ export default function TimelinePage() {
   };
 
   const likePost = async (isLiked: boolean, id: string) => {
+    console.log(timelineState.context);
     send({
       type: 'LIKE_POST',
       id,
@@ -84,8 +78,8 @@ export default function TimelinePage() {
     });
   };
 
-  const retry = (failedOperation: FailedOperation): void => {
-    switch (failedOperation) {
+  const retry = (): void => {
+    switch (timelineState.context.failedOperation) {
       case 'init':
         send({
           type: 'RETRY_INIT',
@@ -96,31 +90,36 @@ export default function TimelinePage() {
           type: 'RETRY_UPDATE',
         });
         break;
+      case 'create':
+      case 'like':
+        send({
+          type: 'RETURN_TO_IDLE',
+        });
+        break;
       default:
         send({
-          type: 'RETRY_UPDATE',
+          type: 'RETURN_TO_IDLE',
         });
     }
-    setErrorState(() => ({
-      failedOperation: 'none',
-      isErrorModalOpen: false,
-    }));
+    setIsErrorModalOpen(false);
+  };
+
+  const closeErrorModal = (): void => {
+    send({
+      type: 'RETURN_TO_IDLE',
+    });
+    setIsErrorModalOpen(false);
   };
 
   return (
     <>
       <Modal
         title='Oops.'
-        isOpen={errorState?.isErrorModalOpen}
+        isOpen={isErrorModalOpen}
         LLable='Abbrechen'
         RLable='Erneut versuchen'
-        closeFn={() =>
-          setErrorState((state) => ({
-            ...state,
-            isErrorModalOpen: false,
-          }))
-        }
-        submitFn={() => retry(errorState.failedOperation)}
+        closeFn={() => closeErrorModal()}
+        submitFn={() => retry()}
       >
         <Typography type='paragraph-m'>
           Das hat leider nicht geklappt.

@@ -1,6 +1,7 @@
 import { createContext } from 'react';
 import { assign, createMachine, InterpreterFrom } from 'xstate';
 import {
+  FailedOperation,
   GetPostsWithUserDataResponse,
   LikeParams,
   LoggedInUser,
@@ -18,7 +19,7 @@ export interface TimelineMachineContext {
   readonly mumbleUsers: MumbleUsers;
   readonly postsLoadedInTheBackground: PostWithUserData[];
   readonly clickedPost?: PostWithUserData;
-  readonly error?: Error;
+  readonly failedOperation: FailedOperation;
 }
 
 export const initialTimelineMachineContext: TimelineMachineContext = {
@@ -26,6 +27,7 @@ export const initialTimelineMachineContext: TimelineMachineContext = {
   posts: [],
   mumbleUsers: {},
   postsLoadedInTheBackground: [],
+  failedOperation: 'none',
 };
 
 export interface InitTimelineEvent {
@@ -88,12 +90,14 @@ export const timelineMachine = createMachine({
               event.data.posts?.length < event.data.count,
             posts: (_context, event) => event.data.posts,
             mumbleUsers: (_context, event) => event.data.users,
-            error: (_context, _event) => undefined,
+            failedOperation: (_context, _event) => 'none' as FailedOperation,
           }),
         },
         onError: {
           target: 'initFailed',
-          actions: assign({ error: (_context, event) => event.data }),
+          actions: assign({
+            failedOperation: (_context, _event) => 'init' as FailedOperation,
+          }),
         },
       },
     },
@@ -102,6 +106,12 @@ export const timelineMachine = createMachine({
         RETRY_INIT: {
           target: 'timelineInitializing',
           actions: [(_context, _event) => console.log('RETRY_INIT triggered')],
+        },
+        RETURN_TO_IDLE: {
+          target: 'idle',
+          actions: [
+            (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
+          ],
         },
       },
     },
@@ -139,11 +149,14 @@ export const timelineMachine = createMachine({
               ...(event.data.posts || []),
             ],
             mumbleUsers: (_context, event) => event.data.users,
+            failedOperation: (_context, _event) => 'none' as FailedOperation,
           }),
         },
         onError: {
           target: 'updateFailed',
-          actions: assign({ error: (_context, event) => event.data }),
+          actions: assign({
+            failedOperation: (_context, _event) => 'update' as FailedOperation,
+          }),
         },
       },
     },
@@ -153,6 +166,12 @@ export const timelineMachine = createMachine({
           target: 'timeLineUpdating',
           actions: [
             (_context, _event) => console.log('RETRY_UPDATE triggered'),
+          ],
+        },
+        RETURN_TO_IDLE: {
+          target: 'idle',
+          actions: [
+            (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
           ],
         },
       },
@@ -168,12 +187,24 @@ export const timelineMachine = createMachine({
           target: 'idle',
           actions: assign({
             posts: (context, event) => [event.data, ...context.posts],
-            error: (_context, _event) => undefined,
+            failedOperation: (_context, _event) => 'none' as FailedOperation,
           }),
         },
         onError: {
-          target: 'updateFailed',
-          actions: assign({ error: (_context, event) => event.data }),
+          target: 'mutationFailed',
+          actions: assign({
+            failedOperation: (_context, _event) => 'create' as FailedOperation,
+          }),
+        },
+      },
+    },
+    mutationFailed: {
+      on: {
+        RETURN_TO_IDLE: {
+          target: 'idle',
+          actions: [
+            (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
+          ],
         },
       },
     },
@@ -183,26 +214,31 @@ export const timelineMachine = createMachine({
           like(event.id, event.isLiked, context.loggedInUser?.accessToken),
         onDone: {
           target: 'idle',
-          actions: assign({
-            posts: (context, event) =>
-              context.posts.map((post) => {
-                if (post.id === event.data.id) {
-                  return {
-                    ...post,
-                    likeCount: event.data.isLike
-                      ? post.likeCount + 1
-                      : post.likeCount - 1,
-                    likedByUser: event.data.isLike,
-                  };
-                }
-                return post;
-              }),
-            error: (_context, _event) => undefined,
-          }),
+          actions: [
+            assign({
+              posts: (context, event) =>
+                context.posts.map((post) => {
+                  if (post.id === event.data.id) {
+                    return {
+                      ...post,
+                      likeCount: event.data.isLike
+                        ? post.likeCount + 1
+                        : post.likeCount - 1,
+                      likedByUser: event.data.isLike,
+                    };
+                  }
+                  return post;
+                }),
+              failedOperation: (_context, _event) => 'none' as FailedOperation,
+            }),
+            (_context, _event) => console.log('LIKE triggered'),
+          ],
         },
         onError: {
-          target: 'updateFailed',
-          actions: assign({ error: (_context, event) => event.data }),
+          target: 'mutationFailed',
+          actions: assign({
+            failedOperation: (_context, _event) => 'like' as FailedOperation,
+          }),
         },
       },
     },
