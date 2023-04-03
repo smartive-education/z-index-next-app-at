@@ -1,28 +1,24 @@
 import {
   Post,
-  PostComment,
+  PostComment
 } from '@smartive-education/design-system-component-z-index-at';
 import {
   GetServerSideProps,
   GetServerSidePropsContext,
-  InferGetServerSidePropsType,
+  InferGetServerSidePropsType
 } from 'next';
-import { unstable_getServerSession } from 'next-auth';
+import { getToken } from 'next-auth/jwt';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect, useReducer, useState } from 'react';
 import {
-  GetPostDetailsResponse,
-  MumbleType,
-  MumbleUser,
-  Reply,
+  GetPostDetailsResponse, MumbleType, Reply
 } from '../../models';
 import { mapReplyToReplyWithUserData } from '../../models/mappers';
 import { postDetailReducer } from '../../reducers/post-detail.reducers';
 import { like } from '../../services/like.service';
 import { getPostDetailsWithUserData } from '../../services/mumble.service';
 import { createReply } from '../../services/reply.service';
-import { authOptions } from '../api/auth/[...nextauth]';
 
 export default function PostDetailPage({
   post,
@@ -43,26 +39,18 @@ export default function PostDetailPage({
       const createdReply: Reply = await createReply(
         text,
         image,
-        session?.accessToken,
+        session.accessToken,
         post.id
       );
-      const loggedInUser: Partial<MumbleUser> = {
-        firstName: session.loggedInUser.firstName,
-        lastName: session.loggedInUser.lastName,
-        userName: session.loggedInUser.userName,
-        avatarUrl: session.loggedInUser.avatarUrl,
-      };
       dispatch({
         type: 'CREATE',
-        reply: mapReplyToReplyWithUserData(
-          createdReply,
-          loggedInUser as MumbleUser
-        ),
+        reply: mapReplyToReplyWithUserData(createdReply, session.loggedInUser),
       });
     }
   };
 
   const likeMumble = async (isLiked: boolean, id: string, type: MumbleType) => {
+    console.log(session?.loggedInUser.accessToken);
     await like(id, isLiked, session?.accessToken);
     if (type === 'post') {
       dispatch({ type: 'LIKE-POST', id, isLiked });
@@ -163,13 +151,9 @@ export default function PostDetailPage({
 export const getServerSideProps: GetServerSideProps<
   GetPostDetailsResponse
 > = async (context: GetServerSidePropsContext) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
+  const session = await getToken({ req: context.req });
 
-  if (!session?.accessToken) {
+  if (!session) {
     return {
       redirect: {
         destination: '/',
@@ -178,7 +162,7 @@ export const getServerSideProps: GetServerSideProps<
     };
   }
   const { post, replies } = await getPostDetailsWithUserData(
-    session?.accessToken,
+    session?.accessToken as string,
     context.query.id as string
   );
   return {
