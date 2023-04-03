@@ -2,9 +2,9 @@ import { decodeTime } from 'ulid';
 import { MumbleUser, Post, PostWithUserData, Reply, ReplyWithUserData, Response } from '.';
 
 export const mapResponseToPost = (response: Response): Post =>
-  ({
+   ({
     ...response,
-    createdTimestamp: new Date(decodeTime(response.id)).toDateString(), //TODO add logic to change this to current date - created date string
+    createdTimestamp: new Date(decodeTime(response?.id || '')).toDateString(), //TODO add logic to change this to current date - created date string
   } as Post);
 
 export const mapResponseToReply = (response: Response): Reply =>
