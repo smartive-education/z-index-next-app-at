@@ -6,9 +6,18 @@ export function postDetailReducer(
   action: PostDetailAction
 ): PostDetailState {
   switch (action.type) {
+    case 'INIT':
+      return {
+        post: action.post,
+        replies: action.replies,
+      };
     case 'CREATE':
       return {
         ...state,
+        post: {
+          ...state.post,
+          replyCount: state.post.replyCount + 1,
+        },
         replies: [action.reply, ...state.replies],
       };
     case 'LIKE-POST':

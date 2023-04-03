@@ -2,13 +2,14 @@ import {
   GetPostDetailsResponse,
   GetPostsQueryParams,
   GetPostsWithUserDataResponse,
+  Mumble,
   MumbleUser,
   MumbleUsers,
-  PostWithUserData,
-  ReplyWithUserData
 } from '../models';
-import { mapPostToPostWithUserData, mapReplyToReplyWithUserData } from '../models/mappers';
-import { getPostById, getPosts } from './post.service';
+import {
+  mapResponseToMumble,
+} from '../models/mappers';
+import { getMumbleById, getPosts } from './post.service';
 import { getReplies } from './reply.service';
 import { getUserById } from './user.service';
 
@@ -38,8 +39,8 @@ export const getPostsWithUserData = async (
     }, {} as { [key: string]: MumbleUser }),
   };
 
-  const postsWithUserData: PostWithUserData[] = posts.map((post) => {
-    return mapPostToPostWithUserData(post, updatedUsers[post.creator]);
+  const postsWithUserData: Mumble[] = posts.map((post) => {
+    return mapResponseToMumble(post, updatedUsers[post.creator]);
   });
 
   return {
@@ -49,21 +50,19 @@ export const getPostsWithUserData = async (
   };
 };
 
-export const getPostDetailsWithUserData = async (
+export const getMumbleDetailsWithUserData = async (
   token: string,
   id: string
 ): Promise<GetPostDetailsResponse> => {
-  const post = await getPostById(id);
+  const mumble = await getMumbleById(id);
   const replies = await getReplies(id);
   const creators = replies.reduce((set, item) => {
     set.add(item.creator);
     return set;
   }, new Set<string>());
-  creators.add(post.creator);
+  creators.add(mumble.creator);
   const users = await Promise.all(
-    Array.from(creators).map((creator: string) =>
-      getUserById(creator, token)
-    )
+    Array.from(creators).map((creator: string) => getUserById(creator, token))
   );
 
   const updatedUsers: MumbleUsers = {
@@ -73,9 +72,12 @@ export const getPostDetailsWithUserData = async (
     }, {} as { [key: string]: MumbleUser }),
   };
 
-  const postWithUserData: PostWithUserData = mapPostToPostWithUserData(post, updatedUsers[post.creator]);
-  const repliesWithUserData: ReplyWithUserData[] = replies.map((reply) => {
-    return mapReplyToReplyWithUserData(reply, updatedUsers[reply.creator]);
+  const postWithUserData: Mumble = mapResponseToMumble(
+    mumble,
+    updatedUsers[mumble.creator]
+  );
+  const repliesWithUserData: Mumble[] = replies.map((reply) => {
+    return mapResponseToMumble(reply, updatedUsers[reply.creator]);
   });
 
   return {

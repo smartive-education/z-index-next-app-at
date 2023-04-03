@@ -1,27 +1,14 @@
-import { PostWithUserData, ReplyWithUserData } from '../models';
+import { Mumble } from '../models';
 
-export interface LoadPosts {
-    type: 'LOAD';
-    posts: PostWithUserData[];
-    count: number;
+export interface InitMumbleDetailState {
+    type: 'INIT';
+    post: Mumble;
+    replies: Mumble[]
 }
-
-export interface CreatePost {
-    type: 'CREATE';
-    post: PostWithUserData;
-}
-
-export interface LikePost {
-    type: 'LIKE';
-    id: string;
-    isLiked: boolean;
-}
-
-export type PostAction = LoadPosts | CreatePost | LikePost;
 
 export interface CreateReply {
     type: 'CREATE';
-    reply: ReplyWithUserData;
+    reply: Mumble;
 }
 
 export interface LikePostDetail {
@@ -36,4 +23,4 @@ export interface LikeReply {
     isLiked: boolean;
 }
 
-export type PostDetailAction = CreateReply | LikePostDetail | LikeReply;
+export type PostDetailAction = CreateReply | LikePostDetail | LikeReply | InitMumbleDetailState;

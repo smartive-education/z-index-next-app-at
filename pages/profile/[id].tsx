@@ -70,8 +70,8 @@ export default function ProfilePage({
                 commentCount={post.replyCount}
                 isLiked={post.likedByUser}
                 likeCount={post.likeCount}
-                link={`${host}/post/${post.id}`}
-                comment={() => router.push(`/post/${post.id}`)}
+                link={`${host}/mumble/${post.id}`}
+                comment={() => router.push(`/mumble/${post.id}`)}
                 openProfile={() => router.push(`/profile/${post.creator}`)}
                 setIsLiked={(isLiked) => likePost(isLiked, post.id)}
                 copyLabel='Copy Link'

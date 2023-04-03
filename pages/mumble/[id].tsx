@@ -1,24 +1,22 @@
 import {
   Post,
-  PostComment
+  PostComment,
 } from '@smartive-education/design-system-component-z-index-at';
 import {
   GetServerSideProps,
   GetServerSidePropsContext,
-  InferGetServerSidePropsType
+  InferGetServerSidePropsType,
 } from 'next';
 import { getToken } from 'next-auth/jwt';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect, useReducer, useState } from 'react';
 import { useRouter } from 'next/router';
-import {
-  GetPostDetailsResponse, MumbleType, Reply
-} from '../../models';
-import { mapReplyToReplyWithUserData } from '../../models/mappers';
+import { useEffect, useReducer, useState } from 'react';
+import { GetPostDetailsResponse, Mumble, MumbleType } from '../../models';
+import { mapResponseToMumble } from '../../models/mappers';
 import { postDetailReducer } from '../../reducers/post-detail.reducers';
 import { like } from '../../services/like.service';
-import { getPostDetailsWithUserData } from '../../services/mumble.service';
+import { getMumbleDetailsWithUserData } from '../../services/mumble.service';
 import { createReply } from '../../services/reply.service';
 
 export default function PostDetailPage({
@@ -32,13 +30,20 @@ export default function PostDetailPage({
     replies,
   });
   const [host, setHost] = useState('');
-  useEffect(() => {
-    setHost(() => window.location.origin);
-  }, []);
 
-  const submitReply = async (image: File | undefined, text: string) => {
+  //without reinitializing the reducer react would not re-render the page in case only the id changes in the url
+  useEffect(() => {
+    dispatch({
+      type: 'INIT',
+      post,
+      replies,
+    });
+    setHost(() => window.location.origin);
+  }, [post, replies]);
+
+  const reply = async (image: File | undefined, text: string) => {
     if (session && text) {
-      const createdReply: Reply = await createReply(
+      const createdReply: Mumble = await createReply(
         text,
         image,
         session.accessToken,
@@ -46,13 +51,13 @@ export default function PostDetailPage({
       );
       dispatch({
         type: 'CREATE',
-        reply: mapReplyToReplyWithUserData(createdReply, session.loggedInUser),
+        reply: mapResponseToMumble(createdReply, session.loggedInUser),
       });
     }
   };
 
   const likeMumble = async (isLiked: boolean, id: string, type: MumbleType) => {
-    console.log(session?.loggedInUser.accessToken);
+    console.log(session?.accessToken);
     await like(id, isLiked, session?.accessToken);
     if (type === 'post') {
       dispatch({ type: 'LIKE-POST', id, isLiked });
@@ -60,7 +65,6 @@ export default function PostDetailPage({
       dispatch({ type: 'LIKE-REPLY', id, isLiked });
     }
   };
-
 
   return (
     <>
@@ -71,10 +75,10 @@ export default function PostDetailPage({
         postCreationTime={state.post.createdTimestamp}
         src={state.post.avatarUrl}
         content={state.post.text}
-        commentCount={state.post.replyCount}
+        commentCount={state.post.replyCount || 0}
         isLiked={state.post.likedByUser}
         likeCount={state.post.likeCount}
-        link={`${host}/post/${state.post.id}`}
+        link={`${host}/mumble/${state.post.id}`}
         comment={() => {}}
         openProfile={() => router.push(`/profile/${state.post.creator}`)}
         setIsLiked={(isLiked) =>
@@ -97,15 +101,15 @@ export default function PostDetailPage({
       {status === 'authenticated' && (
         <PostComment
           profileHeaderType='CREATE-REPLY'
-          name={session.loggedInUser.displayName}
-          userName={session.loggedInUser.userName}
-          src={session.loggedInUser.avatarUrl || ''}
+          name={post.fullName || ''}
+          userName={post.userName || ''}
+          src={post.avatarUrl || ''}
           postCreationTime=''
           placeholder='Was meinst du dazu?'
           LLabel='Bild hochladen'
           RLabel='Absenden'
           openProfile={() => {}}
-          onSubmit={(file, text) => submitReply(file, text)}
+          onSubmit={(file, text) => reply(file, text)}
         ></PostComment>
       )}
       {state.replies.map((reply) => {
@@ -119,11 +123,11 @@ export default function PostDetailPage({
               postCreationTime={reply.createdTimestamp}
               src={reply.avatarUrl}
               content={reply.text}
-              commentCount={0} // TODO make this optional for replies
+              commentCount={0}
               isLiked={reply.likedByUser}
               likeCount={reply.likeCount}
-              link={`${host}/post/${reply.id}`}
-              comment={() => {}}
+              link={`${host}/mumble/${reply.id}`}
+              comment={() => router.push(`/mumble/${reply.id}`)}
               openProfile={() => router.push(`/profile/${reply.creator}`)}
               setIsLiked={(isLiked) =>
                 likeMumble(isLiked, reply.id, reply.type)
@@ -164,7 +168,7 @@ export const getServerSideProps: GetServerSideProps<
       },
     };
   }
-  const { post, replies } = await getPostDetailsWithUserData(
+  const { post, replies } = await getMumbleDetailsWithUserData(
     session?.accessToken as string,
     context.query.id as string
   );

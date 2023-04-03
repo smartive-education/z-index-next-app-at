@@ -13,20 +13,18 @@ export interface MumbleBase {
   readonly type: MumbleType;
 }
 
+export interface Mumble extends MumbleBase {
+  readonly createdTimestamp: string;
+  readonly replyCount?: number;
+  readonly parentId?: string;
+  readonly fullName?: string;
+  readonly userName?: string;
+  readonly avatarUrl?: string;
+}
+
 export interface Response {
   readonly id: string;
   [key: string]: any;
-}
-
-export interface Post extends MumbleBase {
-  readonly replyCount: number;
-  readonly createdTimestamp: string;
-}
-
-export interface PostWithUserData extends Post {
-  fullName: string;
-  userName: string;
-  avatarUrl: string;
 }
 
 export interface MumbleUser {
@@ -39,24 +37,24 @@ export interface MumbleUser {
 
 export interface LoggedInUser extends MumbleUser {
   accessToken: string;
-	displayName: string;
-	profileLink: string;
-	email?: string;
-	city?: string;
-	bio?: string;
-	posterImage?: string;
-	createdAt?: string;
+  displayName: string;
+  profileLink: string;
+  email?: string;
+  city?: string;
+  bio?: string;
+  posterImage?: string;
+  createdAt?: string;
 }
 
 export interface GetPostResponse {
   readonly count: number;
-  readonly posts: Post[];
+  readonly posts: Mumble[];
 }
 
 export interface GetPostsWithUserDataResponse {
   readonly users: MumbleUsers;
   readonly count: number;
-  readonly posts: PostWithUserData[];
+  readonly posts: Mumble[];
 }
 
 export interface GetPostsQueryParams {
@@ -72,22 +70,12 @@ export interface GetUsersQueryParams {
 }
 export interface GetProfileResponse {
   readonly user: MumbleUser;
-  readonly posts: Post[];
-}
-export interface Reply extends MumbleBase {
-  readonly parentId: string;
-  readonly createdTimestamp: string;
-}
-
-export interface ReplyWithUserData extends Reply {
-  fullName: string;
-  userName: string;
-  avatarUrl: string;
+  readonly posts: Mumble[];
 }
 
 export interface GetPostDetailsResponse {
-  readonly post: PostWithUserData;
-  readonly replies: ReplyWithUserData[];
+  readonly post: Mumble;
+  readonly replies: Mumble[];
 }
 
 export interface MumbleUsers {
@@ -97,9 +85,4 @@ export interface MumbleUsers {
 export interface LikeParams {
   id: string;
   isLike: boolean;
-}
-
-export interface ErrorState {
-  failedOperation: FailedOperation;
-  isErrorModalOpen: boolean;
 }

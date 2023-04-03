@@ -53,7 +53,7 @@ export const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
           ></Navigation>
         </>
       )}
-      <main className='md:grid md:grid-cols-12 bg-slate-100'>
+      <main className='md:grid md:grid-cols-12 bg-slate-100 min-h-screen'>
         <div className='flex flex-col sm:w-3/4 sm:mx-auto md:w-auto md:mx-0 px-4 sm:px-0 md:col-start-3 md:col-end-11 lg:col-start-4 lg:col-end-10'>
           {children}
         </div>
