@@ -1,10 +1,7 @@
 import { Navigation } from '@smartive-education/design-system-component-z-index-at';
-import { useActor } from '@xstate/react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FC, ReactNode, useContext, useEffect } from 'react';
-import { getLoggedInMumbleUser } from '../services/user.service';
-import { TimelineContext } from '../state/timeline-machine';
+import { FC, ReactNode, useEffect } from 'react';
 
 interface AppWrapperProps {
   children: ReactNode;

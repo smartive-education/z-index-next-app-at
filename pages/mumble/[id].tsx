@@ -57,7 +57,6 @@ export default function PostDetailPage({
   };
 
   const likeMumble = async (isLiked: boolean, id: string, type: MumbleType) => {
-    console.log(session?.accessToken);
     await like(id, isLiked, session?.accessToken);
     if (type === 'post') {
       dispatch({ type: 'LIKE-POST', id, isLiked });

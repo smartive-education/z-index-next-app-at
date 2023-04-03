@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { CardWrapper } from '../../components/card-wrapper';
 import { TimelineContext } from '../../state/timeline-machine';
 
 export default function TimelinePage() {
@@ -122,15 +123,16 @@ export default function TimelinePage() {
         closeFn={() => closeErrorModal()}
         submitFn={() => retry()}
       >
-        <Typography type='paragraph-m'>
-          Das hat leider nicht geklappt.
-        </Typography>
+        <CardWrapper
+          titel='Das hat leider nicht geklappt.'
+          src='/images/no_mumbles.png'
+        />
       </Modal>
       <div className='my-4'>
         <span className='text-violet-600'>
           <Typography type='h2'>Wilkommen auf Mumble</Typography>
         </span>
-        <Typography type='h3'>Finde raus was passiert in der Welt!</Typography>
+        <Typography type='h3'>Finde raus was in der Welt passiert!</Typography>
       </div>
       {status === 'authenticated' && (
         <PostComment
@@ -146,8 +148,13 @@ export default function TimelinePage() {
           onSubmit={(file, text) => submitPost(file, text)}
         ></PostComment>
       )}
-      {!timelineState.context.posts.length ||
-      timelineState.matches('timelineInitializing') ? (
+      {!timelineState.context.posts.length && timelineState.matches('idle') ? (
+        <CardWrapper
+          titel='Keine Mumbles gefunden'
+          src='/images/no_mumbles.png'
+        />
+      ) : !timelineState.context.posts.length ||
+        timelineState.matches('timelineInitializing') ? (
         <>
           <Skeleton />
           <Skeleton />
@@ -159,9 +166,10 @@ export default function TimelinePage() {
           hasMore={timelineState.context.hasMore || false}
           loader={<Skeleton />}
           endMessage={
-            <p style={{ textAlign: 'center' }}>
-              <b>Yay! You have seen it all</b>
-            </p>
+            <CardWrapper
+              titel='Yaay, du hast alle mumbles gesehen!'
+              src='/images/caught_up.png'
+            />
           }
           style={{ overflow: 'visible' }}
         >
