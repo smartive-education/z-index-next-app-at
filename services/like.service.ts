@@ -1,8 +1,10 @@
+import { LikeParams } from '../models';
+
 export const like = async (
   id: string,
   isLike: boolean,
   token: string | undefined
-): Promise<void> => {
+): Promise<LikeParams> => {
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token}`);
 
@@ -13,4 +15,5 @@ export const like = async (
     method: method,
     headers,
   });
+  return {id, isLike};
 };

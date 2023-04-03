@@ -18,7 +18,7 @@ import { authOptions } from '../api/auth/[...nextauth]';
 import {
   ProfileCard,
   Post,
-} from '@smartive-education/design-system-component-z-index';
+} from '@smartive-education/design-system-component-z-index-at';
 
 import { ProfileImage } from './profileImage'
 

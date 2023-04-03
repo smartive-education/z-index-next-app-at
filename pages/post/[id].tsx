@@ -1,29 +1,25 @@
 import {
   Post,
-  PostComment,
-} from '@smartive-education/design-system-component-z-index';
+  PostComment
+} from '@smartive-education/design-system-component-z-index-at';
 import {
   GetServerSideProps,
   GetServerSidePropsContext,
-  InferGetServerSidePropsType,
+  InferGetServerSidePropsType
 } from 'next';
-import { unstable_getServerSession } from 'next-auth';
+import { getToken } from 'next-auth/jwt';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect, useReducer, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
-  GetPostDetailsResponse,
-  MumbleType,
-  MumbleUser,
-  Reply,
+  GetPostDetailsResponse, MumbleType, Reply
 } from '../../models';
 import { mapReplyToReplyWithUserData } from '../../models/mappers';
 import { postDetailReducer } from '../../reducers/post-detail.reducers';
 import { like } from '../../services/like.service';
 import { getPostDetailsWithUserData } from '../../services/mumble.service';
 import { createReply } from '../../services/reply.service';
-import { authOptions } from '../api/auth/[...nextauth]';
 
 export default function PostDetailPage({
   post,
@@ -40,34 +36,23 @@ export default function PostDetailPage({
     setHost(() => window.location.origin);
   }, []);
 
-  const submitReply = async (
-    image: File | undefined,
-    form: HTMLFormElement
-  ) => {
-    if (session) {
+  const submitReply = async (image: File | undefined, text: string) => {
+    if (session && text) {
       const createdReply: Reply = await createReply(
-        (form.elements.namedItem('post-comment') as HTMLInputElement).value,
+        text,
         image,
-        session?.accessToken,
+        session.accessToken,
         post.id
       );
-      const loggedInUser: Partial<MumbleUser> = {
-        firstName: session.firstName,
-        lastName: session.lastName,
-        userName: session.userName,
-        avatarUrl: session.avatarUrl,
-      };
       dispatch({
         type: 'CREATE',
-        reply: mapReplyToReplyWithUserData(
-          createdReply,
-          loggedInUser as MumbleUser
-        ),
+        reply: mapReplyToReplyWithUserData(createdReply, session.loggedInUser),
       });
     }
   };
 
   const likeMumble = async (isLiked: boolean, id: string, type: MumbleType) => {
+    console.log(session?.loggedInUser.accessToken);
     await like(id, isLiked, session?.accessToken);
     if (type === 'post') {
       dispatch({ type: 'LIKE-POST', id, isLiked });
@@ -112,15 +97,15 @@ export default function PostDetailPage({
       {status === 'authenticated' && (
         <PostComment
           profileHeaderType='CREATE-REPLY'
-          name={session.fullName}
-          userName={session.userName}
-          src={session.avatarUrl}
+          name={session.loggedInUser.displayName}
+          userName={session.loggedInUser.userName}
+          src={session.loggedInUser.avatarUrl || ''}
           postCreationTime=''
           placeholder='Was meinst du dazu?'
           LLabel='Bild hochladen'
           RLabel='Absenden'
           openProfile={() => {}}
-          onSubmit={(file, form) => submitReply(file, form)}
+          onSubmit={(file, text) => submitReply(file, text)}
         ></PostComment>
       )}
       {state.replies.map((reply) => {
@@ -169,13 +154,9 @@ export default function PostDetailPage({
 export const getServerSideProps: GetServerSideProps<
   GetPostDetailsResponse
 > = async (context: GetServerSidePropsContext) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
+  const session = await getToken({ req: context.req });
 
-  if (!session?.accessToken) {
+  if (!session) {
     return {
       redirect: {
         destination: '/',
@@ -184,7 +165,7 @@ export const getServerSideProps: GetServerSideProps<
     };
   }
   const { post, replies } = await getPostDetailsWithUserData(
-    session?.accessToken,
+    session?.accessToken as string,
     context.query.id as string
   );
   return {

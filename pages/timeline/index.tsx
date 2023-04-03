@@ -1,105 +1,136 @@
 import {
+  Modal,
   Post,
   PostComment,
+  Skeleton,
   Typography,
-} from '@smartive-education/design-system-component-z-index';
+} from '@smartive-education/design-system-component-z-index-at';
 import { useActor } from '@xstate/react';
-import {
-  GetServerSideProps,
-  GetServerSidePropsContext,
-  InferGetServerSidePropsType,
-} from 'next';
-import { unstable_getServerSession } from 'next-auth/next';
+import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import {
-  GetPostsWithUserDataResponse,
-  MumbleUser,
-  Post as ClientPost,
-} from '../../models';
-import { mapPostToPostWithUserData } from '../../models/mappers';
-import { postReducer } from '../../reducers/post.reducers';
-import { like } from '../../services/like.service';
-import { getPostsWithUserData } from '../../services/mumble.service';
-import { createPost } from '../../services/post.service';
-import { UsersContext } from '../../state/machines';
-import { authOptions } from '../api/auth/[...nextauth]';
+import { TimelineContext } from '../../state/timeline-machine';
 
-export default function TimelinePage({
-  count,
-  posts,
-  users,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function TimelinePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [host, setHost] = useState('');
-  const usersContext = useContext(UsersContext);
-  const [usersState] = useActor(usersContext.userService);
-  const [state, dispatch] = useReducer(postReducer, {
-    hasMore: posts.length < count,
-    posts,
-  });
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const timelineContext = useContext(TimelineContext);
+  const [timelineState, send] = useActor(timelineContext.timelineService);
 
   useEffect(() => {
-    setHost(() => window.location.origin);
-    usersContext.userService.send({ type: 'LOAD_USERS', mumbleUsers: users });
-  }, [users, usersContext]);
+    setHost(() => window.location.origin); //TODO move to Comment component
+    if (session?.loggedInUser && timelineState.matches('empty')) {
+      send({
+        type: 'INIT_TIMELINE',
+        loggedInUser: session.loggedInUser,
+      });
+    }
+    const sub = timelineContext.timelineService.subscribe((state) => {
+      if (
+        state.matches('initFailed') ||
+        state.matches('updateFailed') ||
+        state.matches('mutationFailed')
+      ) {
+        setIsErrorModalOpen(true);
+      }
+    });
+    return sub.unsubscribe();
+  }, [session, send, timelineState, timelineContext]);
 
-  const loadMore = async () => {
-    const {
-      count,
-      posts: postsWithUserData,
-      users: updatedUsers,
-    } = await getPostsWithUserData(
-      session?.accessToken || '',
-      { limit: 5, offset: state.posts.length },
-      usersState.context.mumbleUsers
-    );
-    dispatch({ type: 'LOAD', posts: postsWithUserData, count });
-    usersContext.userService.send({
-      type: 'UPDATE_USERS',
-      mumbleUsers: updatedUsers,
+  const loadMore = async (): Promise<void> => {
+    if (session) {
+      send({
+        type: 'UPDATE_TIMELINE_DATA',
+      });
+    }
+    const sub = timelineContext.timelineService.subscribe((state) => {
+      if (state.matches('idle')) {
+        return Promise.resolve(() => sub.unsubscribe());
+      }
+      if (state.matches('updateFailed')) {
+        return Promise.reject(() => sub.unsubscribe());
+      }
     });
   };
 
-  const submitPost = async (image: File | undefined, form: HTMLFormElement) => {
-    if (session) {
-      const createdPost: ClientPost = await createPost(
-        (form.elements.namedItem('post-comment') as HTMLInputElement).value,
+  const submitPost = async (image: File | undefined, text: string) => {
+    console.log(timelineState.context);
+    if (text) {
+      send({
+        type: 'CREATE_POST',
+        text,
         image,
-        session.accessToken
-      );
-      const loggedInUser: Partial<MumbleUser> = {
-        firstName: session.firstName,
-        lastName: session.lastName,
-        userName: session.userName,
-        avatarUrl: session.avatarUrl,
-      };
-      dispatch({
-        type: 'CREATE',
-        post: mapPostToPostWithUserData(
-          createdPost,
-          loggedInUser as MumbleUser
-        ),
       });
     }
   };
 
   const likePost = async (isLiked: boolean, id: string) => {
-    await like(id, isLiked, session?.accessToken);
-    dispatch({ type: 'LIKE', id, isLiked });
+    console.log(timelineState.context);
+    send({
+      type: 'LIKE_POST',
+      id,
+      isLiked,
+    });
+  };
+
+  const retry = (): void => {
+    switch (timelineState.context.failedOperation) {
+      case 'init':
+        send({
+          type: 'RETRY_INIT',
+        });
+        break;
+      case 'update':
+        send({
+          type: 'RETRY_UPDATE',
+        });
+        break;
+      case 'create':
+      case 'like':
+        send({
+          type: 'RETURN_TO_IDLE',
+        });
+        break;
+      default:
+        send({
+          type: 'RETURN_TO_IDLE',
+        });
+    }
+    setIsErrorModalOpen(false);
+  };
+
+  const closeErrorModal = (): void => {
+    send({
+      type: 'RETURN_TO_IDLE',
+    });
+    setIsErrorModalOpen(false);
   };
 
   return (
     <>
+      <Modal
+        title='Oops.'
+        isOpen={isErrorModalOpen}
+        LLable='Abbrechen'
+        RLable='Erneut versuchen'
+        RIcon='refresh'
+        closeFn={() => closeErrorModal()}
+        submitFn={() => retry()}
+      >
+        <Typography type='paragraph-m'>
+          Das hat leider nicht geklappt.
+        </Typography>
+      </Modal>
       <div className='my-4'>
         <span className='text-violet-600'>
           <Typography type='h2'>Wilkommen auf Mumble</Typography>
         </span>
-        <Typography type='h4'>Finde raus was passiert in der Welt!</Typography>
+        <Typography type='h3'>Finde raus was passiert in der Welt!</Typography>
       </div>
       {status === 'authenticated' && (
         <PostComment
@@ -112,89 +143,73 @@ export default function TimelinePage({
           LLabel='Bild hochladen'
           RLabel='Absenden'
           openProfile={() => router.push('/profile/me')}
-          onSubmit={(file, form) => submitPost(file, form)}
+          onSubmit={(file, text) => submitPost(file, text)}
         ></PostComment>
       )}
-      <InfiniteScroll
-        dataLength={state.posts.length}
-        next={loadMore}
-        hasMore={state.hasMore || false}
-        loader={<h4>Loading...</h4>}
-        endMessage={
-          <p style={{ textAlign: 'center' }}>
-            <b>Yay! You have seen it all</b>
-          </p>
-        }
-        style={{ overflow: 'visible' }}
-      >
-        {state.posts?.map((post) => {
-          if (post.type === 'post') {
-            return (
-              <Post
-                key={post.id}
-                profileHeaderType='POST'
-                name={post.fullName}
-                userName={post.userName}
-                postCreationTime={post.createdTimestamp}
-                src={post.avatarUrl}
-                content={post.text}
-                commentCount={post.replyCount}
-                isLiked={post.likedByUser}
-                likeCount={post.likeCount}
-                link={`${host}/post/${post.id}`}
-                comment={() => router.push(`/post/${post.id}`)}
-                openProfile={() => router.push(`/profile/${post.creator}`)}
-                setIsLiked={(isLiked) => likePost(isLiked, post.id)}
-                copyLabel='Copy Link'
-                copiedLabel='Link Copied'
-              >
-                {post.mediaUrl && (
-                  <Image
-                    src={post.mediaUrl}
-                    alt={post.text}
-                    fill
-                    sizes='(min-width: 60rem) 40vw,
+      {!timelineState.context.posts.length ||
+      timelineState.matches('timelineInitializing') ? (
+        <>
+          <Skeleton />
+          <Skeleton />
+        </>
+      ) : (
+        <InfiniteScroll
+          dataLength={timelineState.context.posts.length}
+          next={loadMore}
+          hasMore={timelineState.context.hasMore || false}
+          loader={<Skeleton />}
+          endMessage={
+            <p style={{ textAlign: 'center' }}>
+              <b>Yay! You have seen it all</b>
+            </p>
+          }
+          style={{ overflow: 'visible' }}
+        >
+          {timelineState.context.posts?.map((post) => {
+            if (post.type === 'post') {
+              return (
+                <Post
+                  key={post.id}
+                  profileHeaderType='POST'
+                  name={post.fullName}
+                  userName={post.userName}
+                  postCreationTime={post.createdTimestamp}
+                  src={post.avatarUrl}
+                  content={post.text}
+                  commentCount={post.replyCount}
+                  isLiked={post.likedByUser}
+                  likeCount={post.likeCount}
+                  link={`${host}/post/${post.id}`}
+                  comment={() => router.push(`/post/${post.id}`)}
+                  openProfile={() => router.push(`/profile/${post.creator}`)}
+                  setIsLiked={(isLiked) => likePost(isLiked, post.id)}
+                  copyLabel='Copy Link'
+                  copiedLabel='Link Copied'
+                >
+                  {post.mediaUrl && (
+                    <Image
+                      src={post.mediaUrl}
+                      alt={post.text}
+                      fill
+                      sizes='(min-width: 60rem) 40vw,
                         (min-width: 30rem) 50vw,
                         100vw'
-                  />
-                )}
-              </Post>
-            );
-          } else {
-            return '';
-          }
-        })}
-      </InfiniteScroll>
+                    />
+                  )}
+                </Post>
+              );
+            } else {
+              return '';
+            }
+          })}
+        </InfiniteScroll>
+      )}
     </>
   );
 }
 
-export const getServerSideProps: GetServerSideProps<
-  GetPostsWithUserDataResponse
-> = async (context: GetServerSidePropsContext) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
-
-  if (!session?.accessToken) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  const { count, posts, users } = await getPostsWithUserData(
-    session.accessToken
-  );
+export const getStaticProps: GetStaticProps<{}> = async () => {
   return {
-    props: {
-      count,
-      posts,
-      users,
-    },
+    props: {},
   };
 };

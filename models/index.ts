@@ -1,5 +1,7 @@
 export type MumbleType = 'post' | 'reply' | 'deleted';
 export type AuthStatus = 'authenticated' | 'unauthenticated' | 'loading';
+export type FailedOperation = 'init' | 'update' | 'create' | 'like' | 'none';
+
 export interface MumbleBase {
   readonly id: string;
   readonly creator: string;
@@ -32,7 +34,18 @@ export interface MumbleUser {
   userName: string;
   firstName: string;
   lastName: string;
-  avatarUrl: string;
+  avatarUrl?: string;
+}
+
+export interface LoggedInUser extends MumbleUser {
+  accessToken: string;
+	displayName: string;
+	profileLink: string;
+	email?: string;
+	city?: string;
+	bio?: string;
+	posterImage?: string;
+	createdAt?: string;
 }
 
 export interface GetPostResponse {
@@ -79,4 +92,14 @@ export interface GetPostDetailsResponse {
 
 export interface MumbleUsers {
   [key: string]: MumbleUser;
+}
+
+export interface LikeParams {
+  id: string;
+  isLike: boolean;
+}
+
+export interface ErrorState {
+  failedOperation: FailedOperation;
+  isErrorModalOpen: boolean;
 }
