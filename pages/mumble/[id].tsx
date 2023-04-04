@@ -88,8 +88,6 @@ export default function PostDetailPage({
         title='Oops.'
         isOpen={state.hasError}
         LLable='Abbrechen'
-        RLable='Erneut versuchen'
-        RIcon='refresh'
         isSingleButton={true}
         closeFn={() =>
           dispatch({
