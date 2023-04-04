@@ -50,11 +50,8 @@ export default function TimelinePage() {
       });
     }
     const sub = timelineContext.timelineService.subscribe((state) => {
-      if (state.matches('idle')) {
+      if (state.matches('idle') || state.matches('updateFailed')) {
         return Promise.resolve(() => sub.unsubscribe());
-      }
-      if (state.matches('updateFailed')) {
-        return Promise.reject(() => sub.unsubscribe());
       }
     });
   };
