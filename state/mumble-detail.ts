@@ -1,22 +1,63 @@
-import { PostDetailAction } from '../state/actions';
-import { PostDetailState } from '../state/states';
+import { Mumble } from '../models';
 
-export function postDetailReducer(
-  state: PostDetailState,
+export interface MumbleDetailState {
+  post: Mumble;
+  replies: Mumble[];
+  hasError: boolean;
+}
+
+export interface InitMumbleDetailState {
+  type: 'INIT';
+  post: Mumble;
+  replies: Mumble[];
+}
+
+export interface CreateReply {
+  type: 'CREATE';
+  reply: Mumble;
+}
+
+export interface LikePostDetail {
+  type: 'LIKE-POST';
+  id: string;
+  isLiked: boolean;
+}
+
+export interface LikeReply {
+  type: 'LIKE-REPLY';
+  id: string;
+  isLiked: boolean;
+}
+
+export interface SetError {
+  type: 'SET_ERROR';
+  hasError: boolean;
+}
+
+export type PostDetailAction =
+  | CreateReply
+  | LikePostDetail
+  | LikeReply
+  | InitMumbleDetailState
+  | SetError;
+
+export function mumbleDetailReducer(
+  state: MumbleDetailState,
   action: PostDetailAction
-): PostDetailState {
+): MumbleDetailState {
   switch (action.type) {
     case 'INIT':
       return {
         post: action.post,
         replies: action.replies,
+        hasError: false,
       };
     case 'CREATE':
       return {
         ...state,
         post: {
           ...state.post,
-          replyCount: state.post.replyCount + 1,
+          replyCount: (state.post.replyCount || 0) + 1,
         },
         replies: [action.reply, ...state.replies],
       };
@@ -47,6 +88,11 @@ export function postDetailReducer(
             return reply;
           }
         }),
+      };
+    case 'SET_ERROR':
+      return {
+        ...state,
+        hasError: action.hasError,
       };
   }
 }

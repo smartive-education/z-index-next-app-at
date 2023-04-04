@@ -5,8 +5,8 @@ import {
   GetPostsWithUserDataResponse,
   LikeParams,
   LoggedInUser,
-  MumbleUsers,
-  PostWithUserData,
+  Mumble,
+  MumbleUsers
 } from '../models';
 import { like } from '../services/like.service';
 import { getPostsWithUserData } from '../services/mumble.service';
@@ -15,10 +15,10 @@ import { createPost } from '../services/post.service';
 export interface TimelineMachineContext {
   readonly loggedInUser?: LoggedInUser;
   readonly hasMore: boolean;
-  readonly posts: PostWithUserData[];
+  readonly posts: Mumble[];
   readonly mumbleUsers: MumbleUsers;
-  readonly postsLoadedInTheBackground: PostWithUserData[];
-  readonly clickedPost?: PostWithUserData;
+  readonly postsLoadedInTheBackground: Mumble[];
+  readonly clickedPost?: Mumble;
   readonly failedOperation: FailedOperation;
 }
 
@@ -178,10 +178,7 @@ export const timelineMachine = createMachine({
     },
     create: {
       invoke: {
-        src: (
-          context: TimelineMachineContext,
-          event
-        ): Promise<PostWithUserData> =>
+        src: (context: TimelineMachineContext, event): Promise<Mumble> =>
           createPost(event.text, context.loggedInUser, event.image),
         onDone: {
           target: 'idle',

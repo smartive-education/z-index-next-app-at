@@ -91,12 +91,6 @@ export default function TimelinePage() {
           type: 'RETRY_UPDATE',
         });
         break;
-      case 'create':
-      case 'like':
-        send({
-          type: 'RETURN_TO_IDLE',
-        });
-        break;
       default:
         send({
           type: 'RETURN_TO_IDLE',
@@ -120,6 +114,10 @@ export default function TimelinePage() {
         LLable='Abbrechen'
         RLable='Erneut versuchen'
         RIcon='refresh'
+        isSingleButton={
+          timelineState.context.failedOperation === 'create' ||
+          timelineState.context.failedOperation === 'like'
+        }
         closeFn={() => closeErrorModal()}
         submitFn={() => retry()}
       >
@@ -179,12 +177,12 @@ export default function TimelinePage() {
                 <Post
                   key={post.id}
                   profileHeaderType='POST'
-                  name={post.fullName}
-                  userName={post.userName}
+                  name={post.fullName || ''}
+                  userName={post.userName || ''}
                   postCreationTime={post.createdTimestamp}
-                  src={post.avatarUrl}
+                  src={post.avatarUrl || ''}
                   content={post.text}
-                  commentCount={post.replyCount}
+                  commentCount={post.replyCount || 0}
                   isLiked={post.likedByUser}
                   likeCount={post.likeCount}
                   link={`${host}/mumble/${post.id}`}

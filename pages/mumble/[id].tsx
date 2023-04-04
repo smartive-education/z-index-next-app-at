@@ -1,4 +1,5 @@
 import {
+  Modal,
   Post,
   PostComment,
 } from '@smartive-education/design-system-component-z-index-at';
@@ -12,12 +13,13 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
+import { CardWrapper } from '../../components/card-wrapper';
 import { GetPostDetailsResponse, Mumble, MumbleType } from '../../models';
 import { mapResponseToMumble } from '../../models/mappers';
-import { postDetailReducer } from '../../reducers/post-detail.reducers';
 import { like } from '../../services/like.service';
 import { getMumbleDetailsWithUserData } from '../../services/mumble.service';
 import { createReply } from '../../services/reply.service';
+import { mumbleDetailReducer } from '../../state/mumble-detail';
 
 export default function PostDetailPage({
   post,
@@ -25,9 +27,10 @@ export default function PostDetailPage({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [state, dispatch] = useReducer(postDetailReducer, {
+  const [state, dispatch] = useReducer(mumbleDetailReducer, {
     post,
     replies,
+    hasError: false,
   });
   const [host, setHost] = useState('');
 
@@ -43,36 +46,70 @@ export default function PostDetailPage({
 
   const reply = async (image: File | undefined, text: string) => {
     if (session && text) {
-      const createdReply: Mumble = await createReply(
-        text,
-        image,
-        session.accessToken,
-        post.id
-      );
-      dispatch({
-        type: 'CREATE',
-        reply: mapResponseToMumble(createdReply, session.loggedInUser),
-      });
+      try {
+        const createdReply: Mumble = await createReply(
+          text,
+          image,
+          session.accessToken,
+          post.id
+        );
+        dispatch({
+          type: 'CREATE',
+          reply: mapResponseToMumble(createdReply, session.loggedInUser),
+        });
+      } catch (error) {
+        dispatch({
+          type: 'SET_ERROR',
+          hasError: true,
+        });
+      }
     }
   };
 
   const likeMumble = async (isLiked: boolean, id: string, type: MumbleType) => {
-    await like(id, isLiked, session?.accessToken);
-    if (type === 'post') {
-      dispatch({ type: 'LIKE-POST', id, isLiked });
-    } else {
-      dispatch({ type: 'LIKE-REPLY', id, isLiked });
+    try {
+      await like(id, isLiked, session?.accessToken);
+      if (type === 'post') {
+        dispatch({ type: 'LIKE-POST', id, isLiked });
+      } else {
+        dispatch({ type: 'LIKE-REPLY', id, isLiked });
+      }
+    } catch (error) {
+      dispatch({
+        type: 'SET_ERROR',
+        hasError: true,
+      });
     }
   };
 
   return (
     <>
+      <Modal
+        title='Oops.'
+        isOpen={state.hasError}
+        LLable='Abbrechen'
+        RLable='Erneut versuchen'
+        RIcon='refresh'
+        isSingleButton={true}
+        closeFn={() =>
+          dispatch({
+            type: 'SET_ERROR',
+            hasError: false,
+          })
+        }
+        submitFn={() => {}}
+      >
+        <CardWrapper
+          titel='Das hat leider nicht geklappt.'
+          src='/images/no_mumbles.png'
+        />
+      </Modal>
       <Post
         profileHeaderType='POST'
-        name={state.post.fullName}
-        userName={state.post.userName}
+        name={state.post.fullName || ''}
+        userName={state.post.userName || ''}
         postCreationTime={state.post.createdTimestamp}
-        src={state.post.avatarUrl}
+        src={state.post.avatarUrl || ''}
         content={state.post.text}
         commentCount={state.post.replyCount || 0}
         isLiked={state.post.likedByUser}
@@ -117,10 +154,10 @@ export default function PostDetailPage({
             <Post
               profileHeaderType='REPLY'
               key={reply.id}
-              name={reply.fullName}
-              userName={reply.userName}
+              name={reply.fullName || ''}
+              userName={reply.userName || ''}
               postCreationTime={reply.createdTimestamp}
-              src={reply.avatarUrl}
+              src={reply.avatarUrl || ''}
               content={reply.text}
               commentCount={0}
               isLiked={reply.likedByUser}

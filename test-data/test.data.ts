@@ -1,6 +1,6 @@
 import { decodeTime } from 'ulid';
 import { Post, PostWithUserData, Reply, ReplyWithUserData } from '../models';
-import { PostDetailState, PostsState } from '../state/states';
+import { MumbleDetailState, PostsState } from '../state/mumble-detail';
 
 export const initialPostState: PostsState = { posts: [], hasMore: false };
 
@@ -78,7 +78,7 @@ export const singleMockPost: PostWithUserData = {
   avatarUrl: 'mockadu.com',
 };
 
-export const initialPostDetailState: PostDetailState = {
+export const initialPostDetailState: MumbleDetailState = {
   post: singleMockPost,
   replies: [],
 };

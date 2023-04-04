@@ -1,7 +1,7 @@
 import { describe } from '@jest/globals';
 import { Post, PostWithUserData } from '../models';
 import { postReducer } from '../reducers/post.reducers';
-import { PostsState } from '../state/states';
+import { PostsState } from '../state/mumble-detail';
 import {
   initialPostState,
   mockPosts,
