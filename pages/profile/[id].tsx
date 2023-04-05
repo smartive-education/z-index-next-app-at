@@ -6,7 +6,6 @@ import {
   Skeleton
 } from '@smartive-education/design-system-component-z-index-at';
 import { useMachine } from '@xstate/react';
-import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -34,6 +33,7 @@ export default function ProfilePage() {
         type: 'INIT_PROFILE',
         loggedInUser: session.loggedInUser,
         isOwnProfile: session.loggedInUser.id === router.query.id,
+        userId: router.query.id
       });
     }
     machineService.onTransition((state) => {
@@ -133,8 +133,8 @@ export default function ProfilePage() {
         <ProfileCard
           name={`${current.context.user?.firstName} ${current.context.user?.lastName}`}
           userName={current.context.user?.userName || ''}
-          profileImage={ProfileImage}
-          profilePicture={current.context.user?.avatarUrl || ''}
+          profileImage=''
+          profilePicture=''
           location=''
           calendarText=''
           profileText=''
@@ -228,8 +228,3 @@ export default function ProfilePage() {
   );
 }
 
-export const getStaticProps: GetStaticProps<{}> = async () => {
-  return {
-    props: {},
-  };
-};

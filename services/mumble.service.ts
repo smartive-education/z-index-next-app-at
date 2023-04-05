@@ -1,18 +1,21 @@
 import {
+  GetNewUserProfileTemplateData,
   GetPostDetailsResponse,
+  GetPostsAndLikedPostsWithUserDataResponse,
   GetPostsQueryParams,
   GetPostsWithUserDataResponse,
   Mumble,
   MumbleUser,
   MumbleUsers,
+  SearchPostsParams,
 } from '../models';
-import {
-  mapResponseToMumble,
-} from '../models/mappers';
-import { getMumbleById, getPosts } from './post.service';
+import { mapResponseToMumble } from '../models/mappers';
+import { getLikedPosts, getMumbleById, getPosts } from './post.service';
 import { getReplies } from './reply.service';
-import { getUserById } from './user.service';
+import { getUserById, getUsers } from './user.service';
 
+//TODO extract getUsers into helper
+//TODO replace {} as { [key: string]: MumbleUser } with MumbleUsers
 export const getPostsWithUserData = async (
   token: string = '',
   params?: GetPostsQueryParams,
@@ -47,6 +50,92 @@ export const getPostsWithUserData = async (
     count,
     posts: postsWithUserData,
     users: updatedUsers,
+  };
+};
+
+//TODO add Promise.allSettled to make it faster
+export const getPostsAndLikedPostsWithUserData = async (
+  token: string = '',
+  searchParams: SearchPostsParams,
+  params?: GetPostsQueryParams,
+  existingUsers?: MumbleUsers
+): Promise<GetPostsAndLikedPostsWithUserDataResponse> => {
+  const { count, posts } = await getPosts(params);
+  const { count: likedPostCount, posts: likedPosts } = await getLikedPosts(
+    token,
+    searchParams
+  );
+  const unknownCreators = [...posts, ...likedPosts].reduce((set, item) => {
+    if (!existingUsers || !existingUsers[item.creator]) {
+      set.add(item.creator);
+    }
+    return set;
+  }, new Set<string>());
+  const users = await Promise.all(
+    Array.from(unknownCreators).map((creator: string) =>
+      getUserById(creator, token)
+    )
+  );
+
+  const updatedUsers: MumbleUsers = {
+    ...(existingUsers || {}),
+    ...users.reduce((newUsers, user: MumbleUser) => {
+      newUsers[user.id] = user;
+      return newUsers;
+    }, {} as { [key: string]: MumbleUser }),
+  };
+
+  const postsWithUserData: Mumble[] = posts.map((post) => {
+    return mapResponseToMumble(post, updatedUsers[post.creator]);
+  });
+
+  const likedPostsWithUserData: Mumble[] = likedPosts.map((post) => {
+    return mapResponseToMumble(post, updatedUsers[post.creator]);
+  });
+
+  return {
+    count,
+    likedPostCount,
+    posts: postsWithUserData,
+    likedPosts: likedPostsWithUserData,
+    users: updatedUsers,
+  };
+};
+
+//TODO add Promise.allsettled
+export const loadnNewUsersProfileTemplateData = async (
+  token: string = '',
+  existingUsers?: MumbleUsers
+): Promise<GetNewUserProfileTemplateData> => {
+  const { posts } = await getPosts();
+  const mumbleUsers = await getUsers(token);
+  const unknownCreators = posts.reduce((set, item) => {
+    if (!existingUsers || !existingUsers[item.creator]) {
+      set.add(item.creator);
+    }
+    return set;
+  }, new Set<string>());
+  const users = await Promise.all(
+    Array.from(unknownCreators).map((creator: string) =>
+      getUserById(creator, token)
+    )
+  );
+
+  const updatedUsers: MumbleUsers = {
+    ...(existingUsers || {}),
+    ...users.reduce((newUsers, user: MumbleUser) => {
+      newUsers[user.id] = user;
+      return newUsers;
+    }, {} as { [key: string]: MumbleUser }),
+  };
+
+  const postsWithUserData: Mumble[] = posts.map((post) => {
+    return mapResponseToMumble(post, updatedUsers[post.creator]);
+  });
+
+  return {
+    posts: postsWithUserData,
+    users: mumbleUsers,
   };
 };
 

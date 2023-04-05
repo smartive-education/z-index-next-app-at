@@ -57,11 +57,38 @@ export interface GetPostsWithUserDataResponse {
   readonly posts: Mumble[];
 }
 
+export interface GetNewUserProfileTemplateData {
+  readonly users: MumbleUsers;
+  readonly posts: Mumble[];
+}
+
+export interface GetPostsAndLikedPostsWithUserDataResponse {
+  readonly users: MumbleUsers;
+  readonly count: number;
+  readonly likedPostCount: number;
+  readonly posts: Mumble[];
+  readonly likedPosts: Mumble[];
+}
+
 export interface GetPostsQueryParams {
   limit?: number;
   offset?: number;
   newerThanMumbleId?: string;
   olderThanMumbleId?: string;
+  creator?: string;
+}
+
+export interface SearchPostsParams {
+  likedBy: string;
+  offset?: number;
+  limit?: number;
+}
+
+export interface SearchPostsRequestBody extends SearchPostsParams {
+  text: string;
+  tags: string[];
+  mentions: string[];
+  isReply: boolean;
 }
 
 export interface GetUsersQueryParams {

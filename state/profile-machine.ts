@@ -1,6 +1,8 @@
 import { assign, createMachine } from 'xstate';
 import {
   FailedOperation,
+  GetNewUserProfileTemplateData,
+  GetPostsAndLikedPostsWithUserDataResponse,
   GetPostsWithUserDataResponse,
   LikeParams,
   LoggedInUser,
@@ -9,10 +11,15 @@ import {
   MumbleUsers,
 } from '../models';
 import { like } from '../services/like.service';
-import { getPostsWithUserData } from '../services/mumble.service';
+import {
+  getPostsAndLikedPostsWithUserData,
+  loadnNewUsersProfileTemplateData,
+  getPostsWithUserData,
+} from '../services/mumble.service';
 import { createPost } from '../services/post.service';
 
 export interface ProfileMachineContext {
+  readonly userId: string;
   readonly isOwnProfile: boolean;
   readonly hasMorePosts: boolean;
   readonly posts: Mumble[];
@@ -22,9 +29,11 @@ export interface ProfileMachineContext {
   readonly failedOperation: FailedOperation;
   readonly loggedInUser?: LoggedInUser;
   readonly user?: MumbleUser;
+  readonly suggestedUsers: MumbleUsers;
 }
 
 export const initialProfileMachineContext: ProfileMachineContext = {
+  userId: '',
   hasMorePosts: false,
   isOwnProfile: false,
   posts: [],
@@ -32,12 +41,14 @@ export const initialProfileMachineContext: ProfileMachineContext = {
   likedPosts: [],
   mumbleUsers: {},
   failedOperation: 'none',
+  suggestedUsers: {},
 };
 
 export interface InitProfileEvent {
   type: 'INIT_PROFILE';
   loggedInUser: LoggedInUser;
   isOwnProfile: boolean;
+  userId: string;
 }
 
 export interface LoadMorePostsEvent {
@@ -75,6 +86,7 @@ export const profileMachine = createMachine(
                 assign<ProfileMachineContext, InitProfileEvent>({
                   loggedInUser: (_context, event) => event.loggedInUser,
                   isOwnProfile: (_context, event) => event.isOwnProfile,
+                  userId: (_context, event) => event.userId,
                 }),
                 (_context, _event) =>
                   console.log('loadPostsAndLikedPosts triggered'),
@@ -98,16 +110,25 @@ export const profileMachine = createMachine(
         invoke: {
           src: (
             context: ProfileMachineContext
-          ): Promise<GetPostsWithUserDataResponse> =>
-            getPostsWithUserData(context.loggedInUser?.accessToken),
+          ): Promise<GetPostsAndLikedPostsWithUserDataResponse> =>
+            getPostsAndLikedPostsWithUserData(
+              context.loggedInUser?.accessToken,
+              { likedBy: context.loggedInUser?.id || '' },
+              { creator: context.loggedInUser?.id },
+              context.mumbleUsers
+            ),
           onDone: [
             {
-              target: 'loadUsersAndPosts',
+              target: 'loadNewUserProfileTemplateData',
               actions: assign({
                 hasMorePosts: (_context, event) =>
                   event.data.posts?.length < event.data.count,
                 posts: (_context, event) => event.data.posts,
+                hasMoreLikedPosts: (_context, event) =>
+                  event.data.likedPosts?.length < event.data.likedPostCount,
+                likedPosts: (_context, event) => event.data.likedPosts,
                 mumbleUsers: (_context, event) => event.data.users,
+                user: (context, _event) => context.loggedInUser,
                 failedOperation: (_context, _event) =>
                   'none' as FailedOperation,
               }),
@@ -119,7 +140,11 @@ export const profileMachine = createMachine(
                 hasMorePosts: (_context, event) =>
                   event.data.posts?.length < event.data.count,
                 posts: (_context, event) => event.data.posts,
+                hasMoreLikedPosts: (_context, event) =>
+                  event.data.likedPosts?.length < event.data.likedPostCount,
+                likedPosts: (_context, event) => event.data.likedPosts,
                 mumbleUsers: (_context, event) => event.data.users,
+                user: (context, _event) => context.loggedInUser,
                 failedOperation: (_context, _event) =>
                   'none' as FailedOperation,
               }),
@@ -138,7 +163,9 @@ export const profileMachine = createMachine(
           src: (
             context: ProfileMachineContext
           ): Promise<GetPostsWithUserDataResponse> =>
-            getPostsWithUserData(context.loggedInUser?.accessToken),
+            getPostsWithUserData(context.loggedInUser?.accessToken, {
+              creator: context.user?.id,
+            }),
           onDone: {
             target: 'idle',
             actions: assign({
@@ -146,6 +173,7 @@ export const profileMachine = createMachine(
                 event.data.posts?.length < event.data.count,
               posts: (_context, event) => event.data.posts,
               mumbleUsers: (_context, event) => event.data.users,
+              user: (context, event) => event.data.users[context.userId],
               failedOperation: (_context, _event) => 'none' as FailedOperation,
             }),
           },
@@ -159,19 +187,18 @@ export const profileMachine = createMachine(
       },
       idle: {},
       loadPostsAndLikedPostsFailed: {},
-      loadUsersAndPosts: {
+      loadNewUserProfileTemplateData: {
         invoke: {
           src: (
             context: ProfileMachineContext
-          ): Promise<GetPostsWithUserDataResponse> =>
-            getPostsWithUserData(context.loggedInUser?.accessToken),
+          ): Promise<GetNewUserProfileTemplateData> =>
+            loadnNewUsersProfileTemplateData(context.loggedInUser?.accessToken),
           onDone: {
             target: 'newUserProfile',
             actions: assign({
-              hasMorePosts: (_context, event) =>
-                event.data.posts?.length < event.data.count,
+              hasMorePosts: (_context, _event) => false,
               posts: (_context, event) => event.data.posts,
-              mumbleUsers: (_context, event) => event.data.users,
+              suggestedUsers: (_context, event) => event.data.users,
               failedOperation: (_context, _event) => 'none' as FailedOperation,
             }),
           },

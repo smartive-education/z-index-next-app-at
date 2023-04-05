@@ -4,6 +4,8 @@ import {
   LoggedInUser,
   Mumble,
   Response,
+  SearchPostsRequestBody,
+  SearchPostsParams,
 } from '../models';
 import { mapResponseToMumble } from '../models/mappers';
 
@@ -15,6 +17,7 @@ export const getPosts = async (
     offset: String(params?.offset || 0),
     newerThan: params?.newerThanMumbleId || '',
     olderThan: params?.olderThanMumbleId || '',
+    creator: params?.creator || '',
   });
 
   const headers = new Headers();
@@ -22,6 +25,38 @@ export const getPosts = async (
 
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?${queryParams}`;
   const res = await fetch(url, { headers });
+  const { count, data } = await res.json();
+  const posts = data.map(mapResponseToMumble);
+  return {
+    count,
+    posts,
+  };
+};
+
+export const getLikedPosts = async (
+  token: string,
+  params: SearchPostsParams
+): Promise<GetPostResponse> => {
+  const searchConditions: SearchPostsRequestBody = {
+    offset: params?.offset || 0,
+    limit: params?.limit || 5,
+    likedBy: params.likedBy,
+    text: '',
+    tags: [],
+    mentions: [],
+    isReply: false,
+  };
+
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/json');
+  headers.append('Authorization', `Bearer ${token}`);
+
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/search`;
+  const res = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(searchConditions),
+    headers,
+  });
   const { count, data } = await res.json();
   const posts = data.map(mapResponseToMumble);
   return {
