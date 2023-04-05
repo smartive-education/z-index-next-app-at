@@ -2,6 +2,7 @@ import { Navigation } from '@smartive-education/design-system-component-z-index-
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FC, ReactNode, useEffect } from 'react';
+import { defaultProfilePicture } from '../models/constants';
 
 interface AppWrapperProps {
   children: ReactNode;
@@ -22,9 +23,9 @@ export const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
       {status === 'authenticated' ? (
         <>
           <Navigation
-            profilePictureSrc={session.loggedInUser?.avatarUrl || ''}
+            profilePictureSrc={session.loggedInUser?.avatarUrl || defaultProfilePicture}
             navigateToFeed={() => router.push('/timeline')}
-            navigateToProfile={noop}
+            navigateToProfile={() => router.push(`/profile/${session.loggedInUser.id}`)}
             openSettings={noop}
             changeLoggedInStatus={
               status === 'authenticated'
@@ -40,7 +41,7 @@ export const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
       ) : (
         <>
           <Navigation
-            profilePictureSrc=''
+            profilePictureSrc={defaultProfilePicture}
             navigateToFeed={noop}
             navigateToProfile={noop}
             openSettings={noop}

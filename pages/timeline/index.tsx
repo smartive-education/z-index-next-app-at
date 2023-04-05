@@ -10,21 +10,25 @@ import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { CardWrapper } from '../../components/card-wrapper';
+import { CommentState } from '../../models';
+import { defaultProfilePicture } from '../../models/constants';
 import { TimelineContext } from '../../state/timeline-machine';
 
 export default function TimelinePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [host, setHost] = useState('');
+  const [comment, setComment] = useState<CommentState>({
+    isDisabled: true,
+    text: '',
+  });
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const timelineContext = useContext(TimelineContext);
   const [timelineState, send] = useActor(timelineContext.timelineService);
 
   useEffect(() => {
-    setHost(() => window.location.origin); //TODO move to Comment component
     if (session?.loggedInUser && timelineState.matches('empty')) {
       send({
         type: 'INIT_TIMELINE',
@@ -57,7 +61,7 @@ export default function TimelinePage() {
   };
 
   const submitPost = async (image: File | undefined, text: string) => {
-    console.log(timelineState.context);
+    setComment(() => ({ text, image, isDisabled: true }));
     if (text) {
       send({
         type: 'CREATE_POST',
@@ -65,6 +69,14 @@ export default function TimelinePage() {
         image,
       });
     }
+    const sub = timelineContext.timelineService.subscribe((state) => {
+      if (state.matches('idle')) {
+        setComment(() => ({ text: '', image: undefined, isDisabled: true }));
+      }
+      if (state.matches('mutationFailed') || state.matches('idle')) {
+        return Promise.resolve(() => sub.unsubscribe());
+      }
+    });
   };
 
   const likePost = async (isLiked: boolean, id: string) => {
@@ -133,13 +145,23 @@ export default function TimelinePage() {
         <PostComment
           profileHeaderType='CREATE-POST'
           name="Hey was gibt's neues?"
-          userName={session.user?.name || ''}
-          src={session.user?.image || ''}
+          userName={session.loggedInUser.userName}
+          src={session.loggedInUser.avatarUrl || defaultProfilePicture}
           postCreationTime={''}
           placeholder='Deine Meinung zählt!'
           LLabel='Bild hochladen'
           RLabel='Absenden'
-          openProfile={() => router.push('/profile/me')}
+          isDisabled={comment.isDisabled}
+          textValue={comment.text}
+          fileValue={comment.image}
+          onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+            setComment((state) => ({
+              ...state,
+              text: event.target.value,
+              isDisabled: !event.target.value,
+            }))
+          }
+          openProfile={() => router.push(`/profile/${session.loggedInUser.id}`)}
           onSubmit={(file, text) => submitPost(file, text)}
         ></PostComment>
       )}
@@ -177,12 +199,12 @@ export default function TimelinePage() {
                   name={post.fullName || ''}
                   userName={post.userName || ''}
                   postCreationTime={post.createdTimestamp}
-                  src={post.avatarUrl || ''}
+                  src={post.avatarUrl || defaultProfilePicture}
                   content={post.text}
                   commentCount={post.replyCount || 0}
                   isLiked={post.likedByUser}
                   likeCount={post.likeCount}
-                  link={`${host}/mumble/${post.id}`}
+                  link={`/mumble/${post.id}`}
                   comment={() => router.push(`/mumble/${post.id}`)}
                   openProfile={() => router.push(`/profile/${post.creator}`)}
                   setIsLiked={(isLiked) => likePost(isLiked, post.id)}

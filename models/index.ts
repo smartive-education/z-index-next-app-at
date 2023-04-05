@@ -37,13 +37,7 @@ export interface MumbleUser {
 
 export interface LoggedInUser extends MumbleUser {
   accessToken: string;
-  displayName: string;
-  profileLink: string;
   email?: string;
-  city?: string;
-  bio?: string;
-  posterImage?: string;
-  createdAt?: string;
 }
 
 export interface GetPostResponse {
@@ -112,4 +106,10 @@ export interface MumbleUsers {
 export interface LikeParams {
   id: string;
   isLike: boolean;
+}
+
+export interface CommentState {
+  isDisabled: boolean;
+  text: string;
+  image?: File;
 }

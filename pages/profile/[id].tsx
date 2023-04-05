@@ -3,37 +3,45 @@ import {
   Post,
   PostComment,
   ProfileCard,
-  Skeleton
+  Skeleton,
 } from '@smartive-education/design-system-component-z-index-at';
 import { useMachine } from '@xstate/react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { interpret } from 'xstate';
 import { waitFor } from 'xstate/lib/waitFor';
 import { CardWrapper } from '../../components/card-wrapper';
+import {
+  randomProfileBackground,
+  randomProfileBio,
+} from '../../data/dummy.data';
+import { CommentState } from '../../models';
+import { defaultProfilePicture } from '../../models/constants';
 import { profileMachine } from '../../state/profile-machine';
-import { ProfileImage } from './profileImage';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [host, setHost] = useState('');
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [comment, setComment] = useState<CommentState>({
+    isDisabled: true,
+    text: '',
+  });
   const [current, send] = useMachine(profileMachine);
   const machineService = interpret(profileMachine);
 
   useEffect(() => {
-    setHost(() => window.location.origin); //TODO move to Comment component
     machineService.start();
     if (session?.loggedInUser) {
+      console.log(session?.loggedInUser);
       send({
         type: 'INIT_PROFILE',
         loggedInUser: session.loggedInUser,
         isOwnProfile: session.loggedInUser.id === router.query.id,
-        userId: router.query.id
+        userId: router.query.id,
       });
     }
     machineService.onTransition((state) => {
@@ -65,6 +73,7 @@ export default function ProfilePage() {
   };
 
   const submitPost = async (image: File | undefined, text: string) => {
+    setComment(() => ({ text, image, isDisabled: true }));
     if (text) {
       send({
         type: 'CREATE_POST',
@@ -72,9 +81,17 @@ export default function ProfilePage() {
         image,
       });
     }
+    await waitFor(machineService, (state) => {
+      if (state.matches('idle')) {
+        setComment(() => ({ text: '', image: undefined, isDisabled: true }));
+      }
+      return state.matches('idle') || state.matches('mutationFailed');
+    });
+    return Promise.resolve();
   };
 
   const likePost = async (isLiked: boolean, id: string) => {
+    console.log(current.context);
     send({
       type: 'LIKE_POST',
       id,
@@ -130,32 +147,42 @@ export default function ProfilePage() {
         />
       </Modal>
       <div className='my-4'>
-        <ProfileCard
-          name={`${current.context.user?.firstName} ${current.context.user?.lastName}`}
-          userName={current.context.user?.userName || ''}
-          profileImage=''
-          profilePicture=''
-          location=''
-          calendarText=''
-          profileText=''
-          openProfile={() => {}}
-          followed={false}
-          onFollow={() => {}}
-          onEdit={() => {}}
-        />
+        {current.matches('idle') && (
+          <ProfileCard
+            name={`${current.context.user?.firstName} ${current.context.user?.lastName}`}
+            userName={current.context.user?.userName || ''}
+            profileImage={randomProfileBackground()}
+            profilePicture={
+              current.context.user?.avatarUrl || defaultProfilePicture
+            }
+            location='Rapperswil'
+            calendarText='Mitglied seit 6 Monaten'
+            profileText={randomProfileBio()}
+          />
+        )}
       </div>
       {status === 'authenticated' &&
         current.context.isOwnProfile &&
-        !current.context.posts.length && ( //TODO refactor this after conditional quard has been implemented
+        !current.context.posts.length && ( //TODO refactor this after conditional guard has been implemented
           <PostComment
             profileHeaderType='CREATE-POST'
             name='Voll leer hier'
-            userName={session.user?.name || ''}
-            src={session.user?.image || ''}
+            userName={`${current.context.user?.firstName} ${current.context.user?.lastName}`}
+            src={current.context.user?.avatarUrl || defaultProfilePicture}
             postCreationTime={''}
             placeholder='Deine Meinung zählt!'
             LLabel='Bild hochladen'
             RLabel='Absenden'
+            isDisabled={comment.isDisabled}
+            textValue={comment.text}
+            fileValue={comment.image}
+            onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+              setComment((state) => ({
+                ...state,
+                text: event.target.value,
+                isDisabled: !event.target.value,
+              }))
+            }
             openProfile={() => {}}
             onSubmit={(file, text) => submitPost(file, text)}
           ></PostComment>
@@ -194,12 +221,12 @@ export default function ProfilePage() {
                   name={post.fullName || ''}
                   userName={post.userName || ''}
                   postCreationTime={post.createdTimestamp}
-                  src={post.avatarUrl || ''}
+                  src={post.avatarUrl || defaultProfilePicture}
                   content={post.text}
                   commentCount={post.replyCount || 0}
                   isLiked={post.likedByUser}
                   likeCount={post.likeCount}
-                  link={`${host}/mumble/${post.id}`}
+                  link={`/mumble/${post.id}`}
                   comment={() => router.push(`/mumble/${post.id}`)}
                   openProfile={() => router.push(`/profile/${post.creator}`)}
                   setIsLiked={(isLiked) => likePost(isLiked, post.id)}
@@ -227,4 +254,3 @@ export default function ProfilePage() {
     </>
   );
 }
-

@@ -99,6 +99,7 @@ export const profileMachine = createMachine(
                 assign<ProfileMachineContext, InitProfileEvent>({
                   loggedInUser: (_context, event) => event.loggedInUser,
                   isOwnProfile: (_context, event) => event.isOwnProfile,
+                  userId: (_context, event) => event.userId,
                 }),
                 (_context, _event) => console.log('loadPosts triggered'),
               ],
@@ -164,7 +165,7 @@ export const profileMachine = createMachine(
             context: ProfileMachineContext
           ): Promise<GetPostsWithUserDataResponse> =>
             getPostsWithUserData(context.loggedInUser?.accessToken, {
-              creator: context.user?.id,
+              creator: context.userId,
             }),
           onDone: {
             target: 'idle',
