@@ -12,9 +12,16 @@ import { getToken } from 'next-auth/jwt';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useEffect, useReducer, useState } from 'react';
+import { ChangeEvent, useEffect, useReducer, useState } from 'react';
+import { AppWrapper } from '../../components/app-wrapper';
 import { CardWrapper } from '../../components/card-wrapper';
-import { GetPostDetailsResponse, Mumble, MumbleType } from '../../models';
+import {
+  CommentState,
+  GetPostDetailsResponse,
+  Mumble,
+  MumbleType,
+} from '../../models';
+import { defaultProfilePicture } from '../../models/constants';
 import { mapResponseToMumble } from '../../models/mappers';
 import { like } from '../../services/like.service';
 import { getMumbleDetailsWithUserData } from '../../services/mumble.service';
@@ -27,12 +34,15 @@ export default function PostDetailPage({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [comment, setComment] = useState<CommentState>({
+    isDisabled: true,
+    text: '',
+  });
   const [state, dispatch] = useReducer(mumbleDetailReducer, {
     post,
     replies,
     hasError: false,
   });
-  const [host, setHost] = useState('');
 
   //without reinitializing the reducer react would not re-render the page in case only the id changes in the url
   useEffect(() => {
@@ -41,11 +51,11 @@ export default function PostDetailPage({
       post,
       replies,
     });
-    setHost(() => window.location.origin);
   }, [post, replies]);
 
   const reply = async (image: File | undefined, text: string) => {
-    if (session && text) {
+    setComment(() => ({ text, image, isDisabled: true }));
+    if (session) {
       try {
         const createdReply: Mumble = await createReply(
           text,
@@ -57,6 +67,7 @@ export default function PostDetailPage({
           type: 'CREATE',
           reply: mapResponseToMumble(createdReply, session.loggedInUser),
         });
+        setComment(() => ({ text: '', image: undefined, isDisabled: true }));
       } catch (error) {
         dispatch({
           type: 'SET_ERROR',
@@ -83,7 +94,7 @@ export default function PostDetailPage({
   };
 
   return (
-    <>
+    <AppWrapper>
       <Modal
         title='Oops.'
         isOpen={state.hasError}
@@ -107,12 +118,12 @@ export default function PostDetailPage({
         name={state.post.fullName || ''}
         userName={state.post.userName || ''}
         postCreationTime={state.post.createdTimestamp}
-        src={state.post.avatarUrl || ''}
+        src={state.post.avatarUrl || defaultProfilePicture}
         content={state.post.text}
         commentCount={state.post.replyCount || 0}
         isLiked={state.post.likedByUser}
         likeCount={state.post.likeCount}
-        link={`${host}/mumble/${state.post.id}`}
+        link={`/mumble/${state.post.id}`}
         comment={() => {}}
         openProfile={() => router.push(`/profile/${state.post.creator}`)}
         setIsLiked={(isLiked) =>
@@ -137,12 +148,22 @@ export default function PostDetailPage({
           profileHeaderType='CREATE-REPLY'
           name={post.fullName || ''}
           userName={post.userName || ''}
-          src={post.avatarUrl || ''}
+          src={post.avatarUrl || defaultProfilePicture}
           postCreationTime=''
           placeholder='Was meinst du dazu?'
           LLabel='Bild hochladen'
           RLabel='Absenden'
-          openProfile={() => {}}
+          isDisabled={comment.isDisabled}
+          textValue={comment.text}
+          fileValue={comment.image}
+          onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+            setComment((state) => ({
+              ...state,
+              text: event.target.value,
+              isDisabled: !event.target.value,
+            }))
+          }
+          openProfile={() => router.push(`/profile/${session.loggedInUser.id}`)}
           onSubmit={(file, text) => reply(file, text)}
         ></PostComment>
       )}
@@ -155,12 +176,12 @@ export default function PostDetailPage({
               name={reply.fullName || ''}
               userName={reply.userName || ''}
               postCreationTime={reply.createdTimestamp}
-              src={reply.avatarUrl || ''}
+              src={reply.avatarUrl || defaultProfilePicture}
               content={reply.text}
               commentCount={0}
               isLiked={reply.likedByUser}
               likeCount={reply.likeCount}
-              link={`${host}/mumble/${reply.id}`}
+              link={`/mumble/${reply.id}`}
               comment={() => router.push(`/mumble/${reply.id}`)}
               openProfile={() => router.push(`/profile/${reply.creator}`)}
               setIsLiked={(isLiked) =>
@@ -185,7 +206,7 @@ export default function PostDetailPage({
           return '';
         }
       })}
-    </>
+    </AppWrapper>
   );
 }
 

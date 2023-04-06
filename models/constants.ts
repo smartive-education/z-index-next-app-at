@@ -1,0 +1,1 @@
+export const defaultProfilePicture = '/images/profile/no.image.png';

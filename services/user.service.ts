@@ -1,12 +1,12 @@
-import { GetUsersQueryParams, MumbleUser } from '../models';
+import { GetUsersQueryParams, MumbleUser, MumbleUsers } from '../models';
 import { mapResponseToUser } from '../models/mappers';
 
 export const getUsers = async (
   token: string,
   params?: GetUsersQueryParams
-): Promise<Map<string, MumbleUser>> => {
+): Promise<MumbleUsers> => {
   const queryParams = new URLSearchParams({
-    limit: String(params?.limit || 1000),
+    limit: String(params?.limit || 6),
     offset: String(params?.offset || 0),
   });
 
@@ -19,10 +19,10 @@ export const getUsers = async (
   const { data } = await res.json();
   return data
     .map(mapResponseToUser)
-    .reduce((result: Map<string, MumbleUser>, item: MumbleUser) => {
-      result.set(item.id, item);
-      return result;
-    }, new Map());
+    .reduce((newUsers: MumbleUsers, user: MumbleUser) => {
+      newUsers[user.id] = user;
+      return newUsers;
+    }, {} as MumbleUsers);
 };
 
 export const getLoggedInMumbleUser = async (
