@@ -13,6 +13,7 @@ import { useRouter } from 'next/router';
 import { ChangeEvent, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { waitFor } from 'xstate/lib/waitFor';
+import { AppWrapper } from '../../components/app-wrapper';
 import { CardWrapper } from '../../components/card-wrapper';
 import {
   randomProfileBackground,
@@ -133,7 +134,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <>
+    <AppWrapper>
       <Modal
         title='Oops.'
         isOpen={isErrorModalOpen}
@@ -315,6 +316,6 @@ export default function ProfilePage() {
           })}
         </InfiniteScroll>
       )}
-    </>
+    </AppWrapper>
   );
 }

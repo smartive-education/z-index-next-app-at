@@ -1,15 +1,15 @@
 import { useInterpret } from '@xstate/react';
+import type { Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
-import { AppWrapper } from '../components/app-wrapper';
 import { TimelineContext, timelineMachine } from '../state/timeline-machine';
 import '../styles/globals.css';
 
 export default function App({
   Component,
   pageProps: { session, ...pageProps },
-}: AppProps) {
+}: AppProps<{ session: Session }>) {
   const timelineService = useInterpret(timelineMachine);
 
   return (
@@ -25,9 +25,7 @@ export default function App({
       </Head>
       <SessionProvider session={session}>
         <TimelineContext.Provider value={{ timelineService }}>
-          <AppWrapper>
             <Component {...pageProps} />
-          </AppWrapper>
         </TimelineContext.Provider>
       </SessionProvider>
     </>
