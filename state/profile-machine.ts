@@ -15,6 +15,7 @@ import {
   getPostsAndLikedPostsWithUserData,
   loadnNewUsersProfileTemplateData,
   getPostsWithUserData,
+  getLikedPostsWithUserData,
 } from '../services/mumble.service';
 import { createPost } from '../services/post.service';
 
@@ -30,6 +31,10 @@ export interface ProfileMachineContext {
   readonly loggedInUser?: LoggedInUser;
   readonly user?: MumbleUser;
   readonly suggestedUsers: MumbleUsers;
+  readonly background: string;
+  readonly bio: string;
+  readonly isErrorModalOpen: boolean;
+  readonly isPostsOpen: boolean;
 }
 
 export const initialProfileMachineContext: ProfileMachineContext = {
@@ -42,6 +47,10 @@ export const initialProfileMachineContext: ProfileMachineContext = {
   mumbleUsers: {},
   failedOperation: 'none',
   suggestedUsers: {},
+  background: '',
+  bio: '',
+  isErrorModalOpen: false,
+  isPostsOpen: true,
 };
 
 export interface InitProfileEvent {
@@ -49,10 +58,20 @@ export interface InitProfileEvent {
   loggedInUser: LoggedInUser;
   isOwnProfile: boolean;
   userId: string;
+  background: string;
+  bio: string;
 }
 
 export interface LoadMorePostsEvent {
   type: 'LOAD_MORE_POSTS';
+}
+
+export interface LoadMoreLikedPostsEvent {
+  type: 'LOAD_MORE_LIKED_POSTS';
+}
+
+export interface RetryUpdateEvent {
+  type: 'RETRY_UPDATE';
 }
 
 export interface CreatePostEvent {
@@ -87,11 +106,13 @@ export const profileMachine = createMachine(
                   loggedInUser: (_context, event) => event.loggedInUser,
                   isOwnProfile: (_context, event) => event.isOwnProfile,
                   userId: (_context, event) => event.userId,
+                  background: (_context, event) => event.background,
+                  bio: (_context, event) => event.bio,
                 }),
                 (_context, _event) =>
                   console.log('loadPostsAndLikedPosts triggered'),
               ],
-              cond: 'isOwnProfile',
+              cond: 'isOwnProfileAtInit',
             },
             {
               target: 'loadPosts',
@@ -100,6 +121,8 @@ export const profileMachine = createMachine(
                   loggedInUser: (_context, event) => event.loggedInUser,
                   isOwnProfile: (_context, event) => event.isOwnProfile,
                   userId: (_context, event) => event.userId,
+                  background: (_context, event) => event.background,
+                  bio: (_context, event) => event.bio,
                 }),
                 (_context, _event) => console.log('loadPosts triggered'),
               ],
@@ -114,29 +137,13 @@ export const profileMachine = createMachine(
           ): Promise<GetPostsAndLikedPostsWithUserDataResponse> =>
             getPostsAndLikedPostsWithUserData(
               context.loggedInUser?.accessToken,
-              { likedBy: context.loggedInUser?.id || '' },
+              { likedBy: [context.loggedInUser?.id || ''] },
               { creator: context.loggedInUser?.id },
               context.mumbleUsers
             ),
           onDone: [
             {
-              target: 'loadNewUserProfileTemplateData',
-              actions: assign({
-                hasMorePosts: (_context, event) =>
-                  event.data.posts?.length < event.data.count,
-                posts: (_context, event) => event.data.posts,
-                hasMoreLikedPosts: (_context, event) =>
-                  event.data.likedPosts?.length < event.data.likedPostCount,
-                likedPosts: (_context, event) => event.data.likedPosts,
-                mumbleUsers: (_context, event) => event.data.users,
-                user: (context, _event) => context.loggedInUser,
-                failedOperation: (_context, _event) =>
-                  'none' as FailedOperation,
-              }),
-              cond: 'isEmptyProfile',
-            },
-            {
-              target: 'idle',
+              target: 'checkForEmptyProfile',
               actions: assign({
                 hasMorePosts: (_context, event) =>
                   event.data.posts?.length < event.data.count,
@@ -158,6 +165,12 @@ export const profileMachine = createMachine(
             }),
           },
         },
+      },
+      checkForEmptyProfile: {
+        always: [
+          { target: 'idle', cond: 'isNotEmptyProfile' },
+          { target: 'loadNewUserProfileTemplateData', cond: 'isEmptyProfile' },
+        ],
       },
       loadPosts: {
         invoke: {
@@ -186,8 +199,147 @@ export const profileMachine = createMachine(
           },
         },
       },
-      idle: {},
-      loadPostsAndLikedPostsFailed: {},
+      idle: {
+        on: {
+          LOAD_MORE_POSTS: {
+            target: 'loadMorePosts',
+          },
+          LOAD_MORE_LIKED_POSTS: {
+            target: 'loadMoreLikedPosts',
+            cond: 'isOwnProfile',
+          },
+          TOGGLE: {
+            target: 'idle',
+            cond: 'isOwnProfile',
+            actions: [
+              assign<ProfileMachineContext, InitProfileEvent>({
+                isPostsOpen: (context, _event) => !context.isPostsOpen,
+              }),
+              (_context, _event) => console.log('TOGGLE triggered'),
+            ],
+            internal: true,
+          },
+          CREATE_POST: {
+            target: 'create',
+            cond: 'isEmptyProfile',
+          },
+          LIKE_POST: {
+            target: 'like',
+          },
+        },
+      },
+      loadPostsAndLikedPostsFailed: {
+        on: {
+          RETRY_INIT: {
+            target: 'loadPostsAndLikedPosts',
+            actions: [
+              (_context, _event) => console.log('RETRY_INIT triggered'),
+            ],
+          },
+          RETURN_TO_IDLE: {
+            target: 'idle',
+            actions: [
+              (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
+            ],
+          },
+        },
+      },
+      loadMorePosts: {
+        invoke: {
+          src: (
+            context: ProfileMachineContext
+          ): Promise<GetPostsWithUserDataResponse> =>
+            getPostsWithUserData(context.loggedInUser?.accessToken, {
+              creator: context.userId,
+              offset: context.posts.length,
+            }),
+          onDone: {
+            target: 'idle',
+            actions: assign({
+              hasMorePosts: (context, event) =>
+                context.posts.length + event.data.posts?.length <
+                event.data.count,
+              posts: (context, event) => [
+                ...context.posts,
+                ...(event.data.posts || []),
+              ],
+              mumbleUsers: (_context, event) => event.data.users,
+              failedOperation: (_context, _event) => 'none' as FailedOperation,
+            }),
+          },
+          onError: {
+            target: 'loadMorePostsFailed',
+            actions: assign({
+              failedOperation: (_context, _event) =>
+                'update' as FailedOperation,
+            }),
+          },
+        },
+      },
+      loadMorePostsFailed: {
+        on: {
+          RETRY_UPDATE: {
+            target: 'loadMorePosts',
+            actions: [
+              (_context, _event) => console.log('RETRY_UPDATE triggered'),
+            ],
+          },
+          RETURN_TO_IDLE: {
+            target: 'idle',
+            actions: [
+              (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
+            ],
+          },
+        },
+      },
+      loadMoreLikedPosts: {
+        invoke: {
+          src: (
+            context: ProfileMachineContext
+          ): Promise<GetPostsWithUserDataResponse> =>
+            getLikedPostsWithUserData(context.loggedInUser?.accessToken, {
+              likedBy: [context.userId],
+              offset: context.likedPosts.length,
+            }),
+          onDone: {
+            target: 'idle',
+            actions: assign({
+              hasMoreLikedPosts: (context, event) =>
+                context.likedPosts.length + event.data.posts?.length <
+                event.data.count,
+              likedPosts: (context, event) => [
+                ...context.likedPosts,
+                ...(event.data.posts || []),
+              ],
+              mumbleUsers: (_context, event) => event.data.users,
+              failedOperation: (_context, _event) => 'none' as FailedOperation,
+            }),
+          },
+          onError: {
+            target: 'loadMoreLikedPostsFailed',
+            actions: assign({
+              failedOperation: (_context, _event) =>
+                'update' as FailedOperation,
+            }),
+          },
+        },
+      },
+      loadMoreLikedPostsFailed: {
+        on: {
+          RETRY_UPDATE: {
+            target: 'loadMoreLikedPosts',
+            actions: [
+              (_context, _event) => console.log('RETRY_UPDATE triggered'),
+            ],
+          },
+          RETURN_TO_IDLE: {
+            target: 'idle',
+            actions: [
+              (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
+            ],
+          },
+        },
+      },
       loadNewUserProfileTemplateData: {
         invoke: {
           src: (
@@ -211,7 +363,26 @@ export const profileMachine = createMachine(
           },
         },
       },
-      initFailed: {},
+      initFailed: {
+        on: {
+          RETRY_INIT: [
+            {
+              target: 'loadPostsAndLikedPosts',
+              actions: [
+                (_context, _event) =>
+                  console.log('loadPostsAndLikedPosts triggered'),
+              ],
+              cond: 'isOwnProfile',
+            },
+            {
+              target: 'loadPosts',
+              actions: [
+                (_context, _event) => console.log('loadPosts triggered'),
+              ],
+            },
+          ],
+        },
+      },
       newUserProfile: {
         on: {
           CREATE_POST: {
@@ -321,7 +492,13 @@ export const profileMachine = createMachine(
         context.isOwnProfile &&
         !context.posts.length &&
         !context.likedPosts.length,
+      isNotEmptyProfile: (context: ProfileMachineContext) =>
+        !context.isOwnProfile ||
+        !!context.posts.length ||
+        !!context.likedPosts.length,
       isOwnProfile: (context: ProfileMachineContext) => context.isOwnProfile,
+      isOwnProfileAtInit: (_context: ProfileMachineContext, event) =>
+        event.isOwnProfile,
     },
   }
 );

@@ -50,6 +50,7 @@ export const getLikedPosts = async (
   const headers = new Headers();
   headers.append('Content-Type', 'application/json');
   headers.append('Authorization', `Bearer ${token}`);
+  headers.append('Accept', 'application/json');
 
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/search`;
   const res = await fetch(url, {

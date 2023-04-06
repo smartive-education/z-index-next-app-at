@@ -53,6 +53,46 @@ export const getPostsWithUserData = async (
   };
 };
 
+export const getLikedPostsWithUserData = async (
+  token: string = '',
+  searchParams: SearchPostsParams,
+  existingUsers?: MumbleUsers
+): Promise<GetPostsWithUserDataResponse> => {
+  const { count, posts } = await getLikedPosts(
+    token,
+    searchParams
+  );
+  const unknownCreators = posts.reduce((set, item) => {
+    if (!existingUsers || !existingUsers[item.creator]) {
+      set.add(item.creator);
+    }
+    return set;
+  }, new Set<string>());
+  const users = await Promise.all(
+    Array.from(unknownCreators).map((creator: string) =>
+      getUserById(creator, token)
+    )
+  );
+
+  const updatedUsers: MumbleUsers = {
+    ...(existingUsers || {}),
+    ...users.reduce((newUsers, user: MumbleUser) => {
+      newUsers[user.id] = user;
+      return newUsers;
+    }, {} as { [key: string]: MumbleUser }),
+  };
+
+  const postsWithUserData: Mumble[] = posts.map((post) => {
+    return mapResponseToMumble(post, updatedUsers[post.creator]);
+  });
+
+  return {
+    count,
+    posts: postsWithUserData,
+    users: updatedUsers,
+  };
+};
+
 //TODO add Promise.allSettled to make it faster
 export const getPostsAndLikedPostsWithUserData = async (
   token: string = '',

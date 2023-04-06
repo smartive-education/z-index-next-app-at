@@ -73,7 +73,7 @@ export interface GetPostsQueryParams {
 }
 
 export interface SearchPostsParams {
-  likedBy: string;
+  likedBy: string[];
   offset?: number;
   limit?: number;
 }
