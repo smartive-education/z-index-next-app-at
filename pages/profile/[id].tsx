@@ -4,25 +4,24 @@ import {
   ProfileCard,
   Skeleton,
   Toggle,
+  Typography
 } from '@smartive-education/design-system-component-z-index-at';
 import { useActor, useInterpret } from '@xstate/react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useEffect, useState } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { waitFor } from 'xstate/lib/waitFor';
 import { AppWrapper } from '../../components/app-wrapper';
 import { CardWrapper } from '../../components/card-wrapper';
 import { Mumbles } from '../../components/mumbles';
+import { Users } from '../../components/users';
 import {
   randomProfileBackground,
-  randomProfileBio,
+  randomProfileBio
 } from '../../data/dummy.data';
 import { CommentState } from '../../models';
 import {
-  defaultProfilePicture,
-  noMoreMumblesPicture,
-  noMumblesPicture,
+  defaultProfilePicture, noMumblesPicture
 } from '../../models/constants';
 import { profileMachine } from '../../state/profile-machine';
 
@@ -170,28 +169,38 @@ export default function ProfilePage() {
         />
       </div>
       {profileState.matches('newUserProfile') && (
-        <PostComment
-          profileHeaderType='CREATE-POST'
-          name='Voll leer hier'
-          userName={`${profileState.context.user?.firstName} ${profileState.context.user?.lastName}`}
-          src={profileState.context.user?.avatarUrl || defaultProfilePicture}
-          postCreationTime=''
-          placeholder='Deine Meinung zählt!'
-          LLabel='Bild hochladen'
-          RLabel='Absenden'
-          isDisabled={comment.isDisabled}
-          textValue={comment.text}
-          fileValue={comment.image}
-          onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
-            setComment((state) => ({
-              ...state,
-              text: event.target.value,
-              isDisabled: !event.target.value,
-            }))
-          }
-          openProfile={() => {}}
-          onSubmit={(file, text) => submitPost(file, text)}
-        ></PostComment>
+        <>
+          <PostComment
+            profileHeaderType='CREATE-POST'
+            name='Voll leer hier'
+            userName={`${profileState.context.user?.firstName} ${profileState.context.user?.lastName}`}
+            src={profileState.context.user?.avatarUrl || defaultProfilePicture}
+            postCreationTime=''
+            placeholder='Deine Meinung zählt!'
+            LLabel='Bild hochladen'
+            RLabel='Absenden'
+            isDisabled={comment.isDisabled}
+            textValue={comment.text}
+            fileValue={comment.image}
+            onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+              setComment((state) => ({
+                ...state,
+                text: event.target.value,
+                isDisabled: !event.target.value,
+              }))
+            }
+            openProfile={() => {}}
+            onSubmit={(file, text) => submitPost(file, text)}
+          ></PostComment>
+          <div className='mt-4'>
+            <Typography type='h3'>Empfohlene Users</Typography>
+          </div>
+          <Users
+            users={profileState.context.suggestedUsers}
+            onClick={(id) => router.push(id)}
+          />
+          <Typography type='h3'>Empfohlene Mumbles</Typography>
+        </>
       )}
       {profileState.context.isOwnProfile &&
         !profileState.matches('newUserProfile') && (
@@ -232,6 +241,8 @@ export default function ProfilePage() {
               ? loadMorePosts
               : loadMoreLikedPosts
           }
+          openMumbleDetails={(id) => router.push(`/mumble/${id}`)}
+          openProfile={(id) => router.push(`/profile/${id}`)}
         />
       )}
     </AppWrapper>

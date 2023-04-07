@@ -18,6 +18,8 @@ export interface MumblesProps {
   mumbleType: MumbleType;
   hasMore: boolean;
   isEndMessageNeeded: boolean;
+  openProfile: (id: string) => void;
+  openMumbleDetails: (id: string) => void;
   setIsLiked: (isLiked: boolean, mumbleId: string) => void;
   loadMorePosts: () => void;
 }
@@ -27,6 +29,8 @@ export const Mumbles: FC<MumblesProps> = ({
   mumbleType,
   hasMore,
   isEndMessageNeeded,
+  openProfile,
+  openMumbleDetails,
   setIsLiked,
   loadMorePosts,
 }) => {
@@ -63,8 +67,8 @@ export const Mumbles: FC<MumblesProps> = ({
                 isLiked={mumble.likedByUser}
                 likeCount={mumble.likeCount}
                 link={`/mumble/${mumble.id}`}
-                comment={() => router.push(`/mumble/${mumble.id}`)}
-                openProfile={() => router.push(`/profile/${mumble.creator}`)}
+                comment={() => openMumbleDetails(mumble.id)}
+                openProfile={() => openProfile(mumble.creator)}
                 setIsLiked={(isLiked) => setIsLiked(isLiked, mumble.id)}
                 copyLabel='Copy Link'
                 copiedLabel='Link Copied'
