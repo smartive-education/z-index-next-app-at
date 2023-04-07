@@ -50,7 +50,6 @@ export default function ProfilePage() {
         bio: randomProfileBio(),
       });
     }
-
   }, [session, machineService, router, profileState]);
 
   const loadMorePosts = async (): Promise<void> => {
@@ -100,7 +99,7 @@ export default function ProfilePage() {
         });
         break;
       case 'update':
-        if(profileState.matches('loadMorePostsFailed')){
+        if (profileState.matches('loadMorePostsFailed')) {
           machineService.send({
             type: 'LOAD_MORE_POSTS',
           });
@@ -154,19 +153,25 @@ export default function ProfilePage() {
           src={noMumblesPicture}
         />
       </Modal>
-      <div className='my-4'>
-        <ProfileCard
-          name={`${profileState.context.user?.firstName} ${profileState.context.user?.lastName}`}
-          userName={profileState.context.user?.userName || ''}
-          profileImage={profileState.context.background}
-          profilePicture={
-            profileState.context.user?.avatarUrl || defaultProfilePicture
-          }
-          location='Rapperswil'
-          calendarText='Mitglied seit 6 Monaten'
-          profileText={profileState.context.bio}
-        />
-      </div>
+      {!profileState.context.user ? (
+        <div className='my-4'>
+          <Skeleton isProfile={true} />
+        </div>
+      ) : (
+        <div className='my-4'>
+          <ProfileCard
+            name={`${profileState.context.user?.firstName} ${profileState.context.user?.lastName}`}
+            userName={profileState.context.user?.userName || ''}
+            profileImage={profileState.context.background}
+            profilePicture={
+              profileState.context.user?.avatarUrl || defaultProfilePicture
+            }
+            location='Rapperswil'
+            calendarText='Mitglied seit 6 Monaten'
+            profileText={profileState.context.bio}
+          />
+        </div>
+      )}
       {profileState.context.isNewUserProfile && (
         <>
           <PostComment
@@ -202,7 +207,8 @@ export default function ProfilePage() {
         </>
       )}
       {profileState.context.isOwnProfile &&
-        !profileState.context.isNewUserProfile && (
+        !profileState.context.isNewUserProfile &&
+        !!profileState.context.likedPosts.length && (
           <Toggle
             isToggleOn={profileState.context.isPostsOpen}
             onClick={toggle}
