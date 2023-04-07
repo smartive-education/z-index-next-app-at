@@ -1,6 +1,6 @@
 import { Typography } from '@smartive-education/design-system-component-z-index-at';
-import { FC, ReactNode } from 'react';
 import Image from 'next/image';
+import { FC } from 'react';
 
 interface CardWrapperProps {
   titel: string;

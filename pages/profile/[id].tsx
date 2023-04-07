@@ -1,6 +1,5 @@
 import {
   Modal,
-  Post,
   PostComment,
   ProfileCard,
   Skeleton,
@@ -8,23 +7,27 @@ import {
 } from '@smartive-education/design-system-component-z-index-at';
 import { useActor, useInterpret } from '@xstate/react';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { waitFor } from 'xstate/lib/waitFor';
 import { AppWrapper } from '../../components/app-wrapper';
 import { CardWrapper } from '../../components/card-wrapper';
+import { Mumbles } from '../../components/mumbles';
 import {
   randomProfileBackground,
   randomProfileBio,
 } from '../../data/dummy.data';
 import { CommentState } from '../../models';
-import { defaultProfilePicture } from '../../models/constants';
+import {
+  defaultProfilePicture,
+  noMoreMumblesPicture,
+  noMumblesPicture,
+} from '../../models/constants';
 import { profileMachine } from '../../state/profile-machine';
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [comment, setComment] = useState<CommentState>({
@@ -150,7 +153,7 @@ export default function ProfilePage() {
       >
         <CardWrapper
           titel='Das hat leider nicht geklappt.'
-          src='/images/no_mumbles.png'
+          src={noMumblesPicture}
         />
       </Modal>
       <div className='my-4'>
@@ -172,7 +175,7 @@ export default function ProfilePage() {
           name='Voll leer hier'
           userName={`${profileState.context.user?.firstName} ${profileState.context.user?.lastName}`}
           src={profileState.context.user?.avatarUrl || defaultProfilePicture}
-          postCreationTime={''}
+          postCreationTime=''
           placeholder='Deine Meinung zählt!'
           LLabel='Bild hochladen'
           RLabel='Absenden'
@@ -190,131 +193,46 @@ export default function ProfilePage() {
           onSubmit={(file, text) => submitPost(file, text)}
         ></PostComment>
       )}
-      {profileState.context.isOwnProfile && (
-        <Toggle
-          isToggleOn={profileState.context.isPostsOpen}
-          onClick={toggle}
-          onLabel='Deine Mumbles'
-          offLabel='Deine Likes'
-        />
+      {profileState.context.isOwnProfile &&
+        !profileState.matches('newUserProfile') && (
+          <Toggle
+            isToggleOn={profileState.context.isPostsOpen}
+            onClick={toggle}
+            onLabel='Deine Mumbles'
+            offLabel='Deine Likes'
+          />
+        )}
+      {!profileState.context.posts.length && profileState.matches('idle') && (
+        <CardWrapper titel='Keine Mumbles gefunden' src={noMumblesPicture} />
       )}
-      {!profileState.context.posts.length && profileState.matches('idle') ? (
-        <CardWrapper
-          titel='Keine Mumbles gefunden'
-          src='/images/no_mumbles.png'
-        />
-      ) : !profileState.context.posts.length ||
-        profileState.matches('loadPostsAndLikedPosts') ||
-        profileState.matches('loadPosts') ? (
+      {!profileState.context.posts.length ||
+      profileState.matches('loadPostsAndLikedPosts') ||
+      profileState.matches('loadPosts') ? (
         <>
           <Skeleton />
           <Skeleton />
         </>
-      ) : profileState.context.isPostsOpen ||
-        !profileState.context.isOwnProfile ? (
-        <InfiniteScroll
-          dataLength={profileState.context.posts.length}
-          next={loadMorePosts}
-          hasMore={profileState.context.hasMorePosts || false}
-          loader={<Skeleton />}
-          endMessage={
-            <CardWrapper
-              titel='Yaay, du hast alle mumbles gesehen!'
-              src='/images/caught_up.png'
-            />
-          }
-          style={{ overflow: 'visible' }}
-        >
-          {profileState.context.posts?.map((post) => {
-            if (post.type === 'post') {
-              return (
-                <Post
-                  key={post.id}
-                  profileHeaderType='POST'
-                  name={post.fullName || ''}
-                  userName={post.userName || ''}
-                  postCreationTime={post.createdTimestamp}
-                  src={post.avatarUrl || defaultProfilePicture}
-                  content={post.text}
-                  commentCount={post.replyCount || 0}
-                  isLiked={post.likedByUser}
-                  likeCount={post.likeCount}
-                  link={`/mumble/${post.id}`}
-                  comment={() => router.push(`/mumble/${post.id}`)}
-                  openProfile={() => router.push(`/profile/${post.creator}`)}
-                  setIsLiked={(isLiked) => likePost(isLiked, post.id)}
-                  copyLabel='Copy Link'
-                  copiedLabel='Link Copied'
-                >
-                  {post.mediaUrl && (
-                    <Image
-                      src={post.mediaUrl}
-                      alt={post.text}
-                      fill
-                      sizes='(min-width: 60rem) 40vw,
-                        (min-width: 30rem) 50vw,
-                        100vw'
-                    />
-                  )}
-                </Post>
-              );
-            } else {
-              return '';
-            }
-          })}
-        </InfiniteScroll>
       ) : (
-        <InfiniteScroll
-          dataLength={profileState.context.likedPosts.length}
-          next={loadMoreLikedPosts}
-          hasMore={profileState.context.hasMoreLikedPosts || false}
-          loader={<Skeleton />}
-          endMessage={
-            <CardWrapper
-              titel='Yaay, du hast alle mumbles gesehen!'
-              src='/images/caught_up.png'
-            />
+        <Mumbles
+          mumbles={
+            profileState.context.isPostsOpen
+              ? profileState.context.posts
+              : profileState.context.likedPosts
           }
-          style={{ overflow: 'visible' }}
-        >
-          {profileState.context.likedPosts?.map((post) => {
-            if (post.type === 'post') {
-              return (
-                <Post
-                  key={post.id}
-                  profileHeaderType='POST'
-                  name={post.fullName || ''}
-                  userName={post.userName || ''}
-                  postCreationTime={post.createdTimestamp}
-                  src={post.avatarUrl || defaultProfilePicture}
-                  content={post.text}
-                  commentCount={post.replyCount || 0}
-                  isLiked={post.likedByUser}
-                  likeCount={post.likeCount}
-                  link={`/mumble/${post.id}`}
-                  comment={() => router.push(`/mumble/${post.id}`)}
-                  openProfile={() => router.push(`/profile/${post.creator}`)}
-                  setIsLiked={(isLiked) => likePost(isLiked, post.id)}
-                  copyLabel='Copy Link'
-                  copiedLabel='Link Copied'
-                >
-                  {post.mediaUrl && (
-                    <Image
-                      src={post.mediaUrl}
-                      alt={post.text}
-                      fill
-                      sizes='(min-width: 60rem) 40vw,
-                        (min-width: 30rem) 50vw,
-                        100vw'
-                    />
-                  )}
-                </Post>
-              );
-            } else {
-              return '';
-            }
-          })}
-        </InfiniteScroll>
+          mumbleType='post'
+          hasMore={
+            profileState.context.isPostsOpen
+              ? profileState.context.hasMorePosts
+              : profileState.context.hasMoreLikedPosts
+          }
+          isEndMessageNeeded={!profileState.matches('newUserProfile')}
+          setIsLiked={likePost}
+          loadMorePosts={
+            profileState.context.isPostsOpen
+              ? loadMorePosts
+              : loadMoreLikedPosts
+          }
+        />
       )}
     </AppWrapper>
   );
