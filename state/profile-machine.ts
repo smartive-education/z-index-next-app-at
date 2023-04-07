@@ -496,7 +496,7 @@ export const profileMachine = createMachine(
                       return post;
                     }),
                   likedPosts: (context, event) =>
-                    context.posts.map((post) => {
+                    context.likedPosts.map((post) => {
                       if (post.id === event.data.id) {
                         return {
                           ...post,
