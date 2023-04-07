@@ -82,7 +82,7 @@ export const getPostsAndLikedPostsWithUserData = async (
   };
 };
 
-export const loadnNewUsersProfileTemplateData = async (
+export const loadNewUsersProfileTemplateData = async (
   token: string = '',
   existingUsers?: MumbleUsers
 ): Promise<GetNewUserProfileTemplateData> => {

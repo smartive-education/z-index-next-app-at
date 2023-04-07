@@ -13,7 +13,7 @@ import {
 import { like } from '../services/like.service';
 import {
   getPostsAndLikedPostsWithUserData,
-  loadnNewUsersProfileTemplateData,
+  loadNewUsersProfileTemplateData,
   getPostsWithUserData,
   getLikedPostsWithUserData,
 } from '../services/mumble.service';
@@ -397,7 +397,7 @@ export const profileMachine = createMachine(
           src: (
             context: ProfileMachineContext
           ): Promise<GetNewUserProfileTemplateData> =>
-            loadnNewUsersProfileTemplateData(context.loggedInUser?.accessToken),
+            loadNewUsersProfileTemplateData(context.loggedInUser?.accessToken),
           onDone: {
             target: 'idle',
             actions: assign({
