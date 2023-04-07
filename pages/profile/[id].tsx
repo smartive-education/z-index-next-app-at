@@ -34,7 +34,7 @@ export default function ProfilePage() {
     text: '',
   });
   const machineService = useInterpret(profileMachine);
-  const [profileState, send] = useActor(machineService);
+  const [profileState] = useActor(machineService);
 
   useEffect(() => {
     if (
@@ -100,9 +100,15 @@ export default function ProfilePage() {
         });
         break;
       case 'update':
-        machineService.send({
-          type: 'RETRY_UPDATE',
-        });
+        if(profileState.matches('loadMorePostsFailed')){
+          machineService.send({
+            type: 'LOAD_MORE_POSTS',
+          });
+        } else {
+          machineService.send({
+            type: 'LOAD_MORE_LIKED_POSTS',
+          });
+        }
         break;
       default:
         machineService.send({

@@ -161,7 +161,7 @@ export const profileMachine = createMachine(
             },
           ],
           onError: {
-            target: 'loadPostsAndLikedPostsFailed',
+            target: 'initFailed',
             actions: assign({
               failedOperation: (_context, _event) => 'init' as FailedOperation,
             }),
@@ -296,22 +296,6 @@ export const profileMachine = createMachine(
           ],
         },
       },
-      loadPostsAndLikedPostsFailed: {
-        on: {
-          RETRY_INIT: {
-            target: 'loadPostsAndLikedPosts',
-            actions: [
-              (_context, _event) => console.log('RETRY_INIT triggered'),
-            ],
-          },
-          RETURN_TO_IDLE: {
-            target: 'idle',
-            actions: [
-              (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
-            ],
-          },
-        },
-      },
       loadMorePosts: {
         invoke: {
           src: (
@@ -346,7 +330,7 @@ export const profileMachine = createMachine(
       },
       loadMorePostsFailed: {
         on: {
-          RETRY_UPDATE: {
+          LOAD_MORE_POSTS: {
             target: 'loadMorePosts',
             actions: [
               (_context, _event) => console.log('RETRY_UPDATE triggered'),
@@ -394,7 +378,7 @@ export const profileMachine = createMachine(
       },
       loadMoreLikedPostsFailed: {
         on: {
-          RETRY_UPDATE: {
+          LOAD_MORE_LIKED_POSTS: {
             target: 'loadMoreLikedPosts',
             actions: [
               (_context, _event) => console.log('RETRY_UPDATE triggered'),
@@ -450,6 +434,12 @@ export const profileMachine = createMachine(
               ],
             },
           ],
+          RETURN_TO_IDLE: {
+            target: 'idle',
+            actions: [
+              (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
+            ],
+          },
         },
       },
       create: {
@@ -457,10 +447,11 @@ export const profileMachine = createMachine(
           src: (context: ProfileMachineContext, event): Promise<Mumble> =>
             createPost(event.text, context.loggedInUser, event.image),
           onDone: {
-            target: 'idle',
+            target: 'loadPostsAndLikedPosts',
             actions: assign({
               posts: (context, event) => [event.data, ...context.posts],
               failedOperation: (_context, _event) => 'none' as FailedOperation,
+              isNewUserProfile: false,
             }),
           },
           onError: {
