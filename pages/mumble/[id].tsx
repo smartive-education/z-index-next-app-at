@@ -146,9 +146,9 @@ export default function PostDetailPage({
       {status === 'authenticated' && (
         <PostComment
           profileHeaderType='CREATE-REPLY'
-          name={post.fullName || ''}
-          userName={post.userName || ''}
-          src={post.avatarUrl || defaultProfilePicture}
+          name={state.post.fullName || ''}
+          userName={state.post.userName || ''}
+          src={state.post.avatarUrl || defaultProfilePicture}
           postCreationTime=''
           placeholder='Was meinst du dazu?'
           LLabel='Bild hochladen'

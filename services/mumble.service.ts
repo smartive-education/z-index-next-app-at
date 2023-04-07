@@ -111,9 +111,9 @@ export const getMumbleDetailsWithUserData = async (
     getMumbleById(id),
     getReplies(id),
   ]);
-  const mumble = postResult;
+  const mumble = mapResponseToMumble(postResult);
   const replies = repliesResult;
-  const updatedUsers = await getAllUnknownUsers(replies, token);
+  const updatedUsers = await getAllUnknownUsers([mumble, ...replies], token);
   const postWithUserData: Mumble = mapResponseToMumble(
     mumble,
     updatedUsers[mumble.creator]
