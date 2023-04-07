@@ -1,5 +1,37 @@
-import { GetUsersQueryParams, MumbleUser, MumbleUsers } from '../models';
+import {
+  GetUsersQueryParams,
+  Mumble,
+  MumbleUser,
+  MumbleUsers,
+} from '../models';
 import { mapResponseToUser } from '../models/mappers';
+
+export const getAllUnknownUsers = async (
+  mumbles: Mumble[],
+  token: string,
+  existingUsers?: MumbleUsers
+): Promise<MumbleUsers> => {
+  const unknownCreators = mumbles.reduce((set, item) => {
+    if (!existingUsers || !existingUsers[item.creator]) {
+      set.add(item.creator);
+    }
+    return set;
+  }, new Set<string>());
+  const users = await Promise.all(
+    Array.from(unknownCreators).map((creator: string) =>
+      getUserById(creator, token)
+    )
+  );
+
+  const updatedUsers: MumbleUsers = {
+    ...(existingUsers || {}),
+    ...users.reduce((newUsers, user: MumbleUser) => {
+      newUsers[user.id] = user;
+      return newUsers;
+    }, {} as MumbleUsers),
+  };
+  return updatedUsers;
+};
 
 export const getUsers = async (
   token: string,
