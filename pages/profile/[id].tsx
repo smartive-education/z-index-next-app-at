@@ -4,7 +4,7 @@ import {
   ProfileCard,
   Skeleton,
   Toggle,
-  Typography
+  Typography,
 } from '@smartive-education/design-system-component-z-index-at';
 import { useActor, useInterpret } from '@xstate/react';
 import { useSession } from 'next-auth/react';
@@ -17,18 +17,18 @@ import { Mumbles } from '../../components/mumbles';
 import { Users } from '../../components/users';
 import {
   randomProfileBackground,
-  randomProfileBio
+  randomProfileBio,
 } from '../../data/dummy.data';
 import { CommentState } from '../../models';
 import {
-  defaultProfilePicture, noMumblesPicture
+  defaultProfilePicture,
+  noMumblesPicture,
 } from '../../models/constants';
 import { profileMachine } from '../../state/profile-machine';
 
 export default function ProfilePage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [comment, setComment] = useState<CommentState>({
     isDisabled: true,
     text: '',
@@ -37,7 +37,10 @@ export default function ProfilePage() {
   const [profileState, send] = useActor(machineService);
 
   useEffect(() => {
-    if (session?.loggedInUser && profileState.context.userId !== router.query.id) {
+    if (
+      session?.loggedInUser &&
+      profileState.context.userId !== router.query.id
+    ) {
       machineService.send({
         type: 'INIT_PROFILE',
         loggedInUser: session.loggedInUser,
@@ -48,19 +51,6 @@ export default function ProfilePage() {
       });
     }
 
-    machineService.onTransition((state) => {
-      if (state.changed) {
-        console.log(state.value);
-      }
-      if (
-        state.value === 'initFailed' ||
-        state.value === 'loadMoreLikedPostsFailed' ||
-        state.value === 'loadMorePostsFailed' ||
-        state.value === 'mutationFailed'
-      ) {
-        setIsErrorModalOpen(true);
-      }
-    });
   }, [session, machineService, router, profileState]);
 
   const loadMorePosts = async (): Promise<void> => {
@@ -119,14 +109,12 @@ export default function ProfilePage() {
           type: 'RETURN_TO_IDLE',
         });
     }
-    setIsErrorModalOpen(false);
   };
 
   const closeErrorModal = (): void => {
     machineService.send({
       type: 'RETURN_TO_IDLE',
     });
-    setIsErrorModalOpen(false);
   };
 
   const toggle = (): void => {
@@ -139,7 +127,12 @@ export default function ProfilePage() {
     <AppWrapper>
       <Modal
         title='Oops.'
-        isOpen={isErrorModalOpen}
+        isOpen={
+          profileState.matches('initFailed') ||
+          profileState.matches('loadMorePostsFailed') ||
+          profileState.matches('loadMoreLikedPostsFailed') ||
+          profileState.matches('mutationFailed')
+        }
         LLable='Abbrechen'
         RLable='Erneut versuchen'
         RIcon='refresh'
@@ -168,7 +161,7 @@ export default function ProfilePage() {
           profileText={profileState.context.bio}
         />
       </div>
-      {profileState.matches('newUserProfile') && (
+      {profileState.context.isNewUserProfile && (
         <>
           <PostComment
             profileHeaderType='CREATE-POST'
@@ -203,7 +196,7 @@ export default function ProfilePage() {
         </>
       )}
       {profileState.context.isOwnProfile &&
-        !profileState.matches('newUserProfile') && (
+        !profileState.context.isNewUserProfile && (
           <Toggle
             isToggleOn={profileState.context.isPostsOpen}
             onClick={toggle}
@@ -234,7 +227,7 @@ export default function ProfilePage() {
               ? profileState.context.hasMorePosts
               : profileState.context.hasMoreLikedPosts
           }
-          isEndMessageNeeded={!profileState.matches('newUserProfile')}
+          isEndMessageNeeded={!profileState.context.isNewUserProfile}
           setIsLiked={likePost}
           loadMorePosts={
             profileState.context.isPostsOpen
