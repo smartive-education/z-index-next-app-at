@@ -226,6 +226,72 @@ export const profileMachine = createMachine(
           LIKE_POST: {
             target: 'like',
           },
+          INIT_PROFILE: [
+            {
+              target: 'loadPostsAndLikedPosts',
+              actions: [
+                assign<ProfileMachineContext, InitProfileEvent>({
+                  loggedInUser: (_context, event) => event.loggedInUser,
+                  isOwnProfile: (_context, event) => event.isOwnProfile,
+                  userId: (_context, event) => event.userId,
+                  background: (_context, event) => event.background,
+                  bio: (_context, event) => event.bio,
+                  hasMorePosts: (_context) =>
+                    initialProfileMachineContext.hasMorePosts,
+                  posts: (_context) => initialProfileMachineContext.posts,
+                  hasMoreLikedPosts: (_context) =>
+                    initialProfileMachineContext.hasMoreLikedPosts,
+                  likedPosts: (_context) =>
+                    initialProfileMachineContext.likedPosts,
+                  mumbleUsers: (_context) =>
+                    initialProfileMachineContext.mumbleUsers,
+                  failedOperation: (_context) => 'none' as FailedOperation,
+                  user: (_context) => initialProfileMachineContext.user,
+                  suggestedUsers: (_context) =>
+                    initialProfileMachineContext.suggestedUsers,
+                  isErrorModalOpen: (_context) =>
+                    initialProfileMachineContext.isErrorModalOpen,
+                  isPostsOpen: (_context) =>
+                    initialProfileMachineContext.isPostsOpen,
+                }),
+                (_context, _event) =>
+                  console.log('loadPostsAndLikedPosts triggered'),
+              ],
+              cond: 'isOwnProfileAtInit',
+            },
+            {
+              target: 'loadPosts',
+              actions: [
+                assign<ProfileMachineContext, InitProfileEvent>({
+                  loggedInUser: (_context, event) => event.loggedInUser,
+                  isOwnProfile: (_context, event) => event.isOwnProfile,
+                  userId: (_context, event) => event.userId,
+                  background: (_context, event) => event.background,
+                  bio: (_context, event) => event.bio,
+
+                  hasMorePosts: (_context) =>
+                    initialProfileMachineContext.hasMorePosts,
+                  posts: (_context) => initialProfileMachineContext.posts,
+                  hasMoreLikedPosts: (_context) =>
+                    initialProfileMachineContext.hasMoreLikedPosts,
+                  likedPosts: (_context) =>
+                    initialProfileMachineContext.likedPosts,
+                  mumbleUsers: (_context) =>
+                    initialProfileMachineContext.mumbleUsers,
+                  failedOperation: (_context) => 'none' as FailedOperation,
+
+                  user: (_context) => initialProfileMachineContext.user,
+                  suggestedUsers: (_context) =>
+                    initialProfileMachineContext.suggestedUsers,
+                  isErrorModalOpen: (_context) =>
+                    initialProfileMachineContext.isErrorModalOpen,
+                  isPostsOpen: (_context) =>
+                    initialProfileMachineContext.isPostsOpen,
+                }),
+                (_context, _event) => console.log('loadPosts triggered'),
+              ],
+            },
+          ],
         },
       },
       loadPostsAndLikedPostsFailed: {
@@ -391,6 +457,72 @@ export const profileMachine = createMachine(
           LIKE_POST: {
             target: 'like',
           },
+          INIT_PROFILE: [
+            {
+              target: 'loadPostsAndLikedPosts',
+              actions: [
+                assign<ProfileMachineContext, InitProfileEvent>({
+                  loggedInUser: (_context, event) => event.loggedInUser,
+                  isOwnProfile: (_context, event) => event.isOwnProfile,
+                  userId: (_context, event) => event.userId,
+                  background: (_context, event) => event.background,
+                  bio: (_context, event) => event.bio,
+                  hasMorePosts: (_context) =>
+                    initialProfileMachineContext.hasMorePosts,
+                  posts: (_context) => initialProfileMachineContext.posts,
+                  hasMoreLikedPosts: (_context) =>
+                    initialProfileMachineContext.hasMoreLikedPosts,
+                  likedPosts: (_context) =>
+                    initialProfileMachineContext.likedPosts,
+                  mumbleUsers: (_context) =>
+                    initialProfileMachineContext.mumbleUsers,
+                  failedOperation: (_context) => 'none' as FailedOperation,
+                  user: (_context) => initialProfileMachineContext.user,
+                  suggestedUsers: (_context) =>
+                    initialProfileMachineContext.suggestedUsers,
+                  isErrorModalOpen: (_context) =>
+                    initialProfileMachineContext.isErrorModalOpen,
+                  isPostsOpen: (_context) =>
+                    initialProfileMachineContext.isPostsOpen,
+                }),
+                (_context, _event) =>
+                  console.log('loadPostsAndLikedPosts triggered'),
+              ],
+              cond: 'isOwnProfileAtInit',
+            },
+            {
+              target: 'loadPosts',
+              actions: [
+                assign<ProfileMachineContext, InitProfileEvent>({
+                  loggedInUser: (_context, event) => event.loggedInUser,
+                  isOwnProfile: (_context, event) => event.isOwnProfile,
+                  userId: (_context, event) => event.userId,
+                  background: (_context, event) => event.background,
+                  bio: (_context, event) => event.bio,
+
+                  hasMorePosts: (_context) =>
+                    initialProfileMachineContext.hasMorePosts,
+                  posts: (_context) => initialProfileMachineContext.posts,
+                  hasMoreLikedPosts: (_context) =>
+                    initialProfileMachineContext.hasMoreLikedPosts,
+                  likedPosts: (_context) =>
+                    initialProfileMachineContext.likedPosts,
+                  mumbleUsers: (_context) =>
+                    initialProfileMachineContext.mumbleUsers,
+                  failedOperation: (_context) => 'none' as FailedOperation,
+
+                  user: (_context) => initialProfileMachineContext.user,
+                  suggestedUsers: (_context) =>
+                    initialProfileMachineContext.suggestedUsers,
+                  isErrorModalOpen: (_context) =>
+                    initialProfileMachineContext.isErrorModalOpen,
+                  isPostsOpen: (_context) =>
+                    initialProfileMachineContext.isPostsOpen,
+                }),
+                (_context, _event) => console.log('loadPosts triggered'),
+              ],
+            },
+          ],
         },
       },
       create: {

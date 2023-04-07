@@ -37,7 +37,7 @@ export default function ProfilePage() {
   const [profileState, send] = useActor(machineService);
 
   useEffect(() => {
-    if (session?.loggedInUser) {
+    if (session?.loggedInUser && profileState.context.userId !== router.query.id) {
       machineService.send({
         type: 'INIT_PROFILE',
         loggedInUser: session.loggedInUser,
@@ -61,7 +61,7 @@ export default function ProfilePage() {
         setIsErrorModalOpen(true);
       }
     });
-  }, [session, machineService, router]);
+  }, [session, machineService, router, profileState]);
 
   const loadMorePosts = async (): Promise<void> => {
     machineService.send({
