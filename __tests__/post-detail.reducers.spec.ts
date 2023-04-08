@@ -1,18 +1,18 @@
 import { describe } from '@jest/globals';
-import { Post, Reply } from '../models';
-import { postDetailReducer } from '../reducers/post-detail.reducers';
+import { mumbleDetailReducer } from '../state/mumble-detail';
 import {
   initialPostDetailState,
   singleMockPost,
   singleMockReply,
   singleMockReply2,
 } from '../test-data/test.data';
+import { Mumble } from '../models';
 
 describe('postDetailReducer', () => {
   describe('CREATE', () => {
     it('should add new reply to the first place', () => {
       expect(
-        postDetailReducer(
+        mumbleDetailReducer(
           {
             ...initialPostDetailState,
             replies: [singleMockReply],
@@ -24,6 +24,10 @@ describe('postDetailReducer', () => {
         )
       ).toEqual({
         ...initialPostDetailState,
+        post: {
+          ...initialPostDetailState.post,
+          replyCount: 1,
+        },
         replies: [singleMockReply2, singleMockReply],
       });
     });
@@ -31,13 +35,13 @@ describe('postDetailReducer', () => {
 
   describe('LIKE-POST', () => {
     it('should increase like count and set likedByUser on the post', () => {
-      const likedPost: Post = {
+      const likedPost: Mumble = {
         ...singleMockPost,
         likeCount: singleMockPost.likeCount + 1,
         likedByUser: true,
       };
       expect(
-        postDetailReducer(
+        mumbleDetailReducer(
           {
             ...initialPostDetailState,
             post: singleMockPost,
@@ -55,13 +59,13 @@ describe('postDetailReducer', () => {
     });
 
     it('should decrease like count and unset likedByUser on the post', () => {
-      const dislikedPost: Post = {
+      const dislikedPost: Mumble = {
         ...singleMockPost,
         likeCount: singleMockPost.likeCount - 1,
         likedByUser: false,
       };
       expect(
-        postDetailReducer(
+        mumbleDetailReducer(
           {
             ...initialPostDetailState,
             post: singleMockPost,
@@ -81,13 +85,13 @@ describe('postDetailReducer', () => {
 
   describe('LIKE-REPLY', () => {
     it('should increase like count and set likedByUser on the first reply', () => {
-      const likedReply: Reply = {
+      const likedReply: Mumble = {
         ...singleMockReply,
         likeCount: singleMockReply.likeCount + 1,
         likedByUser: true,
       };
       expect(
-        postDetailReducer(
+        mumbleDetailReducer(
           {
             ...initialPostDetailState,
             replies: [singleMockReply, singleMockReply2],
@@ -105,13 +109,13 @@ describe('postDetailReducer', () => {
     });
 
     it('should decrease like count and unset likedByUser on the first reply', () => {
-      const dislikedReply: Reply = {
+      const dislikedReply: Mumble = {
         ...singleMockReply,
         likeCount: singleMockReply.likeCount - 1,
         likedByUser: false,
       };
       expect(
-        postDetailReducer(
+        mumbleDetailReducer(
           {
             ...initialPostDetailState,
             replies: [singleMockReply, singleMockReply2],

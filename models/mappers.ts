@@ -1,12 +1,12 @@
 import { decodeTime } from 'ulid';
 import { Mumble, MumbleUser, Response } from '.';
+import { day, hour, minute } from './constants';
 
 export const mapResponseToUser = (response: Response): MumbleUser =>
   ({
     ...response,
   } as MumbleUser);
 
-//TODO fix createdTimestamp
 export const mapResponseToMumble = (
   response: Response,
   user?: Partial<MumbleUser>
@@ -14,7 +14,10 @@ export const mapResponseToMumble = (
   if (user) {
     return {
       ...response,
-      createdTimestamp: new Date(decodeTime(response?.id || '')).toDateString(),
+      createdTimestamp: convertTimeStamp(
+        new Date(decodeTime(response?.id || '')),
+        new Date()
+      ),
       fullName: `${user.firstName} ${user.lastName}`,
       userName: user.userName,
       avatarUrl: user.avatarUrl,
@@ -22,6 +25,26 @@ export const mapResponseToMumble = (
   }
   return {
     ...response,
-    createdTimestamp: new Date(decodeTime(response?.id || '')).toDateString(),
+    createdTimestamp: convertTimeStamp(
+      new Date(decodeTime(response?.id || '')),
+      new Date()
+    ),
   } as Mumble;
+};
+
+export const convertTimeStamp = (creationDate: Date, current: Date): string => {
+  const elapsedTimeInMillis = current.valueOf() - creationDate.valueOf();
+  const days = Math.floor(elapsedTimeInMillis / day);
+  if (days >= 1) {
+    return `vor ${days} ${days < 2 ? 'Tag' : 'Tage'}`;
+  }
+  const hours = Math.floor(elapsedTimeInMillis / hour);
+  if (hours >= 1) {
+    return `vor ${hours} ${hours < 2 ? 'Stunde' : 'Stunden'}`;
+  }
+  const minutes = Math.floor(elapsedTimeInMillis / minute);
+  if (minutes >= 1) {
+    return `vor ${minutes} ${minutes < 2 ? 'Minute' : 'Minuten'}`;
+  }
+  return 'jetzt';
 };
