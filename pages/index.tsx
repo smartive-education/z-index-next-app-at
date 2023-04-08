@@ -2,7 +2,7 @@ import {
   Modal,
   PostComment,
   Skeleton,
-  Typography
+  Typography,
 } from '@smartive-education/design-system-component-z-index-at';
 import { useActor } from '@xstate/react';
 import { GetStaticProps } from 'next';
@@ -13,10 +13,7 @@ import { AppWrapper } from '../components/app-wrapper';
 import { CardWrapper } from '../components/card-wrapper';
 import { Mumbles } from '../components/mumbles';
 import { CommentState } from '../models';
-import {
-  defaultProfilePicture,
-  noMumblesPicture
-} from '../models/constants';
+import { defaultProfilePicture, noMumblesPicture } from '../models/constants';
 import { TimelineContext } from '../state/timeline-machine';
 
 export default function TimelinePage() {
@@ -101,15 +98,15 @@ export default function TimelinePage() {
   return (
     <AppWrapper>
       <Modal
-        title='Oops.'
+        title="Oops."
         isOpen={
           timelineState.matches('initFailed') ||
           timelineState.matches('updateFailed') ||
           timelineState.matches('mutationFailed')
         }
-        LLable='Abbrechen'
-        RLable='Erneut versuchen'
-        RIcon='refresh'
+        LLable="Abbrechen"
+        RLable="Erneut versuchen"
+        RIcon="refresh"
         isSingleButton={
           timelineState.context.failedOperation === 'create' ||
           timelineState.context.failedOperation === 'like'
@@ -118,26 +115,26 @@ export default function TimelinePage() {
         submitFn={() => retry()}
       >
         <CardWrapper
-          titel='Das hat leider nicht geklappt.'
+          titel="Das hat leider nicht geklappt."
           src={noMumblesPicture}
         />
       </Modal>
-      <div className='my-4'>
-        <span className='text-violet-600'>
-          <Typography type='h2'>Wilkommen auf Mumble</Typography>
+      <div className="my-4">
+        <span className="text-violet-600">
+          <Typography type="h2">Wilkommen auf Mumble</Typography>
         </span>
-        <Typography type='h3'>Finde raus was in der Welt passiert!</Typography>
+        <Typography type="h3">Finde raus was in der Welt passiert!</Typography>
       </div>
       {status === 'authenticated' && (
         <PostComment
-          profileHeaderType='CREATE-POST'
+          profileHeaderType="CREATE-POST"
           name="Hey was gibt's neues?"
           userName={session.loggedInUser.userName}
           src={session.loggedInUser.avatarUrl || defaultProfilePicture}
           postCreationTime={''}
-          placeholder='Deine Meinung zählt!'
-          LLabel='Bild hochladen'
-          RLabel='Absenden'
+          placeholder="Deine Meinung zählt!"
+          LLabel="Bild hochladen"
+          RLabel="Absenden"
           isDisabled={comment.isDisabled}
           textValue={comment.text}
           fileValue={comment.image}
@@ -153,7 +150,7 @@ export default function TimelinePage() {
         ></PostComment>
       )}
       {!timelineState.context.posts.length && timelineState.matches('idle') ? (
-        <CardWrapper titel='Keine Mumbles gefunden' src={noMumblesPicture} />
+        <CardWrapper titel="Keine Mumbles gefunden" src={noMumblesPicture} />
       ) : !timelineState.context.posts.length ||
         timelineState.matches('timelineInitializing') ? (
         <>
@@ -164,7 +161,7 @@ export default function TimelinePage() {
       ) : (
         <Mumbles
           mumbles={timelineState.context.posts}
-          mumbleType='post'
+          mumbleType="post"
           hasMore={timelineState.context.hasMore}
           isEndMessageNeeded={true}
           setIsLiked={likePost}

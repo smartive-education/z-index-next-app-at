@@ -1,10 +1,8 @@
 import { decodeTime } from 'ulid';
-import { Post, PostWithUserData, Reply, ReplyWithUserData } from '../models';
-import { MumbleDetailState, PostsState } from '../state/mumble-detail';
+import { MumbleDetailState } from '../state/mumble-detail';
+import { Mumble } from '../models';
 
-export const initialPostState: PostsState = { posts: [], hasMore: false };
-
-export const mockPosts: PostWithUserData[] = [
+export const mockPosts: Mumble[] = [
   {
     id: '01GV3TEH72RC5VEQJFCM0YYBA0',
     creator: '201444056083988737',
@@ -59,7 +57,7 @@ export const mockPosts: PostWithUserData[] = [
   },
 ];
 
-export const singleMockPost: PostWithUserData = {
+export const singleMockPost: Mumble = {
   id: '01GV0C6FV9873R83SCKMZM6H7T',
   creator: '201164885894103297',
   text: 'Bike2Work im Winter',
@@ -81,9 +79,10 @@ export const singleMockPost: PostWithUserData = {
 export const initialPostDetailState: MumbleDetailState = {
   post: singleMockPost,
   replies: [],
+  hasError: false,
 };
 
-export const singleMockReply: ReplyWithUserData = {
+export const singleMockReply: Mumble = {
   id: '01GDMMR85BEHP8AKV8ZGGM259K',
   creator: '179944860378202369',
   text: 'Hello World! @user #newpost',
@@ -102,7 +101,7 @@ export const singleMockReply: ReplyWithUserData = {
   avatarUrl: 'mockadu.com',
 };
 
-export const singleMockReply2: ReplyWithUserData = {
+export const singleMockReply2: Mumble = {
   id: '01GDMMR85BEHP8AKV8ZGGM259G',
   creator: '179944860378202369',
   text: 'Hello World! @user #newpost',

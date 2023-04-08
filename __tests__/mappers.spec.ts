@@ -44,10 +44,10 @@ describe('mappers', () => {
     });
 
     it('should return rounded down integers', () => {
-        const creationDate = new Date(currentDate.valueOf() - 1.5675 * minute);
-        expect(convertTimeStamp(creationDate, currentDate)).toEqual(
-          'vor 1 Minute'
-        );
-      });
+      const creationDate = new Date(currentDate.valueOf() - 1.5675 * minute);
+      expect(convertTimeStamp(creationDate, currentDate)).toEqual(
+        'vor 1 Minute'
+      );
+    });
   });
 });

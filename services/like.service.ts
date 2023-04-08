@@ -15,5 +15,5 @@ export const like = async (
     method: method,
     headers,
   });
-  return {id, isLike};
+  return { id, isLike };
 };

@@ -18,15 +18,15 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className='grid md:grid-cols-2'>
+      <div className="grid md:grid-cols-2">
         <div>
           <LandingPage />
         </div>
-        <div className='flex flex-col items-center justify-center min-h-[50vh]'>
+        <div className="flex flex-col items-center justify-center min-h-[50vh]">
           <Button
-            label='Login/Register'
-            icon='mumble'
-            color='Gradient'
+            label="Login/Register"
+            icon="mumble"
+            color="Gradient"
             onClick={() => signIn('zitadel', { callbackUrl: '/' })}
           ></Button>
         </div>

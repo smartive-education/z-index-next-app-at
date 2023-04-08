@@ -45,7 +45,7 @@ export const Mumbles: FC<MumblesProps> = ({
         endMessage={
           isEndMessageNeeded && (
             <CardWrapper
-              titel='Yaay, du hast alle mumbles gesehen!'
+              titel="Yaay, du hast alle mumbles gesehen!"
               src={noMoreMumblesPicture}
             />
           )
@@ -70,8 +70,8 @@ export const Mumbles: FC<MumblesProps> = ({
                 comment={() => openMumbleDetails(mumble.id)}
                 openProfile={() => openProfile(mumble.creator)}
                 setIsLiked={(isLiked) => setIsLiked(isLiked, mumble.id)}
-                copyLabel='Copy Link'
-                copiedLabel='Link Copied'
+                copyLabel="Copy Link"
+                copiedLabel="Link Copied"
               >
                 {mumble.mediaUrl && (
                   <Image
@@ -79,9 +79,9 @@ export const Mumbles: FC<MumblesProps> = ({
                     alt={mumble.text}
                     fill
                     priority={index < 3}
-                    sizes='(min-width: 60rem) 40vw,
+                    sizes="(min-width: 60rem) 40vw,
                         (min-width: 30rem) 50vw,
-                        100vw'
+                        100vw"
                   />
                 )}
               </Post>

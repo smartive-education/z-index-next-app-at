@@ -6,7 +6,7 @@ import {
   LikeParams,
   LoggedInUser,
   Mumble,
-  MumbleUsers
+  MumbleUsers,
 } from '../models';
 import { like } from '../services/like.service';
 import { getPostsWithUserData } from '../services/mumble.service';

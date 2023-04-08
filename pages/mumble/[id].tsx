@@ -96,9 +96,9 @@ export default function PostDetailPage({
   return (
     <AppWrapper>
       <Modal
-        title='Oops.'
+        title="Oops."
         isOpen={state.hasError}
-        LLable='Abbrechen'
+        LLable="Abbrechen"
         isSingleButton={true}
         closeFn={() =>
           dispatch({
@@ -109,12 +109,12 @@ export default function PostDetailPage({
         submitFn={() => {}}
       >
         <CardWrapper
-          titel='Das hat leider nicht geklappt.'
-          src='/images/no_mumbles.png'
+          titel="Das hat leider nicht geklappt."
+          src="/images/no_mumbles.png"
         />
       </Modal>
       <Post
-        profileHeaderType='POST'
+        profileHeaderType="POST"
         name={state.post.fullName || ''}
         userName={state.post.userName || ''}
         postCreationTime={state.post.createdTimestamp}
@@ -129,8 +129,8 @@ export default function PostDetailPage({
         setIsLiked={(isLiked) =>
           likeMumble(isLiked, state.post.id, state.post.type)
         }
-        copyLabel='Copy Link'
-        copiedLabel='Link Copied'
+        copyLabel="Copy Link"
+        copiedLabel="Link Copied"
       >
         {state.post.mediaUrl && (
           <Image
@@ -138,22 +138,22 @@ export default function PostDetailPage({
             alt={state.post.text}
             fill
             priority
-            sizes='(min-width: 60rem) 40vw,
+            sizes="(min-width: 60rem) 40vw,
                           (min-width: 30rem) 50vw,
-                          100vw'
+                          100vw"
           />
         )}
       </Post>
       {status === 'authenticated' && (
         <PostComment
-          profileHeaderType='CREATE-REPLY'
+          profileHeaderType="CREATE-REPLY"
           name={state.post.fullName || ''}
           userName={state.post.userName || ''}
           src={state.post.avatarUrl || defaultProfilePicture}
-          postCreationTime=''
-          placeholder='Was meinst du dazu?'
-          LLabel='Bild hochladen'
-          RLabel='Absenden'
+          postCreationTime=""
+          placeholder="Was meinst du dazu?"
+          LLabel="Bild hochladen"
+          RLabel="Absenden"
           isDisabled={comment.isDisabled}
           textValue={comment.text}
           fileValue={comment.image}
@@ -172,7 +172,7 @@ export default function PostDetailPage({
         (reply) =>
           reply.type === 'reply' && (
             <Post
-              profileHeaderType='REPLY'
+              profileHeaderType="REPLY"
               key={reply.id}
               name={reply.fullName || ''}
               userName={reply.userName || ''}
@@ -188,17 +188,17 @@ export default function PostDetailPage({
               setIsLiked={(isLiked) =>
                 likeMumble(isLiked, reply.id, reply.type)
               }
-              copyLabel='Copy Link'
-              copiedLabel='Link Copied'
+              copyLabel="Copy Link"
+              copiedLabel="Link Copied"
             >
               {reply.mediaUrl && (
                 <Image
                   src={reply.mediaUrl}
                   alt={reply.text}
                   fill
-                  sizes='(min-width: 60rem) 40vw,
+                  sizes="(min-width: 60rem) 40vw,
                         (min-width: 30rem) 50vw,
-                        100vw'
+                        100vw"
                 />
               )}
             </Post>

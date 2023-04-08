@@ -15,17 +15,17 @@ export default function App({
   return (
     <>
       <Head>
-        <meta charSet='UTF-8' />
+        <meta charSet="UTF-8" />
         <meta
-          name='description'
-          content='Mumble Project Application for the Advanced Frontend Engineering CAS'
+          name="description"
+          content="Mumble Project Application for the Advanced Frontend Engineering CAS"
         />
-        <meta name='author' content='Attila Toth' />
-        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+        <meta name="author" content="Attila Toth" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       <SessionProvider session={session}>
         <TimelineContext.Provider value={{ timelineService }}>
-            <Component {...pageProps} />
+          <Component {...pageProps} />
         </TimelineContext.Provider>
       </SessionProvider>
     </>

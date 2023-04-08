@@ -131,16 +131,16 @@ export default function ProfilePage() {
   return (
     <AppWrapper>
       <Modal
-        title='Oops.'
+        title="Oops."
         isOpen={
           profileState.matches('initFailed') ||
           profileState.matches('loadMorePostsFailed') ||
           profileState.matches('loadMoreLikedPostsFailed') ||
           profileState.matches('mutationFailed')
         }
-        LLable='Abbrechen'
-        RLable='Erneut versuchen'
-        RIcon='refresh'
+        LLable="Abbrechen"
+        RLable="Erneut versuchen"
+        RIcon="refresh"
         isSingleButton={
           profileState.context.failedOperation === 'create' ||
           profileState.context.failedOperation === 'like'
@@ -149,16 +149,16 @@ export default function ProfilePage() {
         submitFn={() => retry()}
       >
         <CardWrapper
-          titel='Das hat leider nicht geklappt.'
+          titel="Das hat leider nicht geklappt."
           src={noMumblesPicture}
         />
       </Modal>
       {!profileState.context.user ? (
-        <div className='my-4'>
+        <div className="my-4 h-[25rem]">
           <Skeleton isProfile={true} />
         </div>
       ) : (
-        <div className='my-4'>
+        <div className="my-4">
           <ProfileCard
             name={`${profileState.context.user?.firstName} ${profileState.context.user?.lastName}`}
             userName={profileState.context.user?.userName || ''}
@@ -166,8 +166,8 @@ export default function ProfilePage() {
             profilePicture={
               profileState.context.user?.avatarUrl || defaultProfilePicture
             }
-            location='Rapperswil'
-            calendarText='Mitglied seit 6 Monaten'
+            location="Rapperswil"
+            calendarText="Mitglied seit 6 Monaten"
             profileText={profileState.context.bio}
           />
         </div>
@@ -175,14 +175,14 @@ export default function ProfilePage() {
       {profileState.context.isNewUserProfile && (
         <>
           <PostComment
-            profileHeaderType='CREATE-POST'
-            name='Voll leer hier'
+            profileHeaderType="CREATE-POST"
+            name="Voll leer hier"
             userName={`${profileState.context.user?.firstName} ${profileState.context.user?.lastName}`}
             src={profileState.context.user?.avatarUrl || defaultProfilePicture}
-            postCreationTime=''
-            placeholder='Deine Meinung zählt!'
-            LLabel='Bild hochladen'
-            RLabel='Absenden'
+            postCreationTime=""
+            placeholder="Deine Meinung zählt!"
+            LLabel="Bild hochladen"
+            RLabel="Absenden"
             isDisabled={comment.isDisabled}
             textValue={comment.text}
             fileValue={comment.image}
@@ -196,14 +196,14 @@ export default function ProfilePage() {
             openProfile={() => {}}
             onSubmit={(file, text) => submitPost(file, text)}
           ></PostComment>
-          <div className='mt-4'>
-            <Typography type='h3'>Empfohlene Users</Typography>
+          <div className="mt-4">
+            <Typography type="h3">Empfohlene Users</Typography>
           </div>
           <Users
             users={profileState.context.suggestedUsers}
             onClick={(id) => router.push(id)}
           />
-          <Typography type='h3'>Empfohlene Mumbles</Typography>
+          <Typography type="h3">Empfohlene Mumbles</Typography>
         </>
       )}
       {profileState.context.isOwnProfile &&
@@ -212,12 +212,12 @@ export default function ProfilePage() {
           <Toggle
             isToggleOn={profileState.context.isPostsOpen}
             onClick={toggle}
-            onLabel='Deine Mumbles'
-            offLabel='Deine Likes'
+            onLabel="Deine Mumbles"
+            offLabel="Deine Likes"
           />
         )}
       {!profileState.context.posts.length && profileState.matches('idle') && (
-        <CardWrapper titel='Keine Mumbles gefunden' src={noMumblesPicture} />
+        <CardWrapper titel="Keine Mumbles gefunden" src={noMumblesPicture} />
       )}
       {!profileState.context.posts.length ||
       profileState.matches('loadPostsAndLikedPosts') ||
@@ -233,7 +233,7 @@ export default function ProfilePage() {
               ? profileState.context.posts
               : profileState.context.likedPosts
           }
-          mumbleType='post'
+          mumbleType="post"
           hasMore={
             profileState.context.isPostsOpen
               ? profileState.context.hasMorePosts

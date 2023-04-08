@@ -4,11 +4,11 @@ const nextConfig = {
   swcMinify: true,
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "cas-fee-advanced-ocvdad.zitadel.cloud" },
+      { protocol: 'https', hostname: 'cas-fee-advanced-ocvdad.zitadel.cloud' },
       {
-        protocol: "https",
-        hostname: "storage.googleapis.com",
-        pathname: "/qwacker-api-prod-data/**",
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        pathname: '/qwacker-api-prod-data/**',
       },
     ],
   },
@@ -16,6 +16,6 @@ const nextConfig = {
     locales: ['en'],
     defaultLocale: 'en',
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
