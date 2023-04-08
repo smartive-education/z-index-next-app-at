@@ -137,6 +137,7 @@ export default function PostDetailPage({
             src={state.post.mediaUrl}
             alt={state.post.text}
             fill
+            priority
             sizes='(min-width: 60rem) 40vw,
                           (min-width: 30rem) 50vw,
                           100vw'
@@ -167,9 +168,9 @@ export default function PostDetailPage({
           onSubmit={(file, text) => reply(file, text)}
         ></PostComment>
       )}
-      {state.replies.map((reply) => {
-        if (reply.type === 'reply') {
-          return (
+      {state.replies.map(
+        (reply) =>
+          reply.type === 'reply' && (
             <Post
               profileHeaderType='REPLY'
               key={reply.id}
@@ -201,11 +202,8 @@ export default function PostDetailPage({
                 />
               )}
             </Post>
-          );
-        } else {
-          return '';
-        }
-      })}
+          )
+      )}
     </AppWrapper>
   );
 }

@@ -52,7 +52,7 @@ export const Mumbles: FC<MumblesProps> = ({
         }
         style={{ overflow: 'visible' }}
       >
-        {mumbles.map((mumble) => {
+        {mumbles.map((mumble, index) => {
           return (
             mumble.type === mumbleType && (
               <Post
@@ -78,6 +78,7 @@ export const Mumbles: FC<MumblesProps> = ({
                     src={mumble.mediaUrl}
                     alt={mumble.text}
                     fill
+                    priority={index < 3}
                     sizes='(min-width: 60rem) 40vw,
                         (min-width: 30rem) 50vw,
                         100vw'
