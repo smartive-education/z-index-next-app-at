@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest --watch",
-    "prettier": "npx prettier --write ."
+    "prettier": "npx prettier --write .",
+    "cruiser": "npx depcruise --config .dependency-cruiser.js . --exclude \"^.next\""
   },
   "dependencies": {
     "@smartive-education/design-system-component-z-index-at": "1.4.11",
@@ -33,6 +34,7 @@
     "@testing-library/react": "^14.0.0",
     "@types/jest": "^29.4.0",
     "autoprefixer": "^10.4.13",
+    "dependency-cruiser": "^12.11.1",
     "eslint-config-prettier": "^8.8.0",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
