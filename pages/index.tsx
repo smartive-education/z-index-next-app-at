@@ -1,27 +1,23 @@
 import {
   Modal,
-  Post,
   PostComment,
   Skeleton,
-  Typography,
+  Typography
 } from '@smartive-education/design-system-component-z-index-at';
 import { useActor } from '@xstate/react';
 import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { AppWrapper } from '../components/app-wrapper';
 import { CardWrapper } from '../components/card-wrapper';
+import { Mumbles } from '../components/mumbles';
 import { CommentState } from '../models';
 import {
   defaultProfilePicture,
-  noMoreMumblesPicture,
-  noMumblesPicture,
+  noMumblesPicture
 } from '../models/constants';
 import { TimelineContext } from '../state/timeline-machine';
-import { Mumbles } from '../components/mumbles';
 
 export default function TimelinePage() {
   const { data: session, status } = useSession();
