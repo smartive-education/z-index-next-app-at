@@ -16,9 +16,8 @@ export const authOptions: NextAuthOptions = {
       name: 'zitadel',
       type: 'oauth',
       version: '2',
-      wellKnown:
-        'https://cas-fee-advanced-ocvdad.zitadel.cloud/.well-known/openid-configuration',
-      clientId: '181236603920908545@cas_fee_adv_qwacker_prod',
+      wellKnown: process.env.ZITADEL_ISSUER,
+      clientId: process.env.ZITADEL_CLIENT_ID,
       authorization: {
         params: {
           scope: 'openid email profile',

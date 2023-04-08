@@ -12,7 +12,7 @@ export interface UsersProps {
 export const Users: FC<UsersProps> = ({ users, onClick }) => {
   const router = useRouter();
   return (
-    <div className='grid grid-cols-3 gap-4 my-4'>
+    <div className='grid grid-cols-2 md:grid-cols-3 gap-4 my-4'>
       {Object.values(users).map((user) => {
         return (
           <div key={user.id} onClick={() => onClick(user.id)} className='cursor-pointer'>
