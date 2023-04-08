@@ -15,8 +15,13 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { AppWrapper } from '../components/app-wrapper';
 import { CardWrapper } from '../components/card-wrapper';
 import { CommentState } from '../models';
-import { defaultProfilePicture } from '../models/constants';
+import {
+  defaultProfilePicture,
+  noMoreMumblesPicture,
+  noMumblesPicture,
+} from '../models/constants';
 import { TimelineContext } from '../state/timeline-machine';
+import { Mumbles } from '../components/mumbles';
 
 export default function TimelinePage() {
   const { data: session, status } = useSession();
@@ -25,7 +30,6 @@ export default function TimelinePage() {
     isDisabled: true,
     text: '',
   });
-  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const timelineContext = useContext(TimelineContext);
   const [timelineState, send] = useActor(timelineContext.timelineService);
 
@@ -36,16 +40,6 @@ export default function TimelinePage() {
         loggedInUser: session.loggedInUser,
       });
     }
-    const sub = timelineContext.timelineService.subscribe((state) => {
-      if (
-        state.matches('initFailed') ||
-        state.matches('updateFailed') ||
-        state.matches('mutationFailed')
-      ) {
-        setIsErrorModalOpen(true);
-      }
-    });
-    return sub.unsubscribe();
   }, [session, send, timelineState, timelineContext]);
 
   const loadMore = async (): Promise<void> => {
@@ -54,11 +48,6 @@ export default function TimelinePage() {
         type: 'UPDATE_TIMELINE_DATA',
       });
     }
-    const sub = timelineContext.timelineService.subscribe((state) => {
-      if (state.matches('idle') || state.matches('updateFailed')) {
-        return Promise.resolve(() => sub.unsubscribe());
-      }
-    });
   };
 
   const submitPost = async (image: File | undefined, text: string) => {
@@ -81,7 +70,6 @@ export default function TimelinePage() {
   };
 
   const likePost = async (isLiked: boolean, id: string) => {
-    console.log(timelineState.context);
     send({
       type: 'LIKE_POST',
       id,
@@ -106,21 +94,23 @@ export default function TimelinePage() {
           type: 'RETURN_TO_IDLE',
         });
     }
-    setIsErrorModalOpen(false);
   };
 
   const closeErrorModal = (): void => {
     send({
       type: 'RETURN_TO_IDLE',
     });
-    setIsErrorModalOpen(false);
   };
 
   return (
     <AppWrapper>
       <Modal
         title='Oops.'
-        isOpen={isErrorModalOpen}
+        isOpen={
+          timelineState.matches('initFailed') ||
+          timelineState.matches('updateFailed') ||
+          timelineState.matches('mutationFailed')
+        }
         LLable='Abbrechen'
         RLable='Erneut versuchen'
         RIcon='refresh'
@@ -133,7 +123,7 @@ export default function TimelinePage() {
       >
         <CardWrapper
           titel='Das hat leider nicht geklappt.'
-          src='/images/no_mumbles.png'
+          src={noMumblesPicture}
         />
       </Modal>
       <div className='my-4'>
@@ -167,68 +157,25 @@ export default function TimelinePage() {
         ></PostComment>
       )}
       {!timelineState.context.posts.length && timelineState.matches('idle') ? (
-        <CardWrapper
-          titel='Keine Mumbles gefunden'
-          src='/images/no_mumbles.png'
-        />
+        <CardWrapper titel='Keine Mumbles gefunden' src={noMumblesPicture} />
       ) : !timelineState.context.posts.length ||
         timelineState.matches('timelineInitializing') ? (
         <>
           <Skeleton />
           <Skeleton />
+          <Skeleton />
         </>
       ) : (
-        <InfiniteScroll
-          dataLength={timelineState.context.posts.length}
-          next={loadMore}
-          hasMore={timelineState.context.hasMore || false}
-          loader={<Skeleton />}
-          endMessage={
-            <CardWrapper
-              titel='Yaay, du hast alle mumbles gesehen!'
-              src='/images/caught_up.png'
-            />
-          }
-          style={{ overflow: 'visible' }}
-        >
-          {timelineState.context.posts?.map((post) => {
-            if (post.type === 'post') {
-              return (
-                <Post
-                  key={post.id}
-                  profileHeaderType='POST'
-                  name={post.fullName || ''}
-                  userName={post.userName || ''}
-                  postCreationTime={post.createdTimestamp}
-                  src={post.avatarUrl || defaultProfilePicture}
-                  content={post.text}
-                  commentCount={post.replyCount || 0}
-                  isLiked={post.likedByUser}
-                  likeCount={post.likeCount}
-                  link={`/mumble/${post.id}`}
-                  comment={() => router.push(`/mumble/${post.id}`)}
-                  openProfile={() => router.push(`/profile/${post.creator}`)}
-                  setIsLiked={(isLiked) => likePost(isLiked, post.id)}
-                  copyLabel='Copy Link'
-                  copiedLabel='Link Copied'
-                >
-                  {post.mediaUrl && (
-                    <Image
-                      src={post.mediaUrl}
-                      alt={post.text}
-                      fill
-                      sizes='(min-width: 60rem) 40vw,
-                        (min-width: 30rem) 50vw,
-                        100vw'
-                    />
-                  )}
-                </Post>
-              );
-            } else {
-              return '';
-            }
-          })}
-        </InfiniteScroll>
+        <Mumbles
+          mumbles={timelineState.context.posts}
+          mumbleType='post'
+          hasMore={timelineState.context.hasMore}
+          isEndMessageNeeded={true}
+          setIsLiked={likePost}
+          loadMorePosts={loadMore}
+          openMumbleDetails={(id: string) => router.push(`/mumble/${id}`)}
+          openProfile={(id: string) => router.push(`/profile/${id}`)}
+        />
       )}
     </AppWrapper>
   );
