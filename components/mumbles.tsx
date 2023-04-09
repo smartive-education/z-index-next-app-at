@@ -58,8 +58,8 @@ export const Mumbles: FC<MumblesProps> = ({
               <Post
                 key={mumble.id}
                 profileHeaderType={mumbleType === 'post' ? 'POST' : 'REPLY'}
-                name={mumble.fullName || ''}
-                userName={mumble.userName || ''}
+                name={mumble.fullName}
+                userName={mumble.userName}
                 postCreationTime={mumble.createdTimestamp}
                 src={mumble.avatarUrl || defaultProfilePicture}
                 content={mumble.text}

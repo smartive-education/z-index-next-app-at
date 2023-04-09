@@ -11,7 +11,6 @@ interface AppWrapperProps {
 export const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const noop = () => {};
 
   return (
     <>
@@ -25,7 +24,6 @@ export const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
             navigateToProfile={() =>
               router.push(`/profile/${session.loggedInUser.id}`)
             }
-            openSettings={noop}
             changeLoggedInStatus={
               status === 'authenticated'
                 ? () => signOut({ callbackUrl: '/' })

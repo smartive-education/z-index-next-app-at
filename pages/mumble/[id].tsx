@@ -149,9 +149,8 @@ export default function PostDetailPage({
         <PostComment
           profileHeaderType="CREATE-REPLY"
           name={`${session.loggedInUser.firstName} ${session.loggedInUser.lastName}`}
-          userName={session.loggedInUser.userName || ''}
+          userName={session.loggedInUser.userName}
           src={session.loggedInUser.avatarUrl || defaultProfilePicture}
-          postCreationTime=""
           placeholder="Was meinst du dazu?"
           LLabel="Bild hochladen"
           RLabel="Absenden"
@@ -175,12 +174,11 @@ export default function PostDetailPage({
             <Post
               profileHeaderType="REPLY"
               key={reply.id}
-              name={reply.fullName || ''}
-              userName={reply.userName || ''}
+              name={reply.fullName}
+              userName={reply.userName}
               postCreationTime={reply.createdTimestamp}
               src={reply.avatarUrl || defaultProfilePicture}
               content={reply.text}
-              commentCount={0}
               isLiked={reply.likedByUser}
               likeCount={reply.likeCount}
               link={`/mumble/${reply.id}`}

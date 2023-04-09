@@ -22,6 +22,7 @@ import {
 import { CommentState } from '../../models';
 import {
   defaultProfilePicture,
+  errorPicture,
   noMumblesPicture,
 } from '../../models/constants';
 import { profileMachine } from '../../state/profile-machine';
@@ -150,7 +151,7 @@ export default function ProfilePage() {
       >
         <CardWrapper
           titel="Das hat leider nicht geklappt."
-          src={noMumblesPicture}
+          src={errorPicture}
         />
       </Modal>
       {!profileState.context.user ? (
@@ -179,7 +180,6 @@ export default function ProfilePage() {
             name="Voll leer hier"
             userName={`${profileState.context.user?.firstName} ${profileState.context.user?.lastName}`}
             src={profileState.context.user?.avatarUrl || defaultProfilePicture}
-            postCreationTime=""
             placeholder="Deine Meinung zählt!"
             LLabel="Bild hochladen"
             RLabel="Absenden"
@@ -193,7 +193,6 @@ export default function ProfilePage() {
                 isDisabled: !event.target.value,
               }))
             }
-            openProfile={() => {}}
             onSubmit={(file, text) => submitPost(file, text)}
           ></PostComment>
           <div className="mt-4">

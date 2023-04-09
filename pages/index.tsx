@@ -13,7 +13,7 @@ import { AppWrapper } from '../components/app-wrapper';
 import { CardWrapper } from '../components/card-wrapper';
 import { Mumbles } from '../components/mumbles';
 import { CommentState } from '../models';
-import { defaultProfilePicture, noMumblesPicture } from '../models/constants';
+import { defaultProfilePicture, errorPicture, noMumblesPicture } from '../models/constants';
 import { TimelineContext } from '../state/timeline-machine';
 
 export default function TimelinePage() {
@@ -116,7 +116,7 @@ export default function TimelinePage() {
       >
         <CardWrapper
           titel="Das hat leider nicht geklappt."
-          src={noMumblesPicture}
+          src={errorPicture}
         />
       </Modal>
       <div className="my-4">
@@ -131,7 +131,6 @@ export default function TimelinePage() {
           name="Hey was gibt's neues?"
           userName={session.loggedInUser.userName}
           src={session.loggedInUser.avatarUrl || defaultProfilePicture}
-          postCreationTime={''}
           placeholder="Deine Meinung zählt!"
           LLabel="Bild hochladen"
           RLabel="Absenden"
