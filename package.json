@@ -12,7 +12,7 @@
     "cruiser": "npx depcruise --config .dependency-cruiser.js . --exclude \"^.next\""
   },
   "dependencies": {
-    "@smartive-education/design-system-component-z-index-at": "1.4.17",
+    "@smartive-education/design-system-component-z-index-at": "1.4.18",
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.8",
@@ -24,6 +24,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-infinite-scroll-component": "6.1.0",
+    "sharp": "^0.32.0",
     "typescript": "4.8.4",
     "ulid": "2.3.0",
     "xstate": "^4.37.1"

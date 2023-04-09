@@ -9,11 +9,15 @@ import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
-import { AppWrapper } from '../components/app-wrapper';
+import { Layout } from '../components/app-wrapper';
 import { CardWrapper } from '../components/card-wrapper';
 import { Mumbles } from '../components/mumbles';
 import { CommentState } from '../models';
-import { defaultProfilePicture, errorPicture, noMumblesPicture } from '../models/constants';
+import {
+  defaultProfilePicture,
+  errorPicture,
+  noMumblesPicture,
+} from '../models/constants';
 import { TimelineContext } from '../state/timeline-machine';
 
 export default function TimelinePage() {
@@ -32,8 +36,9 @@ export default function TimelinePage() {
         type: 'INIT_TIMELINE',
         loggedInUser: session.loggedInUser,
       });
+      router.prefetch(`/profile/${session.loggedInUser.id}`);
     }
-  }, [session, send, timelineState, timelineContext]);
+  }, [session, send, timelineState, timelineContext, router]);
 
   const loadMore = async (): Promise<void> => {
     if (session) {
@@ -96,7 +101,7 @@ export default function TimelinePage() {
   };
 
   return (
-    <AppWrapper>
+    <Layout>
       <Modal
         title="Oops."
         isOpen={
@@ -165,11 +170,11 @@ export default function TimelinePage() {
           isEndMessageNeeded={true}
           setIsLiked={likePost}
           loadMorePosts={loadMore}
-          openMumbleDetails={(id: string) => router.push(`/mumble/${id}`)}
-          openProfile={(id: string) => router.push(`/profile/${id}`)}
+          openMumbleDetails={(id) => router.push(`/mumble/${id}`)}
+          openProfile={(id) => router.push(`/profile/${id}`)}
         />
       )}
-    </AppWrapper>
+    </Layout>
   );
 }
 

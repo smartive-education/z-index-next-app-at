@@ -17,8 +17,6 @@ export interface TimelineMachineContext {
   readonly hasMore: boolean;
   readonly posts: Mumble[];
   readonly mumbleUsers: MumbleUsers;
-  readonly postsLoadedInTheBackground: Mumble[];
-  readonly clickedPost?: Mumble;
   readonly failedOperation: FailedOperation;
 }
 
@@ -26,7 +24,6 @@ export const initialTimelineMachineContext: TimelineMachineContext = {
   hasMore: false,
   posts: [],
   mumbleUsers: {},
-  postsLoadedInTheBackground: [],
   failedOperation: 'none',
 };
 
@@ -49,6 +46,11 @@ export interface LikePostEvent {
   type: 'LIKE_POST';
   id: string;
   isLiked: boolean;
+}
+
+export interface SetClickedMumble {
+  type: 'SET_CLICKED_MUMBLE';
+  element: number;
 }
 
 export const TimelineContext = createContext({

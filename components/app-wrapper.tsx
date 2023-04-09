@@ -4,11 +4,11 @@ import { useRouter } from 'next/router';
 import { FC, ReactNode } from 'react';
 import { defaultProfilePicture } from '../models/constants';
 
-interface AppWrapperProps {
+interface LayoutProps {
   children: ReactNode;
 }
 
-export const AppWrapper: FC<AppWrapperProps> = ({ children }) => {
+export const Layout: FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
   const { data: session, status } = useSession();
 

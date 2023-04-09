@@ -13,7 +13,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useEffect, useReducer, useState } from 'react';
-import { AppWrapper } from '../../components/app-wrapper';
+import { Layout } from '../../components/app-wrapper';
 import { CardWrapper } from '../../components/card-wrapper';
 import {
   CommentState,
@@ -94,7 +94,7 @@ export default function PostDetailPage({
   };
 
   return (
-    <AppWrapper>
+    <Layout>
       <Modal
         title="Oops."
         isOpen={state.hasError}
@@ -201,7 +201,7 @@ export default function PostDetailPage({
             </Post>
           )
       )}
-    </AppWrapper>
+    </Layout>
   );
 }
 

@@ -11,7 +11,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { waitFor } from 'xstate/lib/waitFor';
-import { AppWrapper } from '../../components/app-wrapper';
+import { Layout } from '../../components/app-wrapper';
 import { CardWrapper } from '../../components/card-wrapper';
 import { Mumbles } from '../../components/mumbles';
 import { Users } from '../../components/users';
@@ -130,7 +130,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <AppWrapper>
+    <Layout>
       <Modal
         title="Oops."
         isOpen={
@@ -249,6 +249,6 @@ export default function ProfilePage() {
           openProfile={(id) => router.push(`/profile/${id}`)}
         />
       )}
-    </AppWrapper>
+    </Layout>
   );
 }

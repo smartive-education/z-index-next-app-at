@@ -2,7 +2,7 @@ import {
   Post,
   Skeleton,
 } from '@smartive-education/design-system-component-z-index-at';
-import { FC } from 'react';
+import { FC, RefObject } from 'react';
 import { Mumble, MumbleType } from '../models';
 import Image from 'next/image';
 import {
@@ -18,8 +18,8 @@ export interface MumblesProps {
   mumbleType: MumbleType;
   hasMore: boolean;
   isEndMessageNeeded: boolean;
-  openProfile: (id: string) => void;
-  openMumbleDetails: (id: string) => void;
+  openProfile: (id: string, ref: RefObject<HTMLDivElement>) => void;
+  openMumbleDetails: (id: string, ref: RefObject<HTMLDivElement>) => void;
   setIsLiked: (isLiked: boolean, mumbleId: string) => void;
   loadMorePosts: () => void;
 }
@@ -67,8 +67,12 @@ export const Mumbles: FC<MumblesProps> = ({
                 isLiked={mumble.likedByUser}
                 likeCount={mumble.likeCount}
                 link={`/mumble/${mumble.id}`}
-                comment={() => openMumbleDetails(mumble.id)}
-                openProfile={() => openProfile(mumble.creator)}
+                comment={(ref: RefObject<HTMLDivElement>) =>
+                  openMumbleDetails(mumble.id, ref)
+                }
+                openProfile={(ref: RefObject<HTMLDivElement>) =>
+                  openProfile(mumble.creator, ref)
+                }
                 setIsLiked={(isLiked) => setIsLiked(isLiked, mumble.id)}
                 copyLabel="Copy Link"
                 copiedLabel="Link Copied"
