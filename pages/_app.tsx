@@ -5,12 +5,15 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { TimelineContext, timelineMachine } from '../state/timeline-machine';
 import '../styles/globals.css';
+import { useRouter } from 'next/router';
+import { convertRouteToSiteName } from '../models/mappers';
 
 export default function App({
   Component,
   pageProps: { session, ...pageProps },
 }: AppProps<{ session: Session }>) {
   const timelineService = useInterpret(timelineMachine);
+  const router = useRouter();
 
   return (
     <>
@@ -22,6 +25,7 @@ export default function App({
         />
         <meta name="author" content="Attila Toth" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{`${convertRouteToSiteName(router.route)} | Mumble`}</title>
       </Head>
       <SessionProvider session={session}>
         <TimelineContext.Provider value={{ timelineService }}>

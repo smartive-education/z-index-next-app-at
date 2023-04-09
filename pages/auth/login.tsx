@@ -18,11 +18,11 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="grid md:grid-cols-2">
-        <div>
+      <div className="grid md:grid-cols-3">
+        <div className='grid md:col-start-1 md:col-span-2 min-h-[70vh]'>
           <LandingPage />
         </div>
-        <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="md:col-start-3 flex flex-col items-center justify-center min-h-[30vh]">
           <Button
             label="Login/Register"
             icon="mumble"

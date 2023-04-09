@@ -48,3 +48,18 @@ export const convertTimeStamp = (creationDate: Date, current: Date): string => {
   }
   return 'jetzt';
 };
+
+export const convertRouteToSiteName = (route: string): string => {
+  switch (route) {
+    case '/':
+      return 'Timeline';
+    case '/mumble/[id]':
+      return 'Detail';
+    case '/profile/[id]':
+      return 'Profile';
+    case '/auth/login':
+      return 'Login';
+    default:
+      return '';
+  }
+};

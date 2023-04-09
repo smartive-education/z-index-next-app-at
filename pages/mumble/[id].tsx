@@ -139,17 +139,18 @@ export default function PostDetailPage({
             fill
             priority
             sizes="(min-width: 60rem) 40vw,
-                          (min-width: 30rem) 50vw,
-                          100vw"
+                        (min-width: 30rem) 50vw,
+                        100vw"
+            className="object-cover"
           />
         )}
       </Post>
       {status === 'authenticated' && (
         <PostComment
           profileHeaderType="CREATE-REPLY"
-          name={state.post.fullName || ''}
-          userName={state.post.userName || ''}
-          src={state.post.avatarUrl || defaultProfilePicture}
+          name={`${session.loggedInUser.firstName} ${session.loggedInUser.lastName}`}
+          userName={session.loggedInUser.userName || ''}
+          src={session.loggedInUser.avatarUrl || defaultProfilePicture}
           postCreationTime=""
           placeholder="Was meinst du dazu?"
           LLabel="Bild hochladen"
@@ -196,9 +197,7 @@ export default function PostDetailPage({
                   src={reply.mediaUrl}
                   alt={reply.text}
                   fill
-                  sizes="(min-width: 60rem) 40vw,
-                        (min-width: 30rem) 50vw,
-                        100vw"
+                  className="object-contain"
                 />
               )}
             </Post>
