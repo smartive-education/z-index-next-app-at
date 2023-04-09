@@ -59,6 +59,8 @@ export const convertRouteToSiteName = (route: string): string => {
       return 'Profile';
     case '/auth/login':
       return 'Login';
+    case '/error':
+      return 'Error';
     default:
       return '';
   }

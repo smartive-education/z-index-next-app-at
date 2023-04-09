@@ -208,24 +208,32 @@ export default function PostDetailPage({
 export const getServerSideProps: GetServerSideProps<
   GetPostDetailsResponse
 > = async (context: GetServerSidePropsContext) => {
-  const session = await getToken({ req: context.req });
-
-  if (!session) {
+  try {
+    const session = await getToken({ req: context.req });
+    if (!session) {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
+    const { post, replies } = await getMumbleDetailsWithUserData(
+      session?.accessToken as string,
+      context.query.id as string
+    );
+    return {
+      props: {
+        post,
+        replies,
+      },
+    };
+  } catch (error) {
     return {
       redirect: {
-        destination: '/',
+        destination: '/error',
         permanent: false,
       },
     };
   }
-  const { post, replies } = await getMumbleDetailsWithUserData(
-    session?.accessToken as string,
-    context.query.id as string
-  );
-  return {
-    props: {
-      post,
-      replies,
-    },
-  };
 };
