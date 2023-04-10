@@ -26,6 +26,17 @@ export default function App({
         <meta name="author" content="Attila Toth" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{`${convertRouteToSiteName(router.route)} | Mumble`}</title>
+        <link
+          rel="manifest"
+          crossOrigin="use-credentials"
+          href="/manifest.json"
+        />
+        <link rel="apple-touch-icon" href="/icon-192x192.webp" />
+        <meta name="theme-color" content="#bd10e0" />
+        <meta
+          name="viewport"
+          content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover"
+        />
       </Head>
       <SessionProvider session={session}>
         <TimelineContext.Provider value={{ timelineService }}>

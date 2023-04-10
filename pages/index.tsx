@@ -1,4 +1,5 @@
 import {
+  Button,
   Modal,
   PostComment,
   Skeleton,
@@ -18,6 +19,7 @@ import {
   errorPicture,
   noMumblesPicture,
 } from '../models/constants';
+import { getPostsWithUserData } from '../services/mumble.service';
 import { TimelineContext } from '../state/timeline-machine';
 
 export default function TimelinePage() {
@@ -39,6 +41,33 @@ export default function TimelinePage() {
       router.prefetch(`/profile/${session.loggedInUser.id}`);
     }
   }, [session, send, timelineState, timelineContext, router]);
+
+  useEffect(() => {
+    if (
+      timelineState.matches('idle')
+    ) {
+      const intervalHandle = setInterval(async () => {
+        try {
+          const postsLoadedInTheBackground = await getPostsWithUserData(
+            timelineState.context.loggedInUser?.accessToken,
+            { newerThanMumbleId: timelineState.context.posts[0].id, limit: 20 },
+            timelineState.context.mumbleUsers
+          );
+          if (postsLoadedInTheBackground.posts.length) {
+            send({
+              type: 'POSTS_LOADED_IN_BACKGROUND',
+              posts: postsLoadedInTheBackground.posts,
+            });
+          }
+        } catch (error) {
+          console.log(error); // Error is swallowed, since the user is not aware of this happening.
+        }
+      }, 10000);
+      return () => {
+        return clearInterval(intervalHandle);
+      };
+    }
+  }, [send, timelineState]);
 
   const loadMore = async (): Promise<void> => {
     if (session) {
@@ -100,8 +129,29 @@ export default function TimelinePage() {
     });
   };
 
+  const showPostsLoadedInTheBackground = (): void => {
+    send({
+      type: 'SHOW_POSTS_LOADED_IN_BACKGROUND',
+    });
+    window.scrollTo(0, 0);
+  };
+
   return (
     <Layout>
+      <div
+        className={`fixed top-24 z-10 left-1/2 translate-x-[-50%] ${
+          timelineState.context.postsLoadedInTheBackground.length
+            ? 'block'
+            : 'hidden'
+        }`}
+      >
+        <Button
+          label="Neue Mumbles Anzeigen"
+          icon="up"
+          color="Violet"
+          onClick={showPostsLoadedInTheBackground}
+        />
+      </div>
       <Modal
         title="Oops."
         isOpen={

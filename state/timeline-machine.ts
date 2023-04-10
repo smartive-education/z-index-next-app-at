@@ -17,6 +17,7 @@ export interface TimelineMachineContext {
   readonly hasMore: boolean;
   readonly posts: Mumble[];
   readonly mumbleUsers: MumbleUsers;
+  readonly postsLoadedInTheBackground: Mumble[];
   readonly failedOperation: FailedOperation;
 }
 
@@ -24,6 +25,7 @@ export const initialTimelineMachineContext: TimelineMachineContext = {
   hasMore: false,
   posts: [],
   mumbleUsers: {},
+  postsLoadedInTheBackground: [],
   failedOperation: 'none',
 };
 
@@ -34,6 +36,14 @@ export interface InitTimelineEvent {
 
 export interface UpdateTimelineEvent {
   type: 'UPDATE_TIMELINE_DATA';
+}
+export interface LoadPostsInBackgroundEvent {
+  type: 'POSTS_LOADED_IN_BACKGROUND';
+  posts: Mumble[];
+}
+
+export interface ShowPostsLoadedInBackgroundEvent {
+  type: 'SHOW_POSTS_LOADED_IN_BACKGROUND';
 }
 
 export interface CreatePostEvent {
@@ -127,6 +137,31 @@ export const timelineMachine = createMachine({
         },
         LIKE_POST: {
           target: 'like',
+        },
+        POSTS_LOADED_IN_BACKGROUND: {
+          target: 'idle',
+          actions: [
+            assign<TimelineMachineContext, LoadPostsInBackgroundEvent>({
+              postsLoadedInTheBackground: (_context, event) => event.posts,
+            }),
+            (_context, _event) => console.log('POSTS_LOADED_IN_BACKGROUND triggered'),
+          ],
+          internal: true,
+        },
+        SHOW_POSTS_LOADED_IN_BACKGROUND: {
+          target: 'idle',
+          actions: [
+            assign<TimelineMachineContext, ShowPostsLoadedInBackgroundEvent>({
+              posts: (context, _event) => [
+                ...context.postsLoadedInTheBackground,
+                ...context.posts,
+              ],
+              postsLoadedInTheBackground: [],
+            }),
+            (_context, _event) =>
+              console.log('SHOW_POSTS_LOADED_IN_BACKGROUND triggered'),
+          ],
+          internal: true,
         },
       },
     },
