@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+
+const withPWA = require('next-pwa')({
+  dest: 'public',
+})
+
+module.exports = withPWA({
   reactStrictMode: true,
   swcMinify: true,
   images: {
@@ -15,7 +20,5 @@ const nextConfig = {
   i18n: {
     locales: ['de'],
     defaultLocale: 'de',
-  },
-};
-
-module.exports = nextConfig;
+  }
+});
