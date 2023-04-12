@@ -210,14 +210,6 @@ export const getServerSideProps: GetServerSideProps<
 > = async (context: GetServerSidePropsContext) => {
   try {
     const session = await getToken({ req: context.req });
-    if (!session) {
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      };
-    }
     const { post, replies } = await getMumbleDetailsWithUserData(
       session?.accessToken as string,
       context.query.id as string
