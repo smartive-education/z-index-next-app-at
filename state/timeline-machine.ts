@@ -58,11 +58,6 @@ export interface LikePostEvent {
   isLiked: boolean;
 }
 
-export interface SetClickedMumble {
-  type: 'SET_CLICKED_MUMBLE';
-  element: number;
-}
-
 export const TimelineContext = createContext({
   timelineService: {} as InterpreterFrom<typeof timelineMachine>,
 });
@@ -144,7 +139,8 @@ export const timelineMachine = createMachine({
             assign<TimelineMachineContext, LoadPostsInBackgroundEvent>({
               postsLoadedInTheBackground: (_context, event) => event.posts,
             }),
-            (_context, _event) => console.log('POSTS_LOADED_IN_BACKGROUND triggered'),
+            (_context, _event) =>
+              console.log('POSTS_LOADED_IN_BACKGROUND triggered'),
           ],
           internal: true,
         },
@@ -156,7 +152,7 @@ export const timelineMachine = createMachine({
                 ...context.postsLoadedInTheBackground,
                 ...context.posts,
               ],
-              postsLoadedInTheBackground: [],
+              postsLoadedInTheBackground: (_context, _event) => [],
             }),
             (_context, _event) =>
               console.log('SHOW_POSTS_LOADED_IN_BACKGROUND triggered'),

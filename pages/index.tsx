@@ -9,7 +9,7 @@ import { useActor } from '@xstate/react';
 import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { ChangeEvent, useContext, useEffect, useState } from 'react';
+import { ChangeEvent, RefObject, useContext, useEffect, useState } from 'react';
 import { Layout } from '../components/app-wrapper';
 import { CardWrapper } from '../components/card-wrapper';
 import { Mumbles } from '../components/mumbles';
@@ -43,9 +43,7 @@ export default function TimelinePage() {
   }, [session, send, timelineState, timelineContext, router]);
 
   useEffect(() => {
-    if (
-      timelineState.matches('idle')
-    ) {
+    if (timelineState.matches('idle')) {
       const intervalHandle = setInterval(async () => {
         try {
           const postsLoadedInTheBackground = await getPostsWithUserData(
@@ -68,6 +66,15 @@ export default function TimelinePage() {
       };
     }
   }, [send, timelineState]);
+
+  useEffect(() => {
+    const scrollPosition = localStorage.getItem('scrollPosition');
+    if (scrollPosition) {
+      console.log(scrollPosition);
+      window.scrollTo(0, +scrollPosition);
+      localStorage.removeItem('scrollPosition');
+    }
+  }, []);
 
   const loadMore = async (): Promise<void> => {
     if (session) {
@@ -134,6 +141,27 @@ export default function TimelinePage() {
       type: 'SHOW_POSTS_LOADED_IN_BACKGROUND',
     });
     window.scrollTo(0, 0);
+  };
+
+  const setScrollPosition = (ref: RefObject<HTMLDivElement>): void => {
+    const scrollPosition = ref.current?.offsetTop;
+    localStorage.setItem('scrollPosition', String(scrollPosition));
+  };
+
+  const handleOpenDetails = (
+    id: string,
+    ref: RefObject<HTMLDivElement>
+  ): void => {
+    setScrollPosition(ref);
+    router.push(`/mumble/${id}`);
+  };
+
+  const handleOpenProfile = (
+    id: string,
+    ref: RefObject<HTMLDivElement>
+  ): void => {
+    setScrollPosition(ref);
+    router.push(`/profile/${id}`);
   };
 
   return (
@@ -220,8 +248,8 @@ export default function TimelinePage() {
           isEndMessageNeeded={true}
           setIsLiked={likePost}
           loadMorePosts={loadMore}
-          openMumbleDetails={(id) => router.push(`/mumble/${id}`)}
-          openProfile={(id) => router.push(`/profile/${id}`)}
+          openMumbleDetails={handleOpenDetails}
+          openProfile={handleOpenProfile}
         />
       )}
     </Layout>
