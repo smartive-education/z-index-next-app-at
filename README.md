@@ -2,7 +2,11 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, run the development server:
+1. In order to be able to download the packages create a .npmrc file with the following content:
+   @smartive-education:registry=https://npm.pkg.github.com
+   //npm.pkg.github.com/:\_authToken=your_github_token
+
+2.Install the packages and run the development server:
 
 ```bash
 npm i
@@ -30,6 +34,12 @@ npm run cruiser
 ```
 
 ## PWA
+
+The application uses the default settings of next-pwa lib, which provides the following main features:
+
+- caching static assets
+- install on native device
+- offline fallback page
 
 ## Prod Version
 

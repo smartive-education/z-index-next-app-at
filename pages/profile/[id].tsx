@@ -155,9 +155,12 @@ export default function ProfilePage() {
         />
       </Modal>
       {!profileState.context.user ? (
-        <div className="my-4 h-[30rem]">
-          <Skeleton isProfile={true} />
-        </div>
+        <>
+          <div className="my-4 h-[35rem]">
+            <Skeleton isProfile={true} />
+          </div>
+          <Skeleton />
+        </>
       ) : (
         <div className="my-4">
           <ProfileCard
