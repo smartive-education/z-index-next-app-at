@@ -12,7 +12,13 @@ import { getToken } from 'next-auth/jwt';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { ChangeEvent, useEffect, useReducer, useState } from 'react';
+import {
+  ChangeEvent,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 import { Layout } from '../../components/app-wrapper';
 import { CardWrapper } from '../../components/card-wrapper';
 import {
@@ -27,6 +33,8 @@ import { like } from '../../services/like.service';
 import { getMumbleDetailsWithUserData } from '../../services/mumble.service';
 import { createReply } from '../../services/reply.service';
 import { mumbleDetailReducer } from '../../state/mumble-detail';
+import { TimelineContext } from '../../state/timeline-machine';
+import { useActor } from '@xstate/react';
 
 export default function PostDetailPage({
   post,
@@ -43,6 +51,8 @@ export default function PostDetailPage({
     replies,
     hasError: false,
   });
+  const timelineContext = useContext(TimelineContext);
+  const [timelineState, send] = useActor(timelineContext.timelineService);
 
   //without reinitializing the reducer react would not re-render the page in case only the id changes in the url
   useEffect(() => {
@@ -141,6 +151,7 @@ export default function PostDetailPage({
             sizes="(min-width: 60rem) 40vw,
                         (min-width: 30rem) 50vw,
                         100vw"
+            className="object-cover"
           />
         )}
       </Post>

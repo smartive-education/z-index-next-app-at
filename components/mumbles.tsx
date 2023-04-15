@@ -86,6 +86,7 @@ export const Mumbles: FC<MumblesProps> = ({
                     sizes="(min-width: 60rem) 40vw,
                         (min-width: 30rem) 50vw,
                         100vw"
+                    className="object-cover"
                   />
                 )}
               </Post>
