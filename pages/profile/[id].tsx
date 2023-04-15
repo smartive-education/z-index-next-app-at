@@ -156,7 +156,7 @@ export default function ProfilePage() {
       </Modal>
       {!profileState.context.user ? (
         <>
-          <div className="my-4 h-[35rem]">
+          <div className="my-4 md:h-[35rem]">
             <Skeleton isProfile={true} />
           </div>
           <Skeleton />
