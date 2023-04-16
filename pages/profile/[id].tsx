@@ -209,7 +209,7 @@ export default function ProfilePage() {
       )}
       {profileState.context.isOwnProfile &&
         !profileState.context.isNewUserProfile &&
-        profileState.matches('idle') && (
+        (profileState.matches('idle') || profileState.matches('like')) && (
           <Toggle
             isToggleOn={profileState.context.isPostsOpen}
             onClick={toggle}
