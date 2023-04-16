@@ -159,7 +159,6 @@ export default function ProfilePage() {
           <div className="my-4 md:h-[35rem]">
             <Skeleton isProfile={true} />
           </div>
-          <Skeleton />
         </>
       ) : (
         <div className="my-4">
@@ -210,7 +209,7 @@ export default function ProfilePage() {
       )}
       {profileState.context.isOwnProfile &&
         !profileState.context.isNewUserProfile &&
-        !!profileState.context.likedPosts.length && (
+        profileState.matches('idle') && (
           <Toggle
             isToggleOn={profileState.context.isPostsOpen}
             onClick={toggle}
@@ -218,11 +217,14 @@ export default function ProfilePage() {
             offLabel="Deine Likes"
           />
         )}
-      {!profileState.context.posts.length && profileState.matches('idle') && (
+      {((profileState.matches('idle') &&
+        profileState.context.isPostsOpen &&
+        !profileState.context.posts.length) ||
+        (!profileState.context.isPostsOpen &&
+          !profileState.context.likedPosts.length)) && (
         <CardWrapper titel="Keine Mumbles gefunden" src={noMumblesPicture} />
       )}
-      {!profileState.context.posts.length ||
-      profileState.matches('loadPostsAndLikedPosts') ||
+      {profileState.matches('loadPostsAndLikedPosts') ||
       profileState.matches('loadPosts') ? (
         <>
           <Skeleton />

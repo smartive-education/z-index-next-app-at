@@ -43,7 +43,8 @@ export const Mumbles: FC<MumblesProps> = ({
         hasMore={hasMore}
         loader={<Skeleton />}
         endMessage={
-          isEndMessageNeeded && (
+          isEndMessageNeeded &&
+          !!mumbles.length && (
             <CardWrapper
               titel="Yaay, du hast alle mumbles gesehen!"
               src={noMoreMumblesPicture}
