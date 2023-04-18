@@ -58,7 +58,7 @@ export default function TimelinePage() {
             });
           }
         } catch (error) {
-          console.log(error); // Error is swallowed, since the user is not aware of this happening.
+          console.error(error); // Error is swallowed, since the user is not aware of this happening.
         }
       }, 10000);
       return () => {
@@ -70,7 +70,6 @@ export default function TimelinePage() {
   useEffect(() => {
     const scrollPosition = localStorage.getItem('scrollPosition');
     if (scrollPosition) {
-      console.log(scrollPosition);
       window.scrollTo(0, +scrollPosition);
       localStorage.removeItem('scrollPosition');
     }

@@ -79,7 +79,6 @@ export const timelineMachine = createMachine({
             assign<TimelineMachineContext, InitTimelineEvent>({
               loggedInUser: (_context, event) => event.loggedInUser,
             }),
-            (_context, _event) => console.log('timelineInitializing triggered'),
           ],
         },
       },
@@ -112,13 +111,9 @@ export const timelineMachine = createMachine({
       on: {
         RETRY_INIT: {
           target: 'timelineInitializing',
-          actions: [(_context, _event) => console.log('RETRY_INIT triggered')],
         },
         RETURN_TO_IDLE: {
           target: 'idle',
-          actions: [
-            (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
-          ],
         },
       },
     },
@@ -139,8 +134,6 @@ export const timelineMachine = createMachine({
             assign<TimelineMachineContext, LoadPostsInBackgroundEvent>({
               postsLoadedInTheBackground: (_context, event) => event.posts,
             }),
-            (_context, _event) =>
-              console.log('POSTS_LOADED_IN_BACKGROUND triggered'),
           ],
           internal: true,
         },
@@ -154,8 +147,6 @@ export const timelineMachine = createMachine({
               ],
               postsLoadedInTheBackground: (_context, _event) => [],
             }),
-            (_context, _event) =>
-              console.log('SHOW_POSTS_LOADED_IN_BACKGROUND triggered'),
           ],
           internal: true,
         },
@@ -197,15 +188,9 @@ export const timelineMachine = createMachine({
       on: {
         RETRY_UPDATE: {
           target: 'timeLineUpdating',
-          actions: [
-            (_context, _event) => console.log('RETRY_UPDATE triggered'),
-          ],
         },
         RETURN_TO_IDLE: {
           target: 'idle',
-          actions: [
-            (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
-          ],
         },
       },
     },
@@ -232,9 +217,6 @@ export const timelineMachine = createMachine({
       on: {
         RETURN_TO_IDLE: {
           target: 'idle',
-          actions: [
-            (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
-          ],
         },
       },
     },
@@ -261,7 +243,6 @@ export const timelineMachine = createMachine({
                 }),
               failedOperation: (_context, _event) => 'none' as FailedOperation,
             }),
-            (_context, _event) => console.log('LIKE triggered'),
           ],
         },
         onError: {

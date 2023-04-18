@@ -111,8 +111,6 @@ export const profileMachine = createMachine(
                   background: (_context, event) => event.background,
                   bio: (_context, event) => event.bio,
                 }),
-                (_context, _event) =>
-                  console.log('loadPostsAndLikedPosts triggered'),
               ],
               cond: 'isOwnProfileAtInit',
             },
@@ -126,7 +124,6 @@ export const profileMachine = createMachine(
                   background: (_context, event) => event.background,
                   bio: (_context, event) => event.bio,
                 }),
-                (_context, _event) => console.log('loadPosts triggered'),
               ],
             },
           ],
@@ -217,7 +214,6 @@ export const profileMachine = createMachine(
               assign<ProfileMachineContext, InitProfileEvent>({
                 isPostsOpen: (context, _event) => !context.isPostsOpen,
               }),
-              (_context, _event) => console.log('TOGGLE triggered'),
             ],
             internal: true,
           },
@@ -257,8 +253,6 @@ export const profileMachine = createMachine(
                     initialProfileMachineContext.isPostsOpen,
                   isNewUserProfile: false,
                 }),
-                (_context, _event) =>
-                  console.log('loadPostsAndLikedPosts triggered'),
               ],
               cond: 'isOwnProfileAtInit',
             },
@@ -290,7 +284,6 @@ export const profileMachine = createMachine(
                     initialProfileMachineContext.isPostsOpen,
                   isNewUserProfile: false,
                 }),
-                (_context, _event) => console.log('loadPosts triggered'),
               ],
             },
           ],
@@ -332,15 +325,9 @@ export const profileMachine = createMachine(
         on: {
           LOAD_MORE_POSTS: {
             target: 'loadMorePosts',
-            actions: [
-              (_context, _event) => console.log('RETRY_UPDATE triggered'),
-            ],
           },
           RETURN_TO_IDLE: {
             target: 'idle',
-            actions: [
-              (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
-            ],
           },
         },
       },
@@ -380,15 +367,9 @@ export const profileMachine = createMachine(
         on: {
           LOAD_MORE_LIKED_POSTS: {
             target: 'loadMoreLikedPosts',
-            actions: [
-              (_context, _event) => console.log('RETRY_UPDATE triggered'),
-            ],
           },
           RETURN_TO_IDLE: {
             target: 'idle',
-            actions: [
-              (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
-            ],
           },
         },
       },
@@ -421,24 +402,14 @@ export const profileMachine = createMachine(
           RETRY_INIT: [
             {
               target: 'loadPostsAndLikedPosts',
-              actions: [
-                (_context, _event) =>
-                  console.log('loadPostsAndLikedPosts triggered'),
-              ],
               cond: 'isOwnProfile',
             },
             {
               target: 'loadPosts',
-              actions: [
-                (_context, _event) => console.log('loadPosts triggered'),
-              ],
             },
           ],
           RETURN_TO_IDLE: {
             target: 'idle',
-            actions: [
-              (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
-            ],
           },
         },
       },
@@ -467,9 +438,6 @@ export const profileMachine = createMachine(
         on: {
           RETURN_TO_IDLE: {
             target: 'idle',
-            actions: [
-              (_context, _event) => console.log('RETURN_TO_IDLE triggered'),
-            ],
           },
         },
       },
@@ -511,7 +479,6 @@ export const profileMachine = createMachine(
                   failedOperation: (_context, _event) =>
                     'none' as FailedOperation,
                 }),
-                (_context, _event) => console.log('LIKE triggered'),
               ],
             },
           ],
