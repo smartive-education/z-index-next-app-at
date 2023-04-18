@@ -9,7 +9,6 @@ import {
   defaultProfilePicture,
   noMoreMumblesPicture,
 } from '../models/constants';
-import { useRouter } from 'next/router';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { CardWrapper } from './card-wrapper';
 
@@ -34,7 +33,6 @@ export const Mumbles: FC<MumblesProps> = ({
   setIsLiked,
   loadMorePosts,
 }) => {
-  const router = useRouter();
   return (
     <>
       <InfiniteScroll
