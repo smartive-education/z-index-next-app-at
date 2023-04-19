@@ -195,7 +195,7 @@ export default function PostDetailPage({
                   src={reply.mediaUrl}
                   alt={reply.text}
                   fill
-                  className="object-contain"
+                  className="object-cover"
                 />
               )}
             </Post>
