@@ -1,4 +1,5 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Mumble App
+Twitter clone, created for the Frontend Engineering Advanced CAS 2023 Course. 
 
 ## Getting Started
 
@@ -16,6 +17,10 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+
+## UI-Lib
+
+The App uses the "@smartive-education/design-system-component-z-index-at" library, which has been created as a design system/component library especially for this application as a preceeding separate project also as part of the aforementioned CAS course. 
 
 ## Use the App
 
@@ -60,14 +65,14 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-**Rendering strategies**
+## Rendering strategies
 
 - Login - Static
 - Timeline - Static && Client Side
 - Profile - Client Side
 - Detail - Server side
 
-**Features**
+## Features
 
 Mobile first design 
 
@@ -95,6 +100,7 @@ Detail Page
 
 - State management: useReducer
 - Can be shared (by copying and pasting the url in a different window)
+- Reducers are unit tested
 
 
 
