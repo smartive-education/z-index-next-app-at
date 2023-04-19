@@ -26,6 +26,7 @@ import {
   noMumblesPicture,
 } from '../../models/constants';
 import { profileMachine } from '../../state/profile-machine';
+import Image from 'next/image';
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -155,24 +156,32 @@ export default function ProfilePage() {
         />
       </Modal>
       {!profileState.context.user ? (
-        <>
-          <div className="my-4 md:h-[35rem]">
-            <Skeleton isProfile={true} />
-          </div>
-        </>
+        <div className="mt-4 mb-4 md:mb-16">
+          <Skeleton isProfile={true} />
+        </div>
       ) : (
         <div className="my-4">
           <ProfileCard
             name={`${profileState.context.user?.firstName} ${profileState.context.user?.lastName}`}
             userName={profileState.context.user?.userName || ''}
-            profileImage={profileState.context.background}
             profilePicture={
               profileState.context.user?.avatarUrl || defaultProfilePicture
             }
             location="Rapperswil"
             calendarText="Mitglied seit 6 Monaten"
             profileText={profileState.context.bio}
-          />
+          >
+            <Image
+              src={profileState.context.background}
+              alt="Profile Background"
+              fill
+              priority={true}
+              sizes="(min-width: 60rem) 40vw,
+                        (min-width: 30rem) 50vw,
+                        100vw"
+              className="object-cover"
+            />
+          </ProfileCard>
         </div>
       )}
       {profileState.context.isNewUserProfile && (

@@ -2,6 +2,7 @@ import {
   Button,
   LandingPage,
 } from '@smartive-education/design-system-component-z-index-at';
+import { GetStaticProps } from 'next';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
@@ -34,3 +35,9 @@ export default function LoginPage() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps<{}> = async () => {
+  return {
+    props: {},
+  };
+};

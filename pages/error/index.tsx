@@ -17,7 +17,7 @@ export default function ErrorPage() {
           Oops. Das hätte nicht passieren dürfen!
         </Typography>
         <div className="w-[80vh] my-4">
-          <CardWrapper titel="Was wollen sie jetzt tun?" src={errorPicture} />
+          <CardWrapper titel="Was willst du jetzt machen?" src={errorPicture} />
         </div>
         <div className="my-4">
           <Button

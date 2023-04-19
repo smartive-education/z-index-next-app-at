@@ -15,6 +15,10 @@ module.exports = withPWA({
         hostname: 'storage.googleapis.com',
         pathname: '/qwacker-api-prod-data/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.pixabay.com',
+      },
     ],
   },
   i18n: {

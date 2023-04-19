@@ -59,3 +59,42 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+**Rendering strategies**
+
+- Login - Static
+- Timeline - Static && Client Side
+- Profile - Client Side
+- Detail - Server side
+
+**Features**
+
+Mobile first design 
+
+Error handling
+
+- Client Side - with error modal, retry option, where retry is possible
+- Server Side - with custom error page
+
+Timeline Page 
+
+- State management: X-state
+- Preserves scrolled down position on page re-entry
+- Background polling for new posts, refresh button
+- Infinity scrolling
+- User data cache (limit the number of requests)
+
+Profile Page
+
+- State management: X-state
+- 3 possible states: new user (suggested users and posts), other user (only posts), loggedInUser (posts and liked posts)
+- Infinity scrolling
+- User data cache (limit the number of requests)
+
+Detail Page
+
+- State management: useReducer
+- Can be shared (by copying and pasting the url in a different window)
+
+
+
