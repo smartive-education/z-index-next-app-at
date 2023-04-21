@@ -19,6 +19,7 @@ export interface TimelineMachineContext {
   readonly mumbleUsers: MumbleUsers;
   readonly postsLoadedInTheBackground: Mumble[];
   readonly failedOperation: FailedOperation;
+  readonly isRouterLoading: boolean;
 }
 
 export const initialTimelineMachineContext: TimelineMachineContext = {
@@ -27,6 +28,7 @@ export const initialTimelineMachineContext: TimelineMachineContext = {
   mumbleUsers: {},
   postsLoadedInTheBackground: [],
   failedOperation: 'none',
+  isRouterLoading: false
 };
 
 export interface InitTimelineEvent {
@@ -44,6 +46,11 @@ export interface LoadPostsInBackgroundEvent {
 
 export interface ShowPostsLoadedInBackgroundEvent {
   type: 'SHOW_POSTS_LOADED_IN_BACKGROUND';
+}
+
+export interface SetRouterLoadingEvent {
+  type: 'SET_ROUTER_LOADING';
+  isRouterLoading: boolean;
 }
 
 export interface CreatePostEvent {
@@ -150,6 +157,15 @@ export const timelineMachine = createMachine({
           ],
           internal: true,
         },
+        SET_ROUTER_LOADING: {
+          target: 'idle',
+          actions: [
+            assign<TimelineMachineContext, SetRouterLoadingEvent>({
+              isRouterLoading: (_context, event) => event.isRouterLoading
+            }),
+          ],
+          internal: true,
+        }
       },
     },
     timeLineUpdating: {

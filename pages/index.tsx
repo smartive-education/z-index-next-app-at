@@ -68,12 +68,16 @@ export default function TimelinePage() {
   }, [send, timelineState]);
 
   useEffect(() => {
+    send({
+      type: 'SET_ROUTER_LOADING',
+      isRouterLoading: false,
+    });
     const scrollPosition = localStorage.getItem('scrollPosition');
     if (scrollPosition) {
       window.scrollTo(0, +scrollPosition);
       localStorage.removeItem('scrollPosition');
     }
-  }, []);
+  }, [send]);
 
   const loadMore = async (): Promise<void> => {
     if (session) {
@@ -151,6 +155,10 @@ export default function TimelinePage() {
     id: string,
     ref: RefObject<HTMLDivElement>
   ): void => {
+    send({
+      type: 'SET_ROUTER_LOADING',
+      isRouterLoading: true,
+    });
     setScrollPosition(ref);
     router.push(`/mumble/${id}`);
   };
@@ -201,6 +209,10 @@ export default function TimelinePage() {
           src={errorPicture}
         />
       </Modal>
+      <Modal
+        isOpen={timelineState.context.isRouterLoading}
+        isLoadingSpinner={true}
+      />
       <div className="my-4">
         <span className="text-violet-600">
           <Typography type="h2">Wilkommen auf Mumble</Typography>
