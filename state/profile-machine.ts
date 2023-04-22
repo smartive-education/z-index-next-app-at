@@ -36,6 +36,7 @@ export interface ProfileMachineContext {
   readonly isErrorModalOpen: boolean;
   readonly isPostsOpen: boolean;
   readonly isNewUserProfile: boolean;
+  readonly isRouterLoading: boolean;
 }
 
 export const initialProfileMachineContext: ProfileMachineContext = {
@@ -53,6 +54,7 @@ export const initialProfileMachineContext: ProfileMachineContext = {
   isErrorModalOpen: false,
   isPostsOpen: true,
   isNewUserProfile: false,
+  isRouterLoading: false
 };
 
 export interface InitProfileEvent {
@@ -86,6 +88,11 @@ export interface LikePostEvent {
   type: 'LIKE_POST';
   id: string;
   isLiked: boolean;
+}
+
+export interface SetRouterLoadingEvent {
+  type: 'SET_ROUTER_LOADING';
+  isRouterLoading: boolean;
 }
 
 export const profileMachine = createMachine(
@@ -200,6 +207,15 @@ export const profileMachine = createMachine(
       },
       idle: {
         on: {
+          SET_ROUTER_LOADING: {
+            target: 'idle',
+            actions: [
+              assign<ProfileMachineContext, SetRouterLoadingEvent>({
+                isRouterLoading: (_context, event) => event.isRouterLoading
+              }),
+            ],
+            internal: true,
+          },
           LOAD_MORE_POSTS: {
             target: 'loadMorePosts',
           },

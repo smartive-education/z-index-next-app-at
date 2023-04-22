@@ -54,6 +54,13 @@ export default function ProfilePage() {
     }
   }, [session, machineService, router, profileState]);
 
+  useEffect(() => {
+    machineService.send({
+      type: 'SET_ROUTER_LOADING',
+      isRouterLoading: false,
+    });
+  }, [machineService]);
+
   const loadMorePosts = async (): Promise<void> => {
     machineService.send({
       type: 'LOAD_MORE_POSTS',
@@ -130,6 +137,14 @@ export default function ProfilePage() {
     });
   };
 
+  const handleOpenDetails = (id: string): void => {
+    machineService.send({
+      type: 'SET_ROUTER_LOADING',
+      isRouterLoading: true,
+    });
+    router.push(`/mumble/${id}`);
+  };
+
   return (
     <Layout>
       <Modal
@@ -155,6 +170,10 @@ export default function ProfilePage() {
           src={errorPicture}
         />
       </Modal>
+      <Modal
+        isOpen={profileState.context.isRouterLoading}
+        isLoadingSpinner={true}
+      />
       {!profileState.context.user ? (
         <div className="mt-4 mb-4 md:mb-16">
           <Skeleton isProfile={true} />
@@ -259,7 +278,7 @@ export default function ProfilePage() {
               ? loadMorePosts
               : loadMoreLikedPosts
           }
-          openMumbleDetails={(id) => router.push(`/mumble/${id}`)}
+          openMumbleDetails={handleOpenDetails}
           openProfile={(id) => router.push(`/profile/${id}`)}
         />
       )}
