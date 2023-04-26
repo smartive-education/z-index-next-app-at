@@ -1,12 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
+  presets: [
+    require('@smartive-education/design-system-component-z-index-at/tailwind'),
   ],
-  theme: {
-    extend: {},
-  },
+  content: [
+    './node_modules/@smartive-education/design-system-component-z-index-at/dist/**/*.js',
+    './app/**/*.{ts,tsx}',
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+  ],
+  theme: {},
   plugins: [],
 };

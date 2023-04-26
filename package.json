@@ -1,28 +1,47 @@
 {
-  "name": "cas-fee-adv-qwacker-tpl",
+  "name": "mumble-app-z-index-at",
   "version": "0.0.0-development",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest --watch",
+    "prettier": "npx prettier --write .",
+    "cruiser": "npx depcruise --config .dependency-cruiser.js . --exclude \"^.next\""
   },
   "dependencies": {
+    "@smartive-education/design-system-component-z-index-at": "1.5.1",
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.8",
+    "@xstate/react": "^3.2.1",
     "eslint": "8.27.0",
     "eslint-config-next": "13.0.2",
     "next": "13.0.2",
-    "next-auth": "^4.16.4",
+    "next-auth": "^4.20.1",
+    "next-pwa": "^5.6.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "typescript": "4.8.4"
+    "react-infinite-scroll-component": "6.1.0",
+    "sharp": "^0.32.0",
+    "typescript": "4.8.4",
+    "ulid": "2.3.0",
+    "xstate": "^4.37.1"
   },
   "devDependencies": {
+    "@jest/globals": "^29.5.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^14.0.0",
+    "@types/jest": "^29.4.0",
     "autoprefixer": "^10.4.13",
+    "dependency-cruiser": "^12.11.1",
+    "eslint-config-prettier": "^8.8.0",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
     "postcss": "^8.4.21",
+    "prettier": "2.8.7",
     "tailwindcss": "^3.2.4"
   }
 }
