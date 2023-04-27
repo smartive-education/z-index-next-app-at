@@ -48,6 +48,9 @@ export const getUsers = async (
 
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/users?${queryParams}`;
   const res = await fetch(url, { headers });
+  if (!res.ok || res.status >= 400) {
+    throw new Error('Failed to get users');
+  }
   const { data } = await res.json();
   return data
     .map(mapResponseToUser)
@@ -66,6 +69,9 @@ export const getLoggedInMumbleUser = async (
 
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/users/me`;
   const res = await fetch(url, { headers });
+  if (!res.ok || res.status >= 400) {
+    throw new Error('Failed to get loggedInUser');
+  }
   const response = await res.json();
   return mapResponseToUser(response);
 };
@@ -80,6 +86,9 @@ export const getUserById = async (
 
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/users/${id}`;
   const res = await fetch(url, { headers });
+  if (!res.ok || res.status >= 400) {
+    throw new Error('Failed to get user');
+  }
   const response = await res.json();
   return mapResponseToUser(response);
 };

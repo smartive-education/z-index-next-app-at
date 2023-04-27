@@ -25,6 +25,9 @@ export const getPosts = async (
 
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?${queryParams}`;
   const res = await fetch(url, { headers });
+  if (!res.ok || res.status >= 400 ) {
+    throw new Error('Failed to get posts');
+  }
   const { count, data } = await res.json();
   const posts = data.map(mapResponseToMumble);
   return {
@@ -58,6 +61,9 @@ export const getLikedPosts = async (
     body: JSON.stringify(searchConditions),
     headers,
   });
+  if (!res.ok || res.status >= 400 ) {
+    throw new Error('Failed to get posts');
+  }
   const { count, data } = await res.json();
   const posts = data.map(mapResponseToMumble);
   return {
@@ -87,6 +93,9 @@ export const createPost = async (
       body: formData,
       headers,
     });
+    if (!res.ok || res.status >= 400 ) {
+      throw new Error('Failed to create post');
+    }
     const response: Response = await res.json();
     return mapResponseToMumble(response, loggedInUser);
   }
@@ -96,6 +105,9 @@ export const createPost = async (
 export const getMumbleById = async (id: string): Promise<Response> => {
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/${id}`;
   const res = await fetch(url);
+  if (!res.ok || res.status >= 400 ) {
+    throw new Error('Failed to get post');
+  }
   const mumble: Response = await res.json();
   return mumble;
 };
@@ -106,6 +118,9 @@ export const getPostsByUser = async (
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?creator=${creator}`;
   const res = await fetch(url);
   const { count, data } = await res.json();
+  if (!res.ok || res.status >= 400 ) {
+    throw new Error('Failed to get posts');
+  }
   const posts = data.map(mapResponseToMumble);
   return {
     count,
