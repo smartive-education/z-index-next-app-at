@@ -1,6 +1,6 @@
 import { decodeTime } from 'ulid';
 import { MumbleDetailState } from '../state/mumble-detail';
-import { Mumble } from '../models';
+import { Mumble, Response } from '../models';
 
 export const mockPosts: Mumble[] = [
   {
@@ -118,4 +118,17 @@ export const singleMockReply2: Mumble = {
   userName: 'McMock',
   fullName: 'Sir Mock von Stub',
   avatarUrl: 'mockadu.com',
+};
+
+export const postResponse: Response = {
+  id: '01GYYGWZWJDKJMPDSZR9SGEKAB',
+  creator: '205891388519219457',
+  text: 'G Wagon',
+  mediaUrl:
+    'https://storage.googleapis.com/qwacker-api-prod-data/6f8ff09a-9fb3-4675-aaa2-028bd11d51e9',
+  mediaType: 'image/jpeg',
+  likeCount: 1,
+  likedByUser: false,
+  type: 'post',
+  replyCount: 1,
 };

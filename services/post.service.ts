@@ -25,6 +25,9 @@ export const getPosts = async (
 
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?${queryParams}`;
   const res = await fetch(url, { headers });
+  if (!res.ok || res.status >= 400 ) {
+    throw new Error('Failed to get posts');
+  }
   const { count, data } = await res.json();
   const posts = data.map(mapResponseToMumble);
   return {
