@@ -11,9 +11,14 @@ export const like = async (
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/${id}/likes`;
   const method = isLike ? 'PUT' : 'DELETE';
 
-  await fetch(url, {
+  const response: Response = await fetch(url, {
     method: method,
     headers,
   });
+
+  if (!response.ok || response.status >= 400 ) {
+    throw new Error('Like failed');
+  }
+  
   return { id, isLike };
 };
