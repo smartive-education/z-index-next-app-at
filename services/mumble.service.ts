@@ -5,13 +5,14 @@ import {
   GetPostsQueryParams,
   GetPostsWithUserDataResponse,
   Mumble,
+  MumbleUser,
   MumbleUsers,
   SearchPostsParams,
 } from '../models';
 import { mapResponseToMumble } from '../models/mappers';
 import { getLikedPosts, getMumbleById, getPosts } from './post.service';
 import { getReplies } from './reply.service';
-import { getAllUnknownUsers, getUsers } from './user.service';
+import { getUserById, getUsers } from './user.service';
 
 export const getPostsWithUserData = async (
   token: string = '',
@@ -126,4 +127,31 @@ export const getMumbleDetailsWithUserData = async (
     post: postWithUserData,
     replies: repliesWithUserData,
   };
+};
+
+export const getAllUnknownUsers = async (
+  mumbles: Mumble[],
+  token: string,
+  existingUsers?: MumbleUsers
+): Promise<MumbleUsers> => {
+  const unknownCreators = mumbles.reduce((set, item) => {
+    if (!existingUsers || !existingUsers[item.creator]) {
+      set.add(item.creator);
+    }
+    return set;
+  }, new Set<string>());
+  const users = await Promise.all(
+    Array.from(unknownCreators).map((creator: string) =>
+      getUserById(creator, token)
+    )
+  );
+
+  const updatedUsers: MumbleUsers = {
+    ...(existingUsers || {}),
+    ...users.reduce((newUsers, user: MumbleUser) => {
+      newUsers[user.id] = user;
+      return newUsers;
+    }, {} as MumbleUsers),
+  };
+  return updatedUsers;
 };

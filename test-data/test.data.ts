@@ -132,3 +132,12 @@ export const postResponse: Response = {
   type: 'post',
   replyCount: 1,
 };
+
+export const userResponse: Response = {
+  id: '179828644301046017',
+  userName: 'testuser',
+  firstName: 'Test',
+  lastName: 'Peter',
+  avatarUrl:
+    'https://cas-fee-advanced-ocvdad.zitadel.cloud/assets/v1/179828644300980481/users/179828644301046017/avatar?v=fbad86703d114f72f7c57c25fa834ade0a',
+};
