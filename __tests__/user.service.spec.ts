@@ -1,12 +1,11 @@
 import { MumbleUsers } from '../models';
-import { mapResponseToMumble, mapResponseToUser } from '../models/mappers';
-import { getMumbleById, getPosts } from '../services/post.service';
+import { mapResponseToUser } from '../models/mappers';
 import {
   getLoggedInMumbleUser,
   getUserById,
   getUsers,
 } from '../services/user.service';
-import { postResponse, userResponse } from '../test-data/test.data';
+import { userResponse } from '../test-data/test.data';
 
 describe('User Service', () => {
   const expectedUser = mapResponseToUser(userResponse);
