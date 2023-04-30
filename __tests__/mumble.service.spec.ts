@@ -1,14 +1,10 @@
+import { Mumble, MumbleUser, MumbleUsers, SearchPostsParams } from '../models';
+import { mapResponseToUser } from '../models/mappers';
 import {
-  Mumble,
-  MumbleUser,
-  MumbleUsers,
-  SearchPostsParams
-} from '../models';
-import { mapResponseToMumble, mapResponseToUser } from '../models/mappers';
-import {
+  expectedMumble,
+  expectedUser,
   matchingUserResponse,
   postResponse,
-  userResponse,
 } from '../test-data/test.data';
 
 import {
@@ -21,13 +17,11 @@ import {
 } from '../services/mumble.service';
 import * as userService from '../services/user.service';
 
-const mumbleUser = mapResponseToUser(userResponse);
-const mumble: Mumble = mapResponseToMumble(postResponse);
-const mumbles: Mumble[] = [mumble];
-const existingUsers: MumbleUsers = { [mumbleUser.id]: mumbleUser };
+const mumbles: Mumble[] = [expectedMumble];
+const existingUsers: MumbleUsers = { [expectedUser.id]: expectedUser };
 jest.mock('../services/user.service', () => ({
   __esModule: true,
-  getUserById: () => Promise.resolve(mumbleUser),
+  getUserById: () => Promise.resolve(expectedUser),
   getUsers: () => Promise.resolve(existingUsers),
 }));
 jest.mock('../services/post.service', () => ({
@@ -47,10 +41,10 @@ describe('Mumble Service', () => {
 
   describe('getAllUnknownUsers', () => {
     it('should add new users to existing user', async () => {
-      const existingUsers: MumbleUsers = { 2: mumbleUser };
+      const existingUsers: MumbleUsers = { 2: expectedUser };
       const expectedUsers: MumbleUsers = {
-        2: mumbleUser,
-        [mumbleUser.id]: mumbleUser,
+        2: expectedUser,
+        [expectedUser.id]: expectedUser,
       };
       const result = await getAllUnknownUsers(mumbles, token, existingUsers);
       expect(result).toEqual(expectedUsers);
@@ -67,7 +61,7 @@ describe('Mumble Service', () => {
     });
 
     it('should return existing users if mumbles is empty', async () => {
-      const existingUsers: MumbleUsers = { 2: mumbleUser };
+      const existingUsers: MumbleUsers = { 2: expectedUser };
       const expectedUsers: MumbleUsers = existingUsers;
       const result = await getAllUnknownUsers([], token, existingUsers);
       jest.spyOn(userService, 'getUserById');
@@ -77,7 +71,7 @@ describe('Mumble Service', () => {
 
     it('should add new users if no existing user exists', async () => {
       const expectedUsers: MumbleUsers = {
-        [mumbleUser.id]: mumbleUser,
+        [expectedUser.id]: expectedUser,
       };
       const result = await getAllUnknownUsers(mumbles, token, undefined);
       expect(result).toEqual(expectedUsers);
@@ -92,7 +86,7 @@ describe('Mumble Service', () => {
       );
       expect(result).toEqual({
         count: 1,
-        posts: [mumble],
+        posts: [expectedMumble],
         users: existingUsers,
       });
     });
@@ -107,7 +101,7 @@ describe('Mumble Service', () => {
       );
       expect(result).toEqual({
         count: 1,
-        posts: [mumble],
+        posts: [expectedMumble],
         users: existingUsers,
       });
     });
@@ -121,9 +115,9 @@ describe('Mumble Service', () => {
       );
       expect(result).toEqual({
         count: 1,
-        posts: [mumble],
+        posts: [expectedMumble],
         likedPostCount: 1,
-        likedPosts: [mumble],
+        likedPosts: [expectedMumble],
         users: existingUsers,
       });
     });
@@ -136,7 +130,7 @@ describe('Mumble Service', () => {
         existingUsers
       );
       expect(result).toEqual({
-        posts: [mumble],
+        posts: [expectedMumble],
         users: existingUsers,
       });
     });
@@ -146,8 +140,8 @@ describe('Mumble Service', () => {
     it('should return post and replies', async () => {
       const result = await getMumbleDetailsWithUserData(token, id);
       expect(result).toEqual({
-        post: mumble,
-        replies: [mumble],
+        post: expectedMumble,
+        replies: [expectedMumble],
       });
     });
   });

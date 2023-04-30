@@ -6,7 +6,7 @@ import {
   mapResponseToMumble,
   mapResponseToUser,
 } from '../models/mappers';
-import { postResponse } from '../test-data/test.data';
+import { expectedMumble, postResponse } from '../test-data/test.data';
 
 describe('mappers', () => {
   const currentDate = new Date();
@@ -100,20 +100,6 @@ describe('mappers', () => {
   });
 
   describe('mapResponseToMumble', () => {
-    const expectedMumble = {
-      id: '01GYYGWZWJDKJMPDSZR9SGEKAB',
-      creator: '205891388519219457',
-      text: 'G Wagon',
-      mediaUrl:
-        'https://storage.googleapis.com/qwacker-api-prod-data/6f8ff09a-9fb3-4675-aaa2-028bd11d51e9',
-      mediaType: 'image/jpeg',
-      likeCount: 1,
-      likedByUser: false,
-      type: 'post',
-      replyCount: 1,
-      createdTimestamp: 'vor 3 Tage',
-    };
-
     const expectedMumbleWithUser = {
       ...expectedMumble,
       fullName: `${user.firstName} ${user.lastName}`,
