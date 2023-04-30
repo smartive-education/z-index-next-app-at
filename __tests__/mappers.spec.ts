@@ -1,4 +1,4 @@
-import { encodeTime } from 'ulid';
+import { ulid } from 'ulid';
 import { day, hour, minute } from '../models/constants';
 import {
   convertRouteToSiteName,
@@ -7,7 +7,6 @@ import {
   mapResponseToUser,
 } from '../models/mappers';
 import { postResponse } from '../test-data/test.data';
-import { ulid } from 'ulid';
 
 describe('mappers', () => {
   const currentDate = new Date();
