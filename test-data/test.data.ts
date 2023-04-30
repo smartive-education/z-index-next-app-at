@@ -1,6 +1,7 @@
 import { decodeTime } from 'ulid';
 import { MumbleDetailState } from '../state/mumble-detail';
-import { Mumble, Response } from '../models';
+import { Mumble, MumbleUser, Response } from '../models';
+import { convertTimeStamp } from '../models/mappers';
 
 export const mockPosts: Mumble[] = [
   {
@@ -131,4 +132,48 @@ export const postResponse: Response = {
   likedByUser: false,
   type: 'post',
   replyCount: 1,
+};
+
+export const userResponse: Response = {
+  id: '179828644301046017',
+  userName: 'testuser',
+  firstName: 'Test',
+  lastName: 'Peter',
+  avatarUrl:
+    'https://cas-fee-advanced-ocvdad.zitadel.cloud/assets/v1/179828644300980481/users/179828644301046017/avatar?v=fbad86703d114f72f7c57c25fa834ade0a',
+};
+
+export const matchingUserResponse: Response = {
+  id: postResponse.creator,
+  userName: 'testuser',
+  firstName: 'Test',
+  lastName: 'Peter',
+  avatarUrl:
+    'https://cas-fee-advanced-ocvdad.zitadel.cloud/assets/v1/179828644300980481/users/179828644301046017/avatar?v=fbad86703d114f72f7c57c25fa834ade0a',
+};
+
+export const expectedMumble: Mumble = {
+  id: '01GYYGWZWJDKJMPDSZR9SGEKAB',
+  creator: '205891388519219457',
+  text: 'G Wagon',
+  mediaUrl:
+    'https://storage.googleapis.com/qwacker-api-prod-data/6f8ff09a-9fb3-4675-aaa2-028bd11d51e9',
+  mediaType: 'image/jpeg',
+  likeCount: 1,
+  likedByUser: false,
+  type: 'post',
+  replyCount: 1,
+  createdTimestamp: convertTimeStamp(
+    new Date(decodeTime('01GYYGWZWJDKJMPDSZR9SGEKAB')),
+    new Date()
+  ),
+};
+
+export const expectedUser: MumbleUser = {
+  id: '179828644301046017',
+  userName: 'testuser',
+  firstName: 'Test',
+  lastName: 'Peter',
+  avatarUrl:
+    'https://cas-fee-advanced-ocvdad.zitadel.cloud/assets/v1/179828644300980481/users/179828644301046017/avatar?v=fbad86703d114f72f7c57c25fa834ade0a',
 };
