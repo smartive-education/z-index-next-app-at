@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test": "jest --watchAll --coverage",
     "prettier": "npx prettier --write .",
-    "cruiser": "npx depcruise --config .dependency-cruiser.js . --exclude \"^.next\""
+    "cruiser": "npx depcruise --config .dependency-cruiser.js . --exclude \"^.next\"",
+    "e2e": "npx playwright test --ui"
   },
   "dependencies": {
     "@smartive-education/design-system-component-z-index-at": "1.5.1",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",
+    "@playwright/test": "^1.33.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
     "@types/jest": "^29.4.0",
