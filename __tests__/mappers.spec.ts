@@ -69,7 +69,6 @@ describe('mappers', () => {
     it('should return Timeline', () => {
       expect(convertRouteToSiteName('/')).toEqual('Timeline');
     });
-    //generate test cases for all routes
     it('should return Detail', () => {
       expect(convertRouteToSiteName('/mumble/[id]')).toEqual('Detail');
     });

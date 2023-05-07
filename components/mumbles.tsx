@@ -75,6 +75,7 @@ export const Mumbles: FC<MumblesProps> = ({
                 setIsLiked={(isLiked) => setIsLiked(isLiked, mumble.id)}
                 copyLabel="Copy Link"
                 copiedLabel="Link Copied"
+                testId={`${index}`}
               >
                 {mumble.mediaUrl && (
                   <Image

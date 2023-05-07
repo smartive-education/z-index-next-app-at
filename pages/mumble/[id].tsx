@@ -166,6 +166,7 @@ export default function PostDetailPage({
           }
           openProfile={() => router.push(`/profile/${session.loggedInUser.id}`)}
           onSubmit={(file, text) => reply(file, text)}
+          testId='reply-comment'
         ></PostComment>
       )}
       {state.replies.map(

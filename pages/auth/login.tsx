@@ -29,6 +29,7 @@ export default function LoginPage() {
             icon="mumble"
             color="Gradient"
             onClick={() => signIn('zitadel', { callbackUrl: '/' })}
+            testId='login-button'
           ></Button>
         </div>
       </div>

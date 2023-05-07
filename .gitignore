@@ -45,3 +45,8 @@ next-env.d.ts
 
 # vscode
 .vscode
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/playwright/.auth
+/test-results/
