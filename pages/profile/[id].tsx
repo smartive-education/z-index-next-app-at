@@ -243,6 +243,7 @@ export default function ProfilePage() {
             onClick={toggle}
             onLabel="Deine Mumbles"
             offLabel="Deine Likes"
+            testId='toggle'
           />
         )}
       {((profileState.matches('idle') &&

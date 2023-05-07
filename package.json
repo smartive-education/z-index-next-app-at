@@ -13,7 +13,7 @@
     "e2e": "npx playwright test --ui"
   },
   "dependencies": {
-    "@smartive-education/design-system-component-z-index-at": "1.5.1",
+    "@smartive-education/design-system-component-z-index-at": "1.6.2",
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.8",

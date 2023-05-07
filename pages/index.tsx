@@ -240,6 +240,7 @@ export default function TimelinePage() {
           }
           openProfile={() => router.push(`/profile/${session.loggedInUser.id}`)}
           onSubmit={(file, text) => submitPost(file, text)}
+          testId='post-comment'
         ></PostComment>
       )}
       {!timelineState.context.posts.length && timelineState.matches('idle') ? (
