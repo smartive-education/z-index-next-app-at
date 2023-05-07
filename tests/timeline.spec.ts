@@ -1,11 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, chromium } from '@playwright/test';
 
 test('Login', async ({ page }) => {
-  await page.goto('http://localhost:3000');
-
-  await page.getByRole('button').click();
-
-  await page.waitForURL('https://cas-fee-advanced-ocvdad.zitadel.cloud/*');
+  await page.goto('http://localhost:3000/');
+  await page.getByRole('button', { name: 'Login/Register' }).click();
+  await page.fill('input[type="loginName"]', 'newbie@smartive.zitadel.cloud');
 });
 
 /* test('get started link', async ({ page }) => {
