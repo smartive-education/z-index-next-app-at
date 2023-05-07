@@ -1,9 +1,17 @@
 import { test, expect, chromium } from '@playwright/test';
 
 test('Login', async ({ page }) => {
-  await page.goto('http://localhost:3000/');
+  await page.goto('https://z-index-next-app-at.vercel.app/');
   await page.getByRole('button', { name: 'Login/Register' }).click();
-  await page.fill('input[type="loginName"]', 'newbie@smartive.zitadel.cloud');
+  const input = page.getByPlaceholder('username@domain');
+  await input.fill('newbie@smartive.zitadel.cloud');
+  await page.getByText('next').click();
+  const passwordField = await page.waitForSelector('input[name="password"]');
+  passwordField.fill('Noob-123');
+  await page.getByText('next').click();
+  const textarea = await page.waitForSelector('textarea[name="post-comment"]');
+  await textarea.isVisible();
+  //await page.fill('input[name="loginName"]', 'newbie@smartive.zitadel.cloud');
 });
 
 /* test('get started link', async ({ page }) => {
