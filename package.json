@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest --watchAll --coverage",
+    "ci:test": "jest --coverage",
     "prettier": "npx prettier --write .",
     "cruiser": "npx depcruise --config .dependency-cruiser.js . --exclude \"^.next\"",
     "e2e": "npx playwright test --ui"

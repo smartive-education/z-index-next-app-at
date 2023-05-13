@@ -1,4 +1,4 @@
-name: Development - Continous Integration
+name: Push
 
 on:
   push:
@@ -13,7 +13,7 @@ concurrency:
 jobs:  
   trigger-ci:
     name: Lint, Test and Build
-    uses: ./.github/workflows/reusable-ci.yml
+    uses: ./.github/workflows/reusable-build.yml
     with:
         environment: dev
     secrets: inherit
