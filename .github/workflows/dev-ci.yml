@@ -1,0 +1,18 @@
+name: Development - Continous Integration
+
+on:
+  push:
+    branches:
+      - feature/**
+  workflow_dispatch:
+
+concurrency:
+  group: 'dev'
+  cancel-in-progress: true
+
+jobs:  
+  trigger-ci:
+    name: Lint, Test and Build
+    uses: ./.github/workflows/reusable-ci.yml
+    with:
+        environment: dev

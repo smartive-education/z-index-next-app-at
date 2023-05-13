@@ -92,7 +92,6 @@ export default function ProfilePage() {
   };
 
   const likePost = async (isLiked: boolean, id: string) => {
-    console.log(profileState);
     machineService.send({
       type: 'LIKE_POST',
       id,
