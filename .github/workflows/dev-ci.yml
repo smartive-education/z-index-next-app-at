@@ -16,3 +16,4 @@ jobs:
     uses: ./.github/workflows/reusable-ci.yml
     with:
         environment: dev
+    secrets: inherit
