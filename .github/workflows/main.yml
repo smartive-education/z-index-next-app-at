@@ -3,16 +3,30 @@ name: Workflow on Merge into Main
 on:
   push:
     branches:
-      - feature/* #change this to main when ready
+      - main
 
 concurrency:
-  group: 'dev' #change this to prd when ready
-  cancel-in-progress: true
+  group: 'prd'
 
 jobs:
-  run-e2e-tests: # run this at the end of the workflow against the vercel deployment as if it would run against the deployed version (Deployed version can also be tested, if backend is setup fully)
+  trigger-publish:
+    name: Build and Publish Docker image
+    uses: ./.github/workflows/reusable-publish.yml
+    with:
+      environment: dev #change this to prd when ready
+    secrets: inherit
+
+  trigger-deploy:
+    name: Deploy to Google Cloud Run
+    needs: trigger-publish
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      environment: dev #change this to prd when ready
+    secrets: inherit
+
+  run-e2e-tests: # run this against the vercel deployment as if it would run against the deployed version (Deployed version can also be tested, once backend is setup fully)
     name: Execute E2E tests
-    # needs: trigger-deploy
+    needs: trigger-deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -37,18 +51,3 @@ jobs:
         env:
           LOGIN_USER: ${{ secrets.LOGIN_USER }}
           LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
-
-  trigger-publish:
-    name: Build and Publish Docker image
-    uses: ./.github/workflows/reusable-publish.yml
-    with:
-      environment: dev #change this to prd when ready
-    secrets: inherit
-
-  trigger-deploy:
-    name: Deploy to Google Cloud Run
-    needs: trigger-publish
-    uses: ./.github/workflows/reusable-deploy.yml
-    with:
-      environment: dev #change this to prd when ready
-    secrets: inherit
