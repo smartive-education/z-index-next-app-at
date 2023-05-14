@@ -7,8 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: 'stage'
-  cancel-in-progress: true
+  group: 'dev'
 
 jobs:
   trigger-build:
@@ -20,6 +19,7 @@ jobs:
 
   trigger-publish:
     name: Build and Publish Docker image
+    needs: trigger-build
     uses: ./.github/workflows/reusable-publish.yml
     with:
         environment: stage
