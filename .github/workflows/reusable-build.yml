@@ -11,10 +11,9 @@ on:
 
 permissions:
     contents: read
-    packages: write
 
 jobs:
-  ci:
+  build:
     name: Lint, Test and Build
     runs-on: ubuntu-latest
     steps:

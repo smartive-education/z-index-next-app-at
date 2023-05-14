@@ -1,4 +1,4 @@
-name: Push
+name: Workflow on Push
 
 on:
   push:
@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:  
-  trigger-ci:
+  trigger-build:
     name: Lint, Test and Build
     uses: ./.github/workflows/reusable-build.yml
     with:

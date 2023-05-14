@@ -1,0 +1,26 @@
+name: Workflow on Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: 'stage'
+  cancel-in-progress: true
+
+jobs:
+  trigger-build:
+    name: Lint, Test and Build
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      environment: stage
+    secrets: inherit
+
+  trigger-publish:
+    name: Build and Publish Docker image
+    uses: ./.github/workflows/reusable-publish.yml
+    with:
+        environment: stage
+    secrets: inherit
