@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
 
 export const authFile = 'playwright/.auth/user.json';
 
@@ -6,7 +7,7 @@ export const authFile = 'playwright/.auth/user.json';
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// require('dotenv').config();
+dotenv.config();
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -41,8 +42,9 @@ export default defineConfig({
         storageState: authFile,
       },
       dependencies: ['setup'],
+      timeout: 20000,
     },
-
+    /* 
     {
       name: 'firefox',
       use: {
@@ -76,6 +78,6 @@ export default defineConfig({
         storageState: authFile,
       },
       dependencies: ['setup'],
-    },
+    }, */
   ],
 });

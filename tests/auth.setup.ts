@@ -7,10 +7,10 @@ setup('authenticate', async ({ page }) => {
   await page.goto('https://z-index-next-app-at.vercel.app/');
   await page.getByTestId('login-button').click();
   const input = page.getByPlaceholder('username@domain');
-  await input.fill('newbie@smartive.zitadel.cloud');
+  await input.fill(process.env.LOGIN_USER || '');
   await page.getByText('next').click();
   const passwordField = await page.waitForSelector('input[name="password"]');
-  passwordField.fill('Noob-123');
+  passwordField.fill(process.env.LOGIN_PASSWORD || '');
   await page.getByText('next').click();
 
   //Make sure we are logged in

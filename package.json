@@ -11,7 +11,8 @@
     "ci:test": "jest --coverage",
     "prettier": "npx prettier --write .",
     "cruiser": "npx depcruise --config .dependency-cruiser.js . --exclude \"^.next\"",
-    "e2e": "npx playwright test --ui"
+    "e2e": "npx playwright test --ui",
+    "ci:e2e": "npx playwright install && npx playwright test"
   },
   "dependencies": {
     "@smartive-education/design-system-component-z-index-at": "1.6.2",
@@ -19,6 +20,7 @@
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.8",
     "@xstate/react": "^3.2.1",
+    "dotenv": "^16.0.3",
     "eslint": "8.27.0",
     "eslint-config-next": "13.0.2",
     "next": "13.0.2",

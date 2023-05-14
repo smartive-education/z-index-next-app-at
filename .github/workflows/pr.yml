@@ -25,3 +25,8 @@ jobs:
     with:
         environment: stage
     secrets: inherit
+
+  # Ideally this workflow would also deploy to a test environment
+
+  # e2e test would be executed against the test environment => Not possible if the test environment's url is not registered in zitadel
+

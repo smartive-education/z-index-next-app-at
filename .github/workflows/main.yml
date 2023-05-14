@@ -1,0 +1,53 @@
+name: Workflow on Merge into Main
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: 'prd'
+
+jobs:
+  trigger-publish:
+    name: Build and Publish Docker image
+    uses: ./.github/workflows/reusable-publish.yml
+    with:
+      environment: dev #change this to prd when ready
+    secrets: inherit
+
+  trigger-deploy:
+    name: Deploy to Google Cloud Run
+    needs: trigger-publish
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      environment: dev #change this to prd when ready
+    secrets: inherit
+
+  run-e2e-tests: # run this against the vercel deployment as if it would run against the deployed version (Deployed version can also be tested, once backend is setup fully)
+    name: Execute E2E tests
+    needs: trigger-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: npm
+
+      - name: Install dependencies
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        run: |
+          echo "@smartive-education:registry=https://npm.pkg.github.com" > ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ env.NODE_AUTH_TOKEN }}" > ~/.npmrc
+          npm ci
+
+      - name: Run tests
+        run: npm run ci:e2e
+        env:
+          LOGIN_USER: ${{ secrets.LOGIN_USER }}
+          LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
