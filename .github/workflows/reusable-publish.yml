@@ -71,5 +71,7 @@ jobs:
           tags: |
             z-index-app:latest
             z-index-app:${{ github.sha }}
+            ghcr.io/${{ github.triggering_actor }}/z-index-app:latest
+            ghcr.io/${{ github.triggering_actor }}/z-index-app:${{ github.sha }}
           cache-from: type=registry,ref=z-index-app:latest
           cache-to: type=inline
