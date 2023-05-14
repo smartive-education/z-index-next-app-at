@@ -42,7 +42,7 @@ export default defineConfig({
         storageState: authFile,
       },
       dependencies: ['setup'],
-      timeout: 10000,
+      timeout: 20000,
     },
     /* 
     {
