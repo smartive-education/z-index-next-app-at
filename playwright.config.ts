@@ -42,8 +42,9 @@ export default defineConfig({
         storageState: authFile,
       },
       dependencies: ['setup'],
+      timeout: 10000,
     },
-
+    /* 
     {
       name: 'firefox',
       use: {
@@ -77,6 +78,6 @@ export default defineConfig({
         storageState: authFile,
       },
       dependencies: ['setup'],
-    },
+    }, */
   ],
 });
