@@ -1,0 +1,49 @@
+name: Reusable - Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Controls the environment variables and the deploy target'
+        required: true
+        default: 'prd'
+        type: string
+
+permissions:
+  pages: write
+  packages: write
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to GitHub Container Registry
+        if: ${{ inputs.environment == 'stage' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.triggering_actor }}
+          password: ${{ secrets.GITHUB_TOKEN   }}
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        if: ${{ inputs.environment == 'prd' }}
+        uses: 'google-github-actions/auth@v0'
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: '<workload_identity_provider>'
+          service_account: '<service_account>'
+
+      - name: Login to Google Container Registry
+        if: ${{ inputs.environment == 'prd' }}
+        uses: docker/login-action@v2
+        with:
+          registry: gcr.io
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Pull Docker image from GitHub Container Registry
+        if: ${{ inputs.environment == 'stage' }}
+        run: docker pull ghcr.io/smartive-education/z-index-next-app-at:lastest
