@@ -32,7 +32,7 @@ jobs:
           npm ci
 
       - name: Run tests
-        run: npm run e2e
+        run: npm run ci:e2e
         env:
           LOGIN_USER: ${{ secrets.LOGIN_USER }}
           LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
