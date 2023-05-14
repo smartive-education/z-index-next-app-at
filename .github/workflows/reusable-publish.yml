@@ -55,7 +55,8 @@ jobs:
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
 
-      - name: Build and push
+      - name: Build and push to GitHub Container Registry
+        if: ${{ inputs.environment == 'stage' }}
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -65,5 +66,19 @@ jobs:
           tags: |
             ghcr.io/smartive-education/z-index-next-app-at:latest
             ghcr.io/smartive-education/z-index-next-app-at:${{ github.sha }}
-          cache-from: type=registry,ref=z-index-app:latest
+          cache-from: type=registry,ref=z-index-next-app-at:latest
+          cache-to: type=inline
+
+      - name: Build and push to Google Container Registry
+        if: ${{ inputs.environment == 'prd' }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: NODE_AUTH_TOKEN=${{ secrets.NODE_AUTH_TOKEN }}
+          push: true
+          tags: |
+            gcr.io/tthttl/z-index-next-app-at:latest
+            gcr.io/tthttl/z-index-next-app-at:${{ github.sha }}
+          cache-from: type=registry,ref=z-index-next-app-at:latest
           cache-to: type=inline
