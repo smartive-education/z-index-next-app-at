@@ -7,6 +7,7 @@ on:
 
 concurrency:
   group: 'dev' #change this to prd when ready
+  cancel-in-progress: true
 
 jobs:
   run-e2e-tests: # run this at the end of the workflow against the vercel deployment as if it would run against the deployed version (Deployed version can also be tested, if backend is setup fully)
