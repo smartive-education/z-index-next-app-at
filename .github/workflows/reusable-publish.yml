@@ -1,0 +1,84 @@
+name: Reusable - Build and Publish docker image
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Controls the environment variables and the publish target'
+        required: true
+        default: 'stage'
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Build and publish docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: npm
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        if: ${{ inputs.environment == 'stage' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.triggering_actor }}
+          password: ${{ secrets.GITHUB_TOKEN   }}
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        if: ${{ inputs.environment == 'prd' }}
+        uses: 'google-github-actions/auth@v0'
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: '<workload_identity_provider>'
+          service_account: '<service_account>'
+
+      - name: Login to Google Container Registry
+        if: ${{ inputs.environment == 'prd' }}
+        uses: docker/login-action@v2
+        with:
+          registry: gcr.io
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Build and push to GitHub Container Registry
+        if: ${{ inputs.environment == 'stage' }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: NODE_AUTH_TOKEN=${{ secrets.NODE_AUTH_TOKEN }}
+          push: true
+          tags: |
+            ghcr.io/smartive-education/z-index-next-app-at:latest
+            ghcr.io/smartive-education/z-index-next-app-at:${{ github.sha }}
+          cache-from: type=registry,ref=z-index-next-app-at:latest
+          cache-to: type=inline
+
+      - name: Build and push to Google Container Registry
+        if: ${{ inputs.environment == 'prd' }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          build-args: NODE_AUTH_TOKEN=${{ secrets.NODE_AUTH_TOKEN }}
+          push: true
+          tags: |
+            gcr.io/tthttl/z-index-next-app-at:latest
+            gcr.io/tthttl/z-index-next-app-at:${{ github.sha }}
+          cache-from: type=registry,ref=z-index-next-app-at:latest
+          cache-to: type=inline
