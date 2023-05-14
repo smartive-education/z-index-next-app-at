@@ -11,7 +11,7 @@ concurrency:
 jobs:
   run-e2e-tests: # run this at the end of the workflow against the vercel deployment as if it would run against the deployed version (Deployed version can also be tested, if backend is setup fully)
     name: Execute E2E tests
-    needs: trigger-deploy
+    # needs: trigger-deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
