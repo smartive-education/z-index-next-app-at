@@ -13,7 +13,7 @@ jobs:
     name: Build and Publish Docker image
     uses: ./.github/workflows/reusable-publish.yml
     with:
-      environment: dev #change this to prd when ready
+      environment: prd #change this to prd when ready
     secrets: inherit
 
   trigger-deploy:
