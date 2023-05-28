@@ -20,7 +20,7 @@ resource "google_cloud_run_service" "app" {
         }
 
         dynamic "env" {
-          for_each = var.environment_vars
+          for_each = local.environment_vars
           content {
               name  = env.key
               value = env.value
