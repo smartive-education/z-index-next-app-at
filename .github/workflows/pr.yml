@@ -26,10 +26,7 @@ jobs:
         environment: stage
     secrets: inherit
 
-# trigger-deployment:
-  # Creating a PR automatically triggers a new vercel deployment, so this step is not necessary.
-  # Ideally deploying would be triggered FROM github registry TO the test environment in this step.
-
+  # simulate the testing of the newly deployed version, but since the temporary vercel url cannot be configured in zitadel, this still tests the old version
   trigger-e2e:
     name: Execute e2e tests
     needs: trigger-publish
@@ -37,4 +34,3 @@ jobs:
     with:
         url: ${{ vars.STAGE_URL }}
     secrets: inherit
-

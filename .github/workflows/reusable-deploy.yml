@@ -2,48 +2,53 @@ name: Reusable - Deploy
 
 on:
   workflow_call:
-    inputs:
-      environment:
-        description: 'Controls the environment variables and the deploy target'
-        required: true
-        default: 'prd'
-        type: string
 
 permissions:
-  pages: write
   packages: write
   id-token: write
 
 jobs:
   deploy:
-    name: Deploy docker image
+    name: Deploy with terraform
+    env:
+      TF_CLI_ARGUMENTS: -var apiUrl=${{ vars.NEXT_PUBLIC_QWACKER_API_URL }} -var nextauthUrl=${{ vars.PRD_URL }} -var nextauthSecret=${{ secrets.NEXTAUTH_SECRET }} -var issuer=${{ secrets.ZITADEL_ISSUER }} -var clientId=${{ secrets.ZITADEL_CLIENT_ID }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+
     steps:
-      - name: Login to GitHub Container Registry
-        if: ${{ inputs.environment == 'stage' }}
+      - name: Checkout Project
+        uses: actions/checkout@v3
+
+      - name: Login to Google Cloud Platform
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.triggering_actor }}
-          password: ${{ secrets.GITHUB_TOKEN   }}
+          registry: europe-west6-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        if: ${{ inputs.environment == 'prd' }}
-        uses: 'google-github-actions/auth@v0'
-        with:
-          token_format: 'access_token'
-          workload_identity_provider: '<workload_identity_provider>'
-          service_account: '<service_account>'
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
 
-      - name: Login to Google Container Registry
-        if: ${{ inputs.environment == 'prd' }}
-        uses: docker/login-action@v2
-        with:
-          registry: gcr.io
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
 
-      - name: Pull Docker image from GitHub Container Registry
-        if: ${{ inputs.environment == 'stage' }}
-        run: docker pull ghcr.io/smartive-education/z-index-next-app-at:lastest
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+        #TODO: remove after apply is enabled
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan ${{ env.TF_CLI_ARGUMENTS }}
+
+      #- name: Terraform Apply
+      #  id: apply
+      #  run: terraform apply -auto-approve ${{ env.TF_CLI_ARGUMENTS }}

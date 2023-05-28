@@ -20,8 +20,6 @@ jobs:
     name: Deploy to Google Cloud Run
     needs: trigger-publish
     uses: ./.github/workflows/reusable-deploy.yml
-    with:
-      environment: dev #change this to prd when ready
     secrets: inherit
 
   trigger-e2e:
