@@ -22,7 +22,7 @@ resource "google_project_iam_member" "cloud-runner" {
 
 resource "google_project_iam_member" "cloud-runner-svc" {
   role    = "roles/run.serviceAgent"
-  member  = "serviceAccount:service-${data.google_project.project.number}@serverless-robot-prod.iam.gserviceaccount.com"
+  member  = "serviceAccount:z-index-gcp-service-account@hip-polymer-387617.iam.gserviceaccount.com"
   project = data.google_project.project.id
 }
 
