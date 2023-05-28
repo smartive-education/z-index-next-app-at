@@ -33,7 +33,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ env.NODE_AUTH_TOKEN }}" > ~/.npmrc
           npm ci
 
-      - name: Run tests against Vercel
+      - name: Run tests
         run: npm run ci:e2e
         env:
           URL: ${{ inputs.url }}  
