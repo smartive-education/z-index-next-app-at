@@ -10,12 +10,22 @@ locals {
   }
 }
 
-provider "google" {
-  project = "z-index-at-project"
-  region  = local.region
+terraform {
+  backend "gcs" {
+    bucket = "z-index-at-tf-state-container"
+  }
+
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "4.66.0"
+    }
+  }
 }
 
-data "google_project" "project" {
+resource "google_project" "project" {
+  name       = "z-index-at-project"
+  project_id = "hip-polymer-387617"
 }
 
 data "google_iam_policy" "noauth" {
@@ -27,8 +37,4 @@ data "google_iam_policy" "noauth" {
   }
 }
 
-terraform {
-  backend "gcs" {
-    bucket = "z-index-at-tf-state-container"
-  }
-}
+
