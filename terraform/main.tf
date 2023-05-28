@@ -23,8 +23,7 @@ terraform {
   }
 }
 
-resource "google_project" "project" {
-  name       = "z-index-at-project"
+data "google_project" "project" {
   project_id = "hip-polymer-387617"
 }
 

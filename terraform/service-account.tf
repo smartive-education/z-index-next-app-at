@@ -17,12 +17,12 @@ resource "google_project_iam_member" "cloud-runner" {
   ])
   role    = each.key
   member  = "serviceAccount:${google_service_account.cloud-runner.email}"
-  project = google_project.project.id
+  project = data.google_project.project.id
 }
 
 resource "google_project_iam_member" "cloud-runner-svc" {
   role    = "roles/run.serviceAgent"
   member  = "serviceAccount:z-index-gcp-service-account@hip-polymer-387617.iam.gserviceaccount.com"
-  project = google_project.project.id
+  project = data.google_project.project.id
 }
 
