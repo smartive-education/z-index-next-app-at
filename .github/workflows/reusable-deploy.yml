@@ -42,11 +42,6 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
-        #TODO: remove after apply is enabled
-      - name: Terraform Plan
-        id: plan
-        run: terraform plan ${{ env.TF_CLI_ARGUMENTS }}
-
-      #- name: Terraform Apply
-      #  id: apply
-      #  run: terraform apply -auto-approve ${{ env.TF_CLI_ARGUMENTS }}
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve ${{ env.TF_CLI_ARGUMENTS }}
