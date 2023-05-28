@@ -21,7 +21,13 @@ resource "google_project_iam_member" "cloud-runner" {
 }
 
 resource "google_project_iam_member" "cloud-runner-svc" {
-  role    = "roles/run.serviceAgent"
+  for_each = toset([
+    "roles/run.serviceAgent",
+    "roles/viewer",
+    "roles/storage.objectViewer",
+    "roles/run.admin"
+  ])
+  role    = each.key
   member  = "serviceAccount:z-index-gcp-service-account@hip-polymer-387617.iam.gserviceaccount.com"
   project = data.google_project.project.id
 }
