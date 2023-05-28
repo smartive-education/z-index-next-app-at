@@ -11,7 +11,7 @@ locals {
 }
 
 provider "google" {
-  project = "My First Project"
+  project = "z-index-at-project"
   region  = local.region
 }
 
@@ -22,7 +22,7 @@ data "google_iam_policy" "noauth" {
   binding {
     role = "roles/run.invoker"
     members = [
-      "allUsers",
+      "allUsers"
     ]
   }
 }
