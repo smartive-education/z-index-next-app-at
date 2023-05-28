@@ -1,13 +1,13 @@
 locals {
   name   = "z-index-at"
   region = "europe-west6"
-  environment_vars = [
-    { apiUrl = var.apiUrl },
-    { nextauthUrl = var.nextauthUrl },
-    { nextauthSecret = var.nextauthSecret },
-    { issuer = var.issuer },
-    { clientId = var.clientId },
-  ]
+  environment_vars = {
+    apiUrl         = var.apiUrl,
+    nextauthUrl    = var.nextauthUrl,
+    nextauthSecret = var.nextauthSecret,
+    issuer         = var.issuer,
+    clientId       = var.clientId
+  }
 }
 
 provider "google" {
