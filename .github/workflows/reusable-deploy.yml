@@ -28,6 +28,13 @@ jobs:
           username: _json_key
           password: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+
+      - id: 'gcloud'
+        name: 'gcloud'
+        run: gcloud auth application-default login
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
