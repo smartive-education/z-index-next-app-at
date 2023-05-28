@@ -26,7 +26,11 @@ jobs:
         environment: stage
     secrets: inherit
 
-  # Ideally this workflow would also deploy to a test environment
-
-  # e2e test would be executed against the test environment => Not possible if the test environment's url is not registered in zitadel
-
+  # simulate the testing of the newly deployed version, but since the temporary vercel url cannot be configured in zitadel, this still tests the old version
+  trigger-e2e:
+    name: Execute e2e tests
+    needs: trigger-publish
+    uses: ./.github/workflows/reusable-e2e.yml
+    with:
+        url: ${{ vars.STAGE_URL }}
+    secrets: inherit

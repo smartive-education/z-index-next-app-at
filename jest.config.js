@@ -15,7 +15,7 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  testPathIgnorePatterns: ['<rootDir>/tests'],
+  testPathIgnorePatterns: ['<rootDir>/tests'], // by default playwright tests are here, which should not be executed by jest, jest tests are in __tests__ folder
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

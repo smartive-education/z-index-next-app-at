@@ -2,7 +2,7 @@ import { test } from '@playwright/test';
 
 test('Create a Mumble', async ({ page }) => {
   //wait for the page to load
-  await page.goto('https://z-index-next-app-at.vercel.app/');
+  await page.goto('/');
   await page.waitForSelector("img[data-testid='0-profile-header']");
 
   //create a post
@@ -21,13 +21,13 @@ test('Create a Mumble', async ({ page }) => {
 
 test('Create a Reply to the first Mumble', async ({ page }) => {
   //wait for the page to load
-  await page.goto('https://z-index-next-app-at.vercel.app/');
+  await page.goto('/');
   const commentButton = await page.waitForSelector(
     "button[data-testid='0-comment']"
   );
 
   await commentButton.click();
-  await page.waitForURL('https://z-index-next-app-at.vercel.app/mumble/*');
+  await page.waitForURL('/mumble/*');
 
   //create a reply
   await page.getByTestId('reply-comment-left-button').click();
@@ -45,7 +45,7 @@ test('Create a Reply to the first Mumble', async ({ page }) => {
 
 test('Like the first Mumble', async ({ page }) => {
   //wait for the page to load
-  await page.goto('https://z-index-next-app-at.vercel.app/');
+  await page.goto('/');
   const likeButton = await page.waitForSelector("button[data-testid='0-like']");
 
   //verify that the like was created
@@ -58,10 +58,10 @@ test('Like the first Mumble', async ({ page }) => {
 
 test('Check Profile Page is loaded correctly', async ({ page }) => {
   //navigate to the profile page
-  await page.goto('https://z-index-next-app-at.vercel.app/');
+  await page.goto('/');
   await page.getByTestId('Profile Page').click();
 
-  await page.waitForURL('https://z-index-next-app-at.vercel.app/profile/*');
+  await page.waitForURL('/profile/*');
 
   //If toggle button is visible it means both mumbles and liked mumbles are loaded
   await page.getByTestId('toggle').isVisible();

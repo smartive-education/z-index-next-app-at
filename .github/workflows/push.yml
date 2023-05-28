@@ -9,7 +9,7 @@ on:
 concurrency:
   group: 'dev'
 
-jobs:  
+jobs:    
   trigger-build:
     name: Lint, Test and Build
     uses: ./.github/workflows/reusable-build.yml
