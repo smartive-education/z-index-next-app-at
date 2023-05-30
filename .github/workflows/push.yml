@@ -13,8 +13,6 @@ jobs:
   trigger-build:
     name: Lint, Test and Build
     uses: ./.github/workflows/reusable-build.yml
-    with:
-      environment: dev
     secrets: inherit
 
   trigger-publish:
