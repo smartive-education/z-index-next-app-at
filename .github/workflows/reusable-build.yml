@@ -2,12 +2,6 @@ name: Reusable - Lint Test and Build
 
 on:
   workflow_call:
-    inputs:
-      environment:
-        description: 'Control which steps should be executed.'
-        required: true
-        default: 'dev'
-        type: string
 
 permissions:
     contents: read
@@ -35,11 +29,9 @@ jobs:
             npm ci
 
       - name: Lint
-        if: ${{ inputs.environment != 'prd' }}
         run: npm run lint
 
       - name: Test
-        if: ${{ inputs.environment != 'prd' }}
         run: npm run ci:test
 
       - name: Build
