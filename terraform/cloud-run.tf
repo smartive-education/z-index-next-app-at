@@ -6,7 +6,7 @@ resource "google_cloud_run_service" "app" {
   template {
     spec {
       containers {
-        image = "europe-west6-docker.pkg.dev/hip-polymer-387617/z-index-gcp-registry/z-index-next-app-at"
+        image = "europe-west6-docker.pkg.dev/hip-polymer-387617/z-index-gcp-registry/z-index-next-app-at:latest"
 
         resources {
           limits = {
@@ -17,14 +17,6 @@ resource "google_cloud_run_service" "app" {
         ports {
           name           = "http1"
           container_port = 8080
-        }
-
-        dynamic "env" {
-          for_each = local.environment_vars
-          content {
-              name  = env.key
-              value = env.value
-          }
         }
       }
 

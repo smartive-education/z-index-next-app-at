@@ -9,8 +9,14 @@ on:
 concurrency:
   group: 'dev'
 
-jobs:    
+jobs:
   trigger-build:
     name: Lint, Test and Build
     uses: ./.github/workflows/reusable-build.yml
+    secrets: inherit
+
+  #TODO remove
+  trigger-deploy:
+    name: Deploy to Google Cloud Run
+    uses: ./.github/workflows/reusable-deploy.yml
     secrets: inherit
