@@ -1,6 +1,7 @@
 locals {
   name   = "z-index-at"
   region = "europe-west6"
+  tag    = var.TAG
 }
 
 terraform {
