@@ -1,13 +1,6 @@
 locals {
   name   = "z-index-at"
   region = "europe-west6"
-  environment_vars = {
-    NEXT_PUBLIC_QWACKER_API_URL = var.apiUrl,
-    NEXTAUTH_URL                = var.nextauthUrl,
-    NEXTAUTH_SECRET             = var.nextauthSecret,
-    ZITADEL_ISSUER              = var.issuer,
-    ZITADEL_CLIENT_ID           = var.clientId
-  }
 }
 
 terraform {
