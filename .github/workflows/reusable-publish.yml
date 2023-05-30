@@ -52,7 +52,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          build-args: NODE_AUTH_TOKEN=${{ secrets.NODE_AUTH_TOKEN }}
+          build-args: NODE_AUTH_TOKEN=${{ secrets.NODE_AUTH_TOKEN }},NEXT_PUBLIC_QWACKER_API_URL=${{vars.NEXT_PUBLIC_QWACKER_API_URL}},NEXTAUTH_URL=${{vars.PRD_URL}},NEXTAUTH_SECRET=${{secrets.NEXTAUTH_SECRET}},ZITADEL_ISSUER=${{secrets.ZITADEL_ISSUER}},ZITADEL_CLIENT_ID=${{secrets.ZITADEL_CLIENT_ID}}
           push: true
           tags: |
             ghcr.io/smartive-education/z-index-next-app-at:latest
