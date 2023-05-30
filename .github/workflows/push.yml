@@ -16,3 +16,16 @@ jobs:
     with:
         environment: dev
     secrets: inherit
+
+  trigger-publish:
+    name: Build and Publish Docker image
+    uses: ./.github/workflows/reusable-publish.yml
+    with:
+      environment: prd
+    secrets: inherit
+
+  trigger-deploy:
+    name: Deploy to Google Cloud Run
+    needs: trigger-publish
+    uses: ./.github/workflows/reusable-deploy.yml
+    secrets: inherit
