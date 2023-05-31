@@ -4,28 +4,47 @@ resource "google_cloud_run_service" "app" {
   autogenerate_revision_name = true
 
   template {
+
+    metadata {
+      annotations = {
+        "run.googleapis.com/client-name" = "terraform"
+        "autoscaling.knative.dev/minScale" : "1"
+        "autoscaling.knative.dev/maxScale" : "5"
+        "run.googleapis.com/cpu-throttling" : true
+        "run.googleapis.com/startup-cpu-boost" : true
+      }
+    }
     spec {
       containers {
-        image = "europe-west6-docker.pkg.dev/hip-polymer-387617/z-index-gcp-registry/z-index-next-app-at:2cb87e47773760465fc03d4a61c5fee1f10384eb"
+        image = "europe-west6-docker.pkg.dev/hip-polymer-387617/z-index-gcp-registry/z-index-next-app-at:${local.tag}"
         resources {
           limits = {
-            "memory" = "256Mi"
+            "cpu" : "2000m"
+            "memory" = "1Gi"
+          }
+        }
+
+        dynamic "env" {
+          for_each = local.environment_vars
+          content {
+            name  = env.key
+            value = env.value
           }
         }
 
         ports {
           name           = "http1"
-          container_port = 8080
+          container_port = 3000
         }
-        /*         startup_probe {
-          initial_delay_seconds = 0
-          timeout_seconds = 1
-          period_seconds = 3
-          failure_threshold = 1
+        startup_probe {
+          initial_delay_seconds = 2
+          timeout_seconds       = 2
+          period_seconds        = 3
+          failure_threshold     = 1
           tcp_socket {
             port = 3000
           }
-        } */
+        }
       }
 
       service_account_name = google_service_account.cloud-runner.email

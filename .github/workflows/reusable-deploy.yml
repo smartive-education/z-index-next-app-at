@@ -11,6 +11,8 @@ jobs:
   deploy:
     name: Deploy with terraform
     runs-on: ubuntu-latest
+    env:
+      TF_CLI_ARGUMENTS: -var TAG=${{ github.sha }} -var apiUrl=${{ vars.NEXT_PUBLIC_QWACKER_API_URL }} -var nextauthUrl=${{ vars.PRD_URL }} -var nextauthSecret=${{ secrets.NEXTAUTH_SECRET }} -var issuer=${{ secrets.ZITADEL_ISSUER }} -var clientId=${{ secrets.ZITADEL_CLIENT_ID }}
     defaults:
       run:
         working-directory: ./terraform
@@ -37,4 +39,4 @@ jobs:
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -auto-approve -var TAG=${{ github.sha }}
+        run: terraform apply -auto-approve ${{ env.TF_CLI_ARGUMENTS }}
