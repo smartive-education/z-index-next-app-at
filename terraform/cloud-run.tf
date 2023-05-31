@@ -15,9 +15,9 @@ resource "google_cloud_run_service" "app" {
 
         ports {
           name           = "http1"
-          container_port = 3000
+          container_port = 8080
         }
-        startup_probe {
+        /*         startup_probe {
           initial_delay_seconds = 0
           timeout_seconds = 1
           period_seconds = 3
@@ -25,7 +25,7 @@ resource "google_cloud_run_service" "app" {
           tcp_socket {
             port = 3000
           }
-        }
+        } */
       }
 
       service_account_name = google_service_account.cloud-runner.email
