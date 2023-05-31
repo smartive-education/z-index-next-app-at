@@ -15,7 +15,7 @@ resource "google_cloud_run_service" "app" {
 
         ports {
           name           = "http1"
-          container_port = 8080
+          container_port = 3000
         }
       }
 
