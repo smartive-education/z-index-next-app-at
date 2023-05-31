@@ -26,7 +26,6 @@ ENV NODE_ENV=production \
     NEXTAUTH_SECRET=${NEXTAUTH_SECRET} \
     ZITADEL_ISSUER=${ZITADEL_ISSUER} \
     ZITADEL_CLIENT_ID=${ZITADEL_CLIENT_ID} \
-    PORT=3000
 COPY --from=build /app/package.json /app/package-lock.json ./
 RUN echo "@smartive-education:registry=https://npm.pkg.github.com" > ~/.npmrc \
     && echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc \
