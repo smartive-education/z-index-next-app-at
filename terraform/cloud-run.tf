@@ -6,7 +6,7 @@ resource "google_cloud_run_service" "app" {
   template {
     spec {
       containers {
-        image = "europe-west6-docker.pkg.dev/hip-polymer-387617/z-index-gcp-registry/z-index-next-app-at:${local.tag}"
+        image = "europe-west6-docker.pkg.dev/hip-polymer-387617/z-index-gcp-registry/z-index-next-app-at:2cb87e47773760465fc03d4a61c5fee1f10384eb"
         resources {
           limits = {
             "memory" = "256Mi"
