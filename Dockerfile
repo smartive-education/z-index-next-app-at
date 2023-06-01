@@ -23,6 +23,6 @@ RUN echo "@smartive-education:registry=https://npm.pkg.github.com" > ~/.npmrc \
     && echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc \
     && npm ci
 COPY --from=build --chown=node:node /app/.next ./.next
+COPY --from=build /app/public ./public
 EXPOSE 3000
-USER node
 CMD npm run start
