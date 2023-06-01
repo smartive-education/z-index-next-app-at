@@ -1,5 +1,5 @@
 import { GetUsersQueryParams, MumbleUser, MumbleUsers } from '../models';
-import { mapResponseToUser, getApiUrl } from '../models/mappers';
+import { mapResponseToUser } from '../models/mappers';
 
 export const getUsers = async (
   token: string,
@@ -14,7 +14,7 @@ export const getUsers = async (
   headers.append('Content-Type', 'application/json');
   headers.append('Authorization', `Bearer ${token}`);
 
-  const url = `${getApiUrl()}/users?${queryParams}`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/users?${queryParams}`;
   const res = await fetch(url, { headers });
   if (!res.ok || res.status >= 400) {
     throw new Error('Failed to get users');
@@ -35,7 +35,7 @@ export const getLoggedInMumbleUser = async (
   headers.append('Content-Type', 'application/json');
   headers.append('Authorization', `Bearer ${token}`);
 
-  const url = `${getApiUrl()}/users/me`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/users/me`;
   const res = await fetch(url, { headers });
   if (!res.ok || res.status >= 400) {
     throw new Error('Failed to get loggedInUser');
@@ -52,7 +52,7 @@ export const getUserById = async (
   headers.append('Content-Type', 'application/json');
   headers.append('Authorization', `Bearer ${token}`);
 
-  const url = `${getApiUrl()}/users/${id}`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/users/${id}`;
   const res = await fetch(url, { headers });
   if (!res.ok || res.status >= 400) {
     throw new Error('Failed to get user');
