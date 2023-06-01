@@ -1,5 +1,4 @@
 import { LikeParams } from '../models';
-import { getApiUrl } from '../models/mappers';
 
 export const like = async (
   id: string,
@@ -9,7 +8,7 @@ export const like = async (
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token}`);
 
-  const url = `${getApiUrl()}/posts/${id}/likes`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/${id}/likes`;
   const method = isLike ? 'PUT' : 'DELETE';
 
   const response: Response = await fetch(url, {

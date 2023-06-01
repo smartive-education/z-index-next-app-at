@@ -1,8 +1,8 @@
 import { Mumble, Response } from '../models';
-import { mapResponseToMumble, getApiUrl } from '../models/mappers';
+import { mapResponseToMumble } from '../models/mappers';
 
 export const getReplies = async (id: string): Promise<Mumble[]> => {
-  const url = `${getApiUrl()}/posts/${id}/replies`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/${id}/replies`;
   const res = await fetch(url);
   if (!res.ok || res.status >= 400) {
     throw new Error('Failed to get replies');
@@ -26,7 +26,7 @@ export const createReply = async (
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token}`);
 
-  const url = `${getApiUrl()}/posts/${postId}`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/${postId}`;
   const res = await fetch(url, {
     method: 'POST',
     body: formData,

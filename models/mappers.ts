@@ -66,7 +66,7 @@ export const convertRouteToSiteName = (route: string): string => {
   }
 };
 
-export const getApiUrl = (): string => {
+/* export const getApiUrl = (): string => {
   const env = process.env;
   return env.NEXT_PUBLIC_QWACKER_API_URL ?? '';
-}
+} */

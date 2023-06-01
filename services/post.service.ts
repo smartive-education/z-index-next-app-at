@@ -7,7 +7,7 @@ import {
   SearchPostsRequestBody,
   SearchPostsParams,
 } from '../models';
-import { mapResponseToMumble, getApiUrl } from '../models/mappers';
+import { mapResponseToMumble } from '../models/mappers';
 
 export const getPosts = async (
   params?: GetPostsQueryParams
@@ -23,7 +23,7 @@ export const getPosts = async (
   const headers = new Headers();
   headers.append('Content-Type', 'application/json');
 
-  const url = `${getApiUrl()}/posts?${queryParams}`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?${queryParams}`;
   const res = await fetch(url, { headers });
   if (!res.ok || res.status >= 400 ) {
     throw new Error('Failed to get posts');
@@ -55,7 +55,7 @@ export const getLikedPosts = async (
   headers.append('Authorization', `Bearer ${token}`);
   headers.append('Accept', 'application/json');
 
-  const url = `${getApiUrl()}/posts/search`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/search`;
   const res = await fetch(url, {
     method: 'POST',
     body: JSON.stringify(searchConditions),
@@ -87,7 +87,7 @@ export const createPost = async (
     const headers = new Headers();
     headers.append('Authorization', `Bearer ${loggedInUser.accessToken}`);
 
-    const url = `${getApiUrl()}/posts?`;
+    const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?`;
     const res = await fetch(url, {
       method: 'POST',
       body: formData,
@@ -103,7 +103,7 @@ export const createPost = async (
 };
 
 export const getMumbleById = async (id: string): Promise<Response> => {
-  const url = `${getApiUrl()}/posts/${id}`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/${id}`;
   const res = await fetch(url);
   if (!res.ok || res.status >= 400 ) {
     throw new Error('Failed to get post');
@@ -115,7 +115,7 @@ export const getMumbleById = async (id: string): Promise<Response> => {
 export const getPostsByUser = async (
   creator: string
 ): Promise<GetPostResponse> => {
-  const url = `${getApiUrl()}/posts?creator=${creator}`;
+  const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts?creator=${creator}`;
   const res = await fetch(url);
   const { count, data } = await res.json();
   if (!res.ok || res.status >= 400 ) {
