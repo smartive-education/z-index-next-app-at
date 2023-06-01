@@ -21,7 +21,7 @@ import {
   Mumble,
   MumbleType,
 } from '../../models';
-import { defaultProfilePicture } from '../../models/constants';
+import { defaultProfilePicture, loader } from '../../models/constants';
 import { mapResponseToMumble } from '../../models/mappers';
 import { like } from '../../services/like.service';
 import { getMumbleDetailsWithUserData } from '../../services/mumble.service';
@@ -134,6 +134,7 @@ export default function PostDetailPage({
       >
         {state.post.mediaUrl && (
           <Image
+            loader={loader(state.post.mediaUrl)}
             src={state.post.mediaUrl}
             alt={state.post.text}
             fill
@@ -193,6 +194,7 @@ export default function PostDetailPage({
             >
               {reply.mediaUrl && (
                 <Image
+                  loader={loader(reply.mediaUrl)}
                   src={reply.mediaUrl}
                   alt={reply.text}
                   fill

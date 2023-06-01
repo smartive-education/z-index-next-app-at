@@ -7,6 +7,7 @@ import { Mumble, MumbleType } from '../models';
 import Image from 'next/image';
 import {
   defaultProfilePicture,
+  loader,
   noMoreMumblesPicture,
 } from '../models/constants';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -79,6 +80,7 @@ export const Mumbles: FC<MumblesProps> = ({
               >
                 {mumble.mediaUrl && (
                   <Image
+                    loader={loader(mumble.mediaUrl)}
                     src={mumble.mediaUrl}
                     alt={mumble.text}
                     fill

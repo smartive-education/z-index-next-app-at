@@ -23,6 +23,7 @@ import { CommentState } from '../../models';
 import {
   defaultProfilePicture,
   errorPicture,
+  loader,
   noMumblesPicture,
 } from '../../models/constants';
 import { profileMachine } from '../../state/profile-machine';
@@ -190,6 +191,7 @@ export default function ProfilePage() {
             profileText={profileState.context.bio}
           >
             <Image
+              loader={loader(profileState.context.background)}
               src={profileState.context.background}
               alt="Profile Background"
               fill
@@ -242,7 +244,7 @@ export default function ProfilePage() {
             onClick={toggle}
             onLabel="Deine Mumbles"
             offLabel="Deine Likes"
-            testId='toggle'
+            testId="toggle"
           />
         )}
       {((profileState.matches('idle') &&
