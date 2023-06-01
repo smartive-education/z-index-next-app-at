@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.2
 
 # build
 FROM node:18-alpine as build
@@ -21,8 +21,10 @@ ENV NODE_ENV=production
 COPY --from=build /app/package.json /app/package-lock.json ./
 RUN echo "@smartive-education:registry=https://npm.pkg.github.com" > ~/.npmrc \
     && echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc \
-    && npm ci
+    && npm ci \
+    && rm -rf ./.npmrc
 COPY --from=build --chown=node:node /app/.next ./.next
-COPY --from=build /app/public ./public
+COPY --from=build --chown=node:node /app/public ./public
 EXPOSE 3000
+USER node
 CMD npm run start
