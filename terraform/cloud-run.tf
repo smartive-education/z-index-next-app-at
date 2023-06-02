@@ -8,7 +8,7 @@ resource "google_cloud_run_service" "app" {
     metadata {
       annotations = {
         "run.googleapis.com/client-name" = "terraform"
-        "autoscaling.knative.dev/minScale" : "1"
+        "autoscaling.knative.dev/minScale" : "0"
         "autoscaling.knative.dev/maxScale" : "5"
         "run.googleapis.com/cpu-throttling" : true
         "run.googleapis.com/startup-cpu-boost" : true

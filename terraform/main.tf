@@ -3,7 +3,6 @@ locals {
   region = "europe-west6"
   tag    = var.TAG
   environment_vars = {
-    NEXT_PUBLIC_QWACKER_API_URL = var.apiUrl,
     NEXTAUTH_URL                = var.nextauthUrl,
     NEXTAUTH_SECRET             = var.nextauthSecret,
     ZITADEL_ISSUER              = var.issuer,

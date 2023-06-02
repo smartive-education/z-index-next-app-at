@@ -1,8 +1,4 @@
 # Variables are passed down from .yaml
-variable "apiUrl" {
-  type        = string
-  description = "Api URL"
-}
 
 variable "nextauthUrl" {
   type        = string
