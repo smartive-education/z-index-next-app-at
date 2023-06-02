@@ -53,7 +53,8 @@ jobs:
           context: .
           file: ./Dockerfile
           build-args: NEXT_PUBLIC_QWACKER_API_URL=${{vars.NEXT_PUBLIC_QWACKER_API_URL}}
-          secrets: "npmrc=${{ secrets.NPMRC }}"
+          secrets: |
+            "npmrc=${{ secrets.NPMRC }}"
           push: true
           tags: |
             ghcr.io/smartive-education/z-index-next-app-at:latest
@@ -68,7 +69,8 @@ jobs:
           context: .
           file: ./Dockerfile
           build-args: NEXT_PUBLIC_QWACKER_API_URL=${{vars.NEXT_PUBLIC_QWACKER_API_URL}}
-          secrets: "npmrc=${{ secrets.NPMRC }}"
+          secrets: |
+            "npmrc=${{ secrets.NPMRC }}"
           push: true
           tags: |
             europe-west6-docker.pkg.dev/hip-polymer-387617/z-index-gcp-registry/z-index-next-app-at:latest
