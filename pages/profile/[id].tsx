@@ -8,6 +8,7 @@ import {
 } from '@smartive-education/design-system-component-z-index-at';
 import { useActor, useInterpret } from '@xstate/react';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { waitFor } from 'xstate/lib/waitFor';
@@ -26,7 +27,6 @@ import {
   noMumblesPicture,
 } from '../../models/constants';
 import { profileMachine } from '../../state/profile-machine';
-import Image from 'next/image';
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -242,7 +242,7 @@ export default function ProfilePage() {
             onClick={toggle}
             onLabel="Deine Mumbles"
             offLabel="Deine Likes"
-            testId='toggle'
+            testId="toggle"
           />
         )}
       {((profileState.matches('idle') &&

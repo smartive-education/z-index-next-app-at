@@ -1,8 +1,4 @@
-import {
-  GetUsersQueryParams,
-  MumbleUser,
-  MumbleUsers
-} from '../models';
+import { GetUsersQueryParams, MumbleUser, MumbleUsers } from '../models';
 import { mapResponseToUser } from '../models/mappers';
 
 export const getUsers = async (

@@ -24,11 +24,41 @@ jobs:
         environment: stage
     secrets: inherit
 
-  # simulate the testing of the newly deployed version, but since the temporary vercel url cannot be configured in zitadel, this still tests the old version
-  trigger-e2e:
-    name: Execute e2e tests
+  run-e2e-tests: 
+    name: Execute E2E tests
     needs: trigger-publish
-    uses: ./.github/workflows/reusable-e2e.yml
-    with:
-        url: ${{ vars.STAGE_URL }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    services:
+      fake:
+        image: ghcr.io/smartive-education/z-index-next-app-at:latest
+        env:
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          ZITADEL_ISSUER: ${{ secrets.ZITADEL_ISSUER }}
+          ZITADEL_CLIENT_ID: ${{ secrets.ZITADEL_CLIENT_ID }}
+        ports:
+          - 3000:3000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: npm
+
+      - name: Install dependencies
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        run: |
+          echo "@smartive-education:registry=https://npm.pkg.github.com" > ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ env.NODE_AUTH_TOKEN }}" > ~/.npmrc
+          npm ci
+
+      - name: Run tests
+        run: npm run ci:e2e
+        env:
+          URL: http://localhost:3000  
+          LOGIN_USER: ${{ secrets.LOGIN_USER }}
+          LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}

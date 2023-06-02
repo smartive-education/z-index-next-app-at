@@ -1,8 +1,4 @@
 # Variables are passed down from .yaml
-variable "apiUrl" {
-  type        = string
-  description = "Api URL"
-}
 
 variable "nextauthUrl" {
   type        = string
@@ -24,3 +20,7 @@ variable "clientId" {
   description = "Id of the Application as registered at the Token Issuer"
 }
 
+variable "TAG" {	
+  type        = string	
+  description = "Tag of the docker image to deploy"	
+}

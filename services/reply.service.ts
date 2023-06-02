@@ -4,7 +4,7 @@ import { mapResponseToMumble } from '../models/mappers';
 export const getReplies = async (id: string): Promise<Mumble[]> => {
   const url = `${process.env.NEXT_PUBLIC_QWACKER_API_URL}/posts/${id}/replies`;
   const res = await fetch(url);
-  if (!res.ok || res.status >= 400 ) {
+  if (!res.ok || res.status >= 400) {
     throw new Error('Failed to get replies');
   }
   const response: Response[] = await res.json();
@@ -32,7 +32,7 @@ export const createReply = async (
     body: formData,
     headers,
   });
-  if (!res.ok || res.status >= 400 ) {
+  if (!res.ok || res.status >= 400) {
     throw new Error('Failed to create reply');
   }
   const response: Response = await res.json();

@@ -2,14 +2,14 @@ import {
   Post,
   Skeleton,
 } from '@smartive-education/design-system-component-z-index-at';
-import { FC, RefObject } from 'react';
-import { Mumble, MumbleType } from '../models';
 import Image from 'next/image';
+import { FC, RefObject } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { Mumble, MumbleType } from '../models';
 import {
   defaultProfilePicture,
   noMoreMumblesPicture,
 } from '../models/constants';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { CardWrapper } from './card-wrapper';
 
 export interface MumblesProps {
