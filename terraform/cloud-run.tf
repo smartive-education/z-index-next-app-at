@@ -40,7 +40,7 @@ resource "google_cloud_run_service" "app" {
           initial_delay_seconds = 2
           timeout_seconds       = 2
           period_seconds        = 3
-          failure_threshold     = 1
+          failure_threshold     = 3
           tcp_socket {
             port = 3000
           }
