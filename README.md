@@ -46,25 +46,6 @@ The application uses the default settings of next-pwa lib, which provides the fo
 - install on native device
 - offline fallback page
 
-## Prod Version
-
-[https://z-index-next-app-at.vercel.app](https://z-index-next-app-at.vercel.app/)
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
 ## Rendering strategies
 
 - Login - Static
@@ -101,6 +82,39 @@ Detail Page
 - State management: useReducer
 - Can be shared (by copying and pasting the url in a different window)
 - Reducers are unit tested
+
+## CI/CD
+
+- Every push on a feature branch triggers Lint/Test/Build
+- Every push on a PR publishes a new Dockerfile to Github Container Registry. The new Container will then be downloaded and e2e tests are executed on github.
+- Every merge into main publishes a new Dockerfile to Google Artifact Registry. The new Container will then be automatically deployed to Google Cloud run with terraform. E2E Tests are executed against the newly deployed version. 
+## Deploy on Vercel
+
+Every PR creates a test deployment with dynamic URL on Vercel, to represent the changes. 
+Every merge into main triggers an automatic deployment on [https://z-index-next-app-at.vercel.app](https://z-index-next-app-at.vercel.app/)
+
+## Deploy on Google Cloud Run
+
+[https://z-index-at-mokbz4buwa-oa.a.run.app/](https://z-index-at-mokbz4buwa-oa.a.run.app/)
+
+Deployed to Google Cloud Run with terraform. 
+
+## E2E Tests with Playwright
+
+```bash
+npm run e2e
+```
+
+## Docker
+
+Run docker locally:
+(.npmrc and .env files need to exist in the root folder)
+
+```bash
+docker build --build-arg NEXT_PUBLIC_QWACKER_API_URL=https://qwacker-api-http-prod-4cxdci3drq-oa.a.run.app/ --secret id=npmrc,src=./.npmrc .
+
+docker run -p 3000:3000 --env-file ./.env z-index-at-local
+```
 
 
 
