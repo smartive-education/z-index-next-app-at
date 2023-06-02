@@ -18,7 +18,7 @@ FROM node:18-alpine
 WORKDIR /app
 ARG NODE_AUTH_TOKEN
 ENV NODE_ENV=production 
-COPY --from=build /app/package.json /app/package-lock.json ./
+COPY --from=build /app/package.json /app/package-lock.json /app/next.config.js ./
 RUN echo "@smartive-education:registry=https://npm.pkg.github.com" > ~/.npmrc \
     && echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc \
     && npm ci \
