@@ -7,7 +7,9 @@ import {
   Typography,
 } from '@smartive-education/design-system-component-z-index-at';
 import { useActor, useInterpret } from '@xstate/react';
+import { GetServerSideProps } from 'next';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { waitFor } from 'xstate/lib/waitFor';
@@ -27,7 +29,6 @@ import {
   noMumblesPicture,
 } from '../../models/constants';
 import { profileMachine } from '../../state/profile-machine';
-import Image from 'next/image';
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -287,3 +288,10 @@ export default function ProfilePage() {
     </Layout>
   );
 }
+
+//This is needed in prd. Nextjs will return a 404 error instead of the page, if the rendering strategy is clients side...
+export const getServerSideProps: GetServerSideProps<{}> = async () => {
+  return {
+    props: {},
+  };
+};
