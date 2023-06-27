@@ -13,8 +13,10 @@ setup('authenticate', async ({ page }) => {
   passwordField.fill(process.env.LOGIN_PASSWORD ?? '');
   await page.getByText('next').click();
 
-  //skip 2FA
-  await page.getByText('skip').click();
+  //optionally skip 2FA
+  if (await page.getByText('skip').isVisible()) {
+    await page.getByText('skip').click();
+  }
 
   //Make sure we are logged in
   const textarea = await page.waitForSelector(
